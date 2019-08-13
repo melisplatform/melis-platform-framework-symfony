@@ -1,0 +1,3 @@
+services:
+  mp_framework_symfony.service:
+      class: MelisPlatformFrameworkSymfonyService\Services\MelisPlatformFrameworkSymfonyServiceService

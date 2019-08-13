@@ -1,0 +1,43 @@
+{
+  "name": "melisplatform/melis-platform-framework-symfony",
+  "type": "melisplatform-module",
+  "license": "OSL-3.0",
+  "homepage": "https://github.com/melisplatform/melis-platform-framework-symfony",
+  "support": {
+	"email": "contact@melistechnology.com",
+    "source": "https://github.com/melisplatform/melis-platform-framework-symfony",
+    "issues": "https://github.com/melisplatform/melis-platform-framework-symfony/issues",
+	"docs": "https://www.melistechnology.com/melistechnology/resources/download-documentation/id/17#documentation"
+  },
+  "authors": [
+	{
+		"name": "Melis Technology",
+		"email": "contact@melistechnology.com",
+		"homepage": "https://www.melistechnology.com",
+		"role": "Developer"
+	}
+  ],
+  "keywords": [
+    "cms",
+    "melis",
+    "zf2",
+    "module"
+  ],
+  "extra": {
+    "module-name": "MelisPlatformFrameworkSymfony",
+    "dbdeploy": false,
+    "melis-site": false,
+    "melis-module-category": "core"
+  },
+  "require": {
+    "php": "^7.0",
+    "ext-openssl": "*",
+    "ext-json": "*",
+    "ext-pdo_mysql": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "MelisPlatformFrameworkSymfony\\": ""
+    }
+  }
+}
