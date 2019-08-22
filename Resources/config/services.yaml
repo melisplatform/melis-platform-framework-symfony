@@ -1,3 +1,7 @@
 services:
   melis_platform.services:
       class: MelisPlatformFrameworkSymfony\Services\MelisPlatformFrameworkSymfonyService
+  MelisPlatformFrameworkSymfony\EventListener\DatabaseSwitcherListener:
+    arguments: ['@doctrine.dbal.default_connection', '@service_container']
+    tags:
+      - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest}
