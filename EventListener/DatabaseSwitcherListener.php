@@ -24,6 +24,10 @@ class DatabaseSwitcherListener
 
 
     /**
+     * Change the default symfony database
+     * to melis platform database
+     * when this event triggered.
+     *
      * @throws \Doctrine\DBAL\DBALException
      */
     public function onKernelRequest()
@@ -35,6 +39,7 @@ class DatabaseSwitcherListener
              * connection
              */
             $melisService = $this->container->get('melis_platform.services');
+            //melis db config resides inside config service of melis
             $melisConfig = $melisService->getService('config');
 
             if (!empty($melisConfig['db'])) {
@@ -47,6 +52,10 @@ class DatabaseSwitcherListener
                 $dbName = '';
                 $host = '';
                 $charset = '';
+                /**
+                 * We need to extract the db name and other
+                 * information inside DSN
+                 */
                 foreach($melisDbDSN as $val){
                     $data = explode('=', $val);
                     if(!empty($data[1])){
@@ -60,6 +69,9 @@ class DatabaseSwitcherListener
                  */
                 $conParams = $this->connection->getParams();
                 if($conParams['dbname'] != $dbName && !empty($dbName)) {
+                    /**
+                     * Prepare the new connection parameters
+                     */
                     $conParams['dbname'] = $dbName;
                     $conParams['charset'] = $charset;
                     $conParams['host'] = $host;
@@ -85,7 +97,7 @@ class DatabaseSwitcherListener
                 }
             }
         }catch (\Exception $ex) {
-
+            exit($ex->getMessage());
         }
     }
 }

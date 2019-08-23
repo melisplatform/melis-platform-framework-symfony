@@ -1,6 +1,10 @@
 services:
+  #This will hold all the available
+  #Melis Platform Services
   melis_platform.services:
       class: MelisPlatformFrameworkSymfony\Services\MelisPlatformFrameworkSymfonyService
+  #Register a listener to use
+  #the Melis db connection
   MelisPlatformFrameworkSymfony\EventListener\DatabaseSwitcherListener:
     arguments: ['@doctrine.dbal.default_connection', '@service_container']
     tags:

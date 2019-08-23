@@ -2,12 +2,11 @@
 
 namespace MelisPlatformFrameworkSymfony\Services;
 
-use MelisDispatchThirdParty\MelisPlatformServiceAccessInterface;
 use Zend\Mvc\Service\ServiceManagerConfig;
 use Zend\ServiceManager\ServiceManager;
 use Zend\Session\Container;
 
-class MelisPlatformFrameworkSymfonyService implements MelisPlatformServiceAccessInterface
+class MelisPlatformFrameworkSymfonyService
 {
     /**
      * Get Melis Platform Service
