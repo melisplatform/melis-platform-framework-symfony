@@ -10,6 +10,9 @@ class MelisPlatformFrameworkSymfonyBundle extends Bundle
 {
     public function build(ContainerBuilder $container)
     {
+        /**
+         * Add our custom compiler
+         */
         $container->addCompilerPass(new MelisPlatformFrameworkSymfonyCompiler());
     }
 }

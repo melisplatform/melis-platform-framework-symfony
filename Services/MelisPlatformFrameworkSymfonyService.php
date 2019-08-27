@@ -6,6 +6,14 @@ use Zend\Mvc\Service\ServiceManagerConfig;
 use Zend\ServiceManager\ServiceManager;
 use Zend\Session\Container;
 
+/**
+ * This service is the gateway in order for
+ * Symfony to make a connection to Melis Platform
+ * specially on accessing Melis Platform Services
+ *
+ * Class MelisPlatformFrameworkSymfonyService
+ * @package MelisPlatformFrameworkSymfony\Services
+ */
 class MelisPlatformFrameworkSymfonyService
 {
     /**
