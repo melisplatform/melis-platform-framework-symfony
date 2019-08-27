@@ -32,7 +32,7 @@
   "require": {
     "php": "^7.0",
     "melisplatform/melis-core": "*",
-    "melisplatform/melis-platform-frameworks": "dev-master",
+    "melisplatform/melis-platform-frameworks": "*",
     "ext-ctype": "*",
     "ext-iconv": "*",
     "sensio/framework-extra-bundle": "^5.1",
