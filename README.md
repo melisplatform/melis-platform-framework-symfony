@@ -1,14 +1,12 @@
 # melis-platform-framework-symfony
-MelisPlatformFrameworkSymfony module is made using Symfony bundle. This module is the
-gateway in order for Symfony to make a connection to Melis platform. Like accessing
-the registered services of Melis and automatically used the database connection of the platform.
+This bundle is the gateway in order for Symfony to make a connection to Melis platform. Like accessing
+the registered services and automatically used the database connection of the platform.
 
 ## Getting Started
 This instructions will get you a copy of the project up and running on your machine.
 
 ### Prerequisites
 You will need to install the following in order to have this module running:
-* melisplatform/melis-core
 * melisplatform/melis-platform-frameworks
 
 This will automatically be done when using composer.
@@ -22,9 +20,8 @@ composer require melisplatform/melis-platform-framework-symfony
 
 ## Running the code
 ### Activating the module
-Since this module is made using Symfony bundle, activating it is just the same the way you
-activate your Symfony bundle in Symfony application. You just need to include it's bundle class to the list of bundle
-inside Symfony application most probably in bundles.php file.
+Activating this bundle is just the same the way you activate your bundle inside symfony application. You just need to include it's bundle class to the list of bundle
+inside symfony application most probably in bundles.php file.
 
 ```
 return [
