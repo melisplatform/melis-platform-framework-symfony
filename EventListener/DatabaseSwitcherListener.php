@@ -5,6 +5,10 @@ namespace MelisPlatformFrameworkSymfony\EventListener;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Doctrine\DBAL\Connection;
 
+/**
+ * Class DatabaseSwitcherListener
+ * @package MelisPlatformFrameworkSymfony\EventListener
+ */
 class DatabaseSwitcherListener
 {
     private $connection;
@@ -38,7 +42,7 @@ class DatabaseSwitcherListener
              * to automatically override the symfony default
              * connection
              */
-            $melisService = $this->container->get('melis_platform.services');
+            $melisService = $this->container->get('melis_platform.service_manager');
             //melis db config resides inside config service of melis
             $melisConfig = $melisService->getService('config');
 

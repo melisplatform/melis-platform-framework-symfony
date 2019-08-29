@@ -1,8 +1,8 @@
 services:
   #This will hold all the available
   #Melis Platform Services
-  melis_platform.services:
-      class: MelisPlatformFrameworkSymfony\Services\MelisPlatformFrameworkSymfonyService
+  melis_platform.service_manager:
+      class: MelisPlatformFrameworkSymfony\MelisServiceManager
   #Register a listener to use
   #the Melis db connection
   MelisPlatformFrameworkSymfony\EventListener\DatabaseSwitcherListener:

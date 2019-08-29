@@ -13,10 +13,10 @@ class MelisPlatformFrameworkSymfonyCompiler implements CompilerPassInterface
     public function process(ContainerBuilder $container)
     {
         /**
-         * set the melis_platform.services to public
+         * set the melis_platform.service_manager to public
          */
-        if($container->has('melis_platform.services')){
-            $container->getDefinition('melis_platform.services')->setPublic(true);
+        if($container->has('melis_platform.service_manager')){
+            $container->getDefinition('melis_platform.service_manager')->setPublic(true);
         }
     }
 }
