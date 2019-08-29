@@ -34,18 +34,19 @@ return [
     MelisPlatformFrameworkSymfony\MelisPlatformFrameworkSymfonyBundle::class => ['all' => true]
 ];
 ```
-### Services
-##### MelisPlatformFrameworkSymfonyService
-* This service is the gateway in order for Symfony to use the Melis Platform registered services.
-* You can call this service inside Symfony application by calling it's registered
-service id ``melis_platform.services``.
+### Accessing Melis Platform Service
+##### MelisServiceManager Class
+* This class is the gateway in order for Symfony to make a connection to Melis platform. Therefore,
+using this class we can get all of Melis platform registered services.
+* You can call this class inside symfony application as a service by calling it's registered
+service id ``melis_platform.service_manager``. (See example below)
 
 Example:
 ```
 //Assuming we are inside of any custom Symfony controller that extends AbstractController of Symfony
 
 //Calling the service
-$melisServices = $this->get('melis_platform.services');
+$melisServices = $this->get('melis_platform.service_manager');
 //Calling the MelisCoreTableLang service registered in Melis Platform
 $languageTable = $melisServices->getService('MelisCoreTableLang');
 //Calling fetchAll function inside MelisCoreTableLang service and convert the result to array
