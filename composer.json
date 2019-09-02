@@ -23,12 +23,6 @@
     "zf2",
     "module"
   ],
-  "extra": {
-    "module-name": "MelisPlatformFrameworkSymfony",
-    "dbdeploy": false,
-    "melis-site": false,
-    "melis-module-category": "core"
-  },
   "require": {
     "php": "^7.0",
     "melisplatform/melis-platform-frameworks": "*",
