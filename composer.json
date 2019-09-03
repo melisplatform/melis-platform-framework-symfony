@@ -24,7 +24,6 @@
     "module"
   ],
   "require": {
-    "php": "^7.0",
     "melisplatform/melis-platform-frameworks": "*",
     "ext-ctype": "*",
     "ext-iconv": "*"
