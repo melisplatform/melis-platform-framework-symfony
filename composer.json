@@ -26,8 +26,7 @@
   "require": {
     "melisplatform/melis-platform-frameworks": "*",
     "ext-ctype": "*",
-    "ext-iconv": "*",
-    "sensio/framework-extra-bundle": "^5.1",	  
+    "ext-iconv": "*",  
     "symfony/asset": "4.3.*",
     "symfony/dotenv": "4.3.*",
     "symfony/expression-language": "4.3.*",
@@ -36,8 +35,6 @@
     "symfony/framework-bundle": "4.3.*",
     "symfony/http-client": "4.3.*",
     "symfony/intl": "4.3.*",
-    "symfony/monolog-bundle": "^3.1",
-    "symfony/orm-pack": "*",
     "symfony/security-bundle": "4.3.*",
     "symfony/serializer-pack": "*",
     "symfony/swiftmailer-bundle": "^3.1",
