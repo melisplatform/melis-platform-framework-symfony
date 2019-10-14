@@ -24,7 +24,7 @@
     "module"
   ],
   "require": {
-    "melisplatform/melis-platform-frameworks": "*",
+    "melisplatform/melis-platform-frameworks": "^3.1",
     "ext-ctype": "*",
     "ext-iconv": "*",
     "sensio/framework-extra-bundle": "^5.1",	  
