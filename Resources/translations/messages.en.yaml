@@ -1,0 +1,14 @@
+tool_table.empty_table: No data available in the table
+tool_table.table_info: Showing _START_ to _END_ of _TOTAL_ entries
+tool_table.table_info_empty: Showing 0 to 0 of 0 entries
+tool_table.length_menu: Show _MENU_
+tool_table.loading_records: Loading...
+tool_table.processing_records: Processing...
+tool_table.search: Search
+tool_table.paginate_first: First
+tool_table.paginate_last: Last
+tool_table.paginate_next: Next
+tool_table.paginate_previous: Previous
+tool_table.no_result: No result to display
+tool_table.table_sort_ascending: activate to sort column ascending
+tool_table.table_sort_descending: activate to sort column descending

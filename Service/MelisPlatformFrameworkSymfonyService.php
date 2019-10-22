@@ -9,6 +9,11 @@ class MelisPlatformFrameworkSymfonyService
     protected $melisServiceManager;
     protected $container;
 
+    /**
+     * MelisPlatformFrameworkSymfonyService constructor.
+     * @param $melisServiceManager
+     * @param $container
+     */
     public function __construct($melisServiceManager, $container)
     {
         $this->melisServiceManager = $melisServiceManager;
@@ -16,6 +21,9 @@ class MelisPlatformFrameworkSymfonyService
     }
 
     /**
+     * Create a javascript code that will
+     * initialize the datatable
+     *
      * @param null $tableConfig
      * @param bool $allowReInit
      * @param bool $selectCheckbox
@@ -330,31 +338,33 @@ class MelisPlatformFrameworkSymfonyService
         }
     }
 
-
+    /**
+     * @return array
+     */
     private function getTableTranslations()
     {
         $translator = $this->container->get('translator');
         $transData = array(
-            'sEmptyTable' => $translator->trans('No data available in the table'),
-            'sInfo' => $translator->trans('Showing _START_ to _END_ of _TOTAL_ entries'),
-            'sInfoEmpty' => $translator->trans('Showing 0 to 0 of 0 entries'),
-            'sInfoFiltered' => $translator->trans(' '),
-            'sInfoPostFix' => $translator->trans(' '),
-            'sInfoThousands' => $translator->trans(' '),
-            'sLengthMenu' => $translator->trans('Show _MENU_'),
-            'sLoadingRecords' => $translator->trans('Loading...'),
-            'sProcessing' => $translator->trans('Processing...'),
-            'sSearch' => $translator->trans('Search:'),
-            'sZeroRecords' => $translator->trans('No result to display'),
+            'sEmptyTable' => $translator->trans('tool_table.empty_table'),
+            'sInfo' => $translator->trans('tool_table.table_info'),
+            'sInfoEmpty' => $translator->trans('tool_table.table_empty'),
+            'sInfoFiltered' => ' ',
+            'sInfoPostFix' => ' ',
+            'sInfoThousands' => ' ',
+            'sLengthMenu' => $translator->trans('tool_table.length_menu'),
+            'sLoadingRecords' => $translator->trans('tool_table.loading_records'),
+            'sProcessing' => $translator->trans('tool_table.processing_records'),
+            'sSearch' => $translator->trans('tool_table.search').':',
+            'sZeroRecords' => $translator->trans('tool_table.no_result'),
             'oPaginate' => array(
-                'sFirst' => $translator->trans('First'),
-                'sLast' => $translator->trans('Last'),
-                'sNext' => $translator->trans('Next'),
-                'sPrevious' => $translator->trans('Previous'),
+                'sFirst' => $translator->trans('tool_table.paginate_first'),
+                'sLast' => $translator->trans('tool_table.paginate_last'),
+                'sNext' => $translator->trans('tool_table.paginate_next'),
+                'sPrevious' => $translator->trans('tool_table.paginate_previous'),
             ),
             'oAria' => array(
-                'sSortAscending' => $translator->trans('activate to sort column ascending'),
-                'sSortDescending' => $translator->trans('activate to sort column descending'),
+                'sSortAscending' => $translator->trans('tool_table.table_sort_ascending'),
+                'sSortDescending' => $translator->trans('tool_table.table_sort_descending'),
             ),
         );
 

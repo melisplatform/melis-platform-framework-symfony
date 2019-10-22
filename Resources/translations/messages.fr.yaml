@@ -1,0 +1,14 @@
+tool_table.empty_table: Aucune donn&eacute;e disponible dans le tableau
+tool_table.table_info: Affichage de l'&eacute;lement _START_ &agrave; _END_ sur _TOTAL_ &eacute;l&eacute;ments
+tool_table.table_info_empty: Affichage de l'&eacute;lement 0 &agrave; 0 sur 0 &eacute;l&eacute;ments
+tool_table.length_menu: Afficher _MENU_
+tool_table.loading_records: Chargement en cours...
+tool_table.processing_records: Traitement en cours...
+tool_table.search: Rechercher&nbsp;
+tool_table.paginate_first: Premier
+tool_table.paginate_last: Dernier
+tool_table.paginate_next: Suivant
+tool_table.paginate_previous: Pr&eacute;c&eacute;dent
+tool_table.no_result: Aucun résultat à afficher
+tool_table.table_sort_ascending: activer pour trier la colonne par ordre croissant
+tool_table.table_sort_descending: activer pour trier la colonne par ordre d&eacute;croissant
