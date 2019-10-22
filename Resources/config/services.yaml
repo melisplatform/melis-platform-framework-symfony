@@ -3,9 +3,22 @@ services:
   #Melis Platform Services
   melis_platform.service_manager:
       class: MelisPlatformFrameworkSymfony\MelisServiceManager
+  #Register custom service
+  melis_platform_framework.symfony_service:
+      class: MelisPlatformFrameworkSymfony\Service\MelisPlatformFrameworkSymfonyService
+      arguments:
+        $melisServiceManager: '@melis_platform.service_manager'
+        $container: '@service_container'
   #Register a listener to use
   #the Melis db connection
   MelisPlatformFrameworkSymfony\EventListener\DatabaseSwitcherListener:
     arguments: ['@doctrine.dbal.default_connection', '@service_container']
     tags:
       - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest}
+  #Register the melis platform helper
+  #via the twig extension
+  MelisPlatformFrameworkSymfony\Twig\MelisPlatformFrameworkSymfonyHelperExtension:
+    arguments:
+      $melisServiceManager: '@melis_platform.service_manager'
+    tags:
+      - { name: twig.extension }

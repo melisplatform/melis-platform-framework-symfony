@@ -25,7 +25,7 @@ class MelisServiceManager
     public function getService($serviceName)
     {
         try{
-            return $this->getZendServiceManager()->get($serviceName);
+            return $this->getServiceManager()->get($serviceName);
         }catch (\Exception $ex){
             throw new \Exception($ex->getMessage());
         }
@@ -39,17 +39,46 @@ class MelisServiceManager
      */
     public function getMelisLangLocale()
     {
-        $melisLocale = '';
-        $container = new Container('meliscore');
-        if(!empty($container['melis-lang-locale'])){
+        $newLocale = 'en';
+
+        try {
+            $uri = $_SERVER['REQUEST_URI'];
+            $uri = explode('/', $uri);
             /**
-             * Since melis locale has this format "en_EN" for example.
-             * we need to explode it to get the locale format for symfony
+             * if uri starts with melis, then
+             * we get the melis back office
+             * language locale
              */
-            $locale = explode('_', $container['melis-lang-locale']);
-            $melisLocale = $locale[0];
+            if (!empty($uri[1]) && $uri[1] == 'melis') {
+                $container = new Container('meliscore');
+                if (!empty($container['melis-lang-locale']))
+                    $melisLocale = $container['melis-lang-locale'];
+                else
+                    $melisLocale = 'en_EN';
+            } else {
+                /**
+                 * get the front language locale
+                 */
+                $container = new Container('melisplugins');
+                if (!empty($container['melis-plugins-lang-locale']))
+                    $melisLocale = $container['melis-plugins-lang-locale'];
+                else
+                    $melisLocale = 'en_EN';
+            }
+
+            if (!empty($melisLocale)) {
+                /**
+                 * Since melis locale has this format "en_EN" for example.
+                 * we need to explode it to get the locale format for symfony
+                 */
+                $locale = explode('_', $melisLocale);
+                $newLocale = $locale[0];
+            }
+        }catch (\Exception $ex){
+            $newLocale = 'en';
         }
-        return $melisLocale;
+
+        return $newLocale;
     }
 
     /**
@@ -80,6 +109,48 @@ class MelisServiceManager
         // get the zend application
         $zendApplication = Application::init($configuration);
         //return zend service manager
-        return $zendApplication->getServiceManager();
+        return $zendApplication;
+    }
+
+    /**
+     * @return array
+     * @throws \Exception
+     */
+    public function getMelisHelperList()
+    {
+          //get all list of helpers
+        $registerdViewHelpers = $this->getViewHelperManager()->getRegisteredServices();
+        $zendMelisViewHelpers = $registerdViewHelpers['invokableClasses'];
+        $zendMelisViewHelpers = array_merge($zendMelisViewHelpers,$registerdViewHelpers['aliases']);
+        $zendMelisViewHelpers = array_merge($zendMelisViewHelpers,$registerdViewHelpers['factories']);
+
+        return $zendMelisViewHelpers;
+    }
+
+    /**
+     * @return \Zend\ServiceManager\ServiceManager
+     * @throws \Exception
+     */
+    public function getServiceManager()
+    {
+        return $this->getZendServiceManager()->getServiceManager();
+    }
+
+    /**
+     * @return \Zend\EventManager\EventManagerInterface
+     * @throws \Exception
+     */
+    public function getEventManager()
+    {
+        return $this->getZendServiceManager()->getEventManager();
+    }
+
+    /**
+     * @return array|object
+     * @throws \Exception
+     */
+    public function getViewHelperManager()
+    {
+        return $this->getService('viewhelpermanager');
     }
 }
