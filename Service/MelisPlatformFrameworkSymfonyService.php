@@ -21,6 +21,33 @@ class MelisPlatformFrameworkSymfonyService
     }
 
     /**
+     * Add logs to notification
+     * @param $title
+     * @param $message
+     * @param string $icon
+     */
+    public function addToFlashMessenger($title, $message, $icon = 'glyphicon-info-sign')
+    {
+        $icon = 'glyphicon '.$icon;
+        $flashMessenger = $this->melisServiceManager->getService('MelisCoreFlashMessenger');
+        $flashMessenger->addToFlashMessenger($title, $message, $icon);
+    }
+
+    /**
+     * Save logs
+     * @param $title
+     * @param $message
+     * @param $success
+     * @param $typeCode
+     * @param $itemId
+     */
+    public function saveLogs($title, $message, $success, $typeCode, $itemId)
+    {
+        $logs = $this->melisServiceManager->getService('MelisCoreLogService');
+        $logs->saveLog($title, $message, $success, $typeCode, $itemId);
+    }
+
+    /**
      * Create a javascript code that will
      * initialize the datatable
      *
