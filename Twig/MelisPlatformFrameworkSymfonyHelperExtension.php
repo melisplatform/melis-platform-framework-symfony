@@ -71,7 +71,6 @@ class MelisPlatformFrameworkSymfonyHelperExtension extends AbstractExtension
      * Register Melis Platform helper using the TwigFunction
      * Example usage inside view(twig template):
      *      melis_helper('melislink', null, [1, true]) - helper reference: MelisFront\View\Helper\MelisLinksHelper.php
-     *      melis_helper('melisgenerictable', 'setColumns', ['column_name']) - helper reference: MelisCore\View\Helper\MelisGenericTable.php
      *
      * Parameters:
      *      1st param - melis helper name
