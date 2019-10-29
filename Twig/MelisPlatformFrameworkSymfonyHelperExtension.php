@@ -29,6 +29,7 @@ class MelisPlatformFrameworkSymfonyHelperExtension extends AbstractExtension
     {
         return [
             new TwigFunction('create_table', [$this, 'createTable']),
+            new TwigFunction('create_modal', [$this, 'createModal']),
             //register melis platform helper
             new TwigFunction('melis_helper', [$this, 'getMelisPlatformHelper']),
         ];
@@ -38,7 +39,7 @@ class MelisPlatformFrameworkSymfonyHelperExtension extends AbstractExtension
      * Create table helper
      *
      * @param array $tableConfig
-     * @param array $tableColumns
+     * @param array $tableColumns - table column header
      * @return string
      */
     public function createTable($tableConfig = array('id' => 'tableId', 'class' => 'table'), $tableColumns = [])
@@ -46,15 +47,13 @@ class MelisPlatformFrameworkSymfonyHelperExtension extends AbstractExtension
         $table = "<table";
         $thead = "<thead><tr>";
         $tbody = "<tbody></tbody>";
-        foreach($tableConfig as $configAttrib => $configValues)
-        {
+        foreach ($tableConfig as $configAttrib => $configValues) {
             $table .= ' ' . $configAttrib . ' = "' . $configValues . '"';
         }
         $table .= ">";
 
         $columnName = '';
-        foreach($tableColumns as $values)
-        {
+        foreach ($tableColumns as $values) {
             $columnName .= '<th>' . $values . '</th>';
         }
         $thead .= $columnName;
@@ -65,6 +64,65 @@ class MelisPlatformFrameworkSymfonyHelperExtension extends AbstractExtension
         $table .= "</table>";
 
         return $table;
+    }
+
+    /**
+     * Create modal
+     * @param $modalId
+     * @param array $modalTabConfig
+     * @param array $btnSuccessConfig
+     * @return string
+     */
+    public function createModal($modalId, $modalTabConfig = [], $btnSuccessConfig = [])
+    {
+        /**
+         * Set modal default value
+         */
+        $modalTabConfig['id'] = $modalTabConfig['id'] ?? 'myModalTab';
+        $modalTabConfig['title'] = $modalTabConfig['title'] ?? 'Title';
+        $modalTabConfig['content'] = $modalTabConfig['content'] ?? 'Modal content';
+        $modalTabConfig['class'] = $modalTabConfig['class'] ?? 'glyphicons plus';
+        /**
+         * Set modal button success
+         */
+        $btnSuccessConfig['id'] = $btnSuccessConfig['id'] ?? 'btn-save';
+        $btnSuccessConfig['text'] = $btnSuccessConfig['text'] ?? 'Save';
+
+        $loader = '<div id="loader" class="overlay-loader hidden"><img class="loader-icon spinning-cog" src="/MelisCore/assets/images/cog12.svg" data-cog="cog12"></div>';
+        $modal =
+            '<div class="modal fade" id="'.$modalId.'">'.
+                '<div class="modal-dialog" role="modal">'.
+                    '<div class="modal-content" id="'.$modalId.'">'.
+                        $loader.
+                        '<div class="modal-body padding-none">'.
+                            '<div class="wizard">'.
+                                '<div class="widget widget-tabs widget-tabs-double widget-tabs-responsive margin-none border-none">'.
+                                    '<div class="widget-head">'.
+                                        '<ul class="nav nav-tabs">'.
+                                            '<li class="active">'.
+                                                '<a href="#'.$modalTabConfig['id'].'" class="'.$modalTabConfig['class'].'" data-toggle="tab" aria-expanded="true"><i></i>'.
+                                                    '<p class="modal-tab-title">'.$modalTabConfig['title'].'</p>'.
+                                                '</a>'.
+                                            '</li>'.
+                                        '</ul>'.
+                                    '</div>'.
+                                    '<div class="widget-body innerAll inner-2x">'.
+                                        '<div class="tab-content">'.
+                                            '<div class="tab-pane active" id="'.$modalTabConfig['id'].'">'.$modalTabConfig['content'].'</div>'.
+                                        '</div>'.
+                                        '<div align="right">'.
+                                            '<button type="button" data-dismiss="modal" class="btn btn-danger pull-left">Cancel</button>'.
+                                            '<button type="button" class="btn btn-success" id="'.$btnSuccessConfig['id'].'">'.$btnSuccessConfig['text'].'</button>'.
+                                        '</div>'.
+                                    '</div>'.
+                                '</div>'.
+                            '</div>'.
+                        '</div>'.
+                    '</div>'.
+                '</div>'.
+            '</div>';
+
+        return $modal;
     }
 
     /**

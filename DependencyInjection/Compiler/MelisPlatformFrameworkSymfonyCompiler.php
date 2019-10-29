@@ -18,11 +18,5 @@ class MelisPlatformFrameworkSymfonyCompiler implements CompilerPassInterface
         if($container->has('melis_platform.service_manager')){
             $container->getDefinition('melis_platform.service_manager')->setPublic(true);
         }
-        /**
-         * set the melis_platform_framework.symfony_service to public
-         */
-        if($container->has('melis_platform_framework.symfony_service')){
-            $container->getDefinition('melis_platform_framework.symfony_service')->setPublic(true);
-        }
     }
 }
