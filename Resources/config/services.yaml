@@ -14,5 +14,6 @@ services:
   MelisPlatformFrameworkSymfony\Twig\MelisPlatformFrameworkSymfonyHelperExtension:
     arguments:
       $melisServiceManager: '@melis_platform.service_manager'
+      $container: '@service_container'
     tags:
       - { name: twig.extension }

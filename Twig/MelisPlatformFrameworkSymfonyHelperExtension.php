@@ -10,16 +10,25 @@ class MelisPlatformFrameworkSymfonyHelperExtension extends AbstractExtension
      * @var $melisServiceManager
      */
     protected $melisServiceManager;
+    /**
+     * @var
+     */
     protected $viewHelperManager;
+    /**
+     * @var
+     */
+    protected $container;
 
     /**
      * MelisPlatformHelperExtension constructor.
      * @param $melisServiceManager
+     * @param $container
      */
-    public function __construct($melisServiceManager)
+    public function __construct($melisServiceManager, $container)
     {
         $this->melisServiceManager = $melisServiceManager;
         $this->viewHelperManager = $melisServiceManager->getViewHelperManager();
+        $this->container = $container;
     }
 
     /**
@@ -38,12 +47,18 @@ class MelisPlatformFrameworkSymfonyHelperExtension extends AbstractExtension
     /**
      * Create table helper
      *
-     * @param array $tableConfig
-     * @param array $tableColumns - table column header
+     * @param array $tableConfig - settings needed for your table
+     * @param array $tableColumns - table column header, you can pass also a translation key. ex: ["Column1", "tool.album_table_column_name"]
      * @return string
      */
     public function createTable($tableConfig = array('id' => 'tableId', 'class' => 'table'), $tableColumns = [])
     {
+        //get translation
+        $translation = $this->container->get('translator');
+
+        /**
+         * Prepare the table settings
+         */
         $table = "<table";
         $thead = "<thead><tr>";
         $tbody = "<tbody></tbody>";
@@ -52,47 +67,54 @@ class MelisPlatformFrameworkSymfonyHelperExtension extends AbstractExtension
         }
         $table .= ">";
 
+        /**
+         * Construct the columns
+         */
         $columnName = '';
         foreach ($tableColumns as $values) {
-            $columnName .= '<th>' . $values . '</th>';
+            $columnName .= '<th>' . $translation->trans($values) . '</th>';
         }
+        //add column to header
         $thead .= $columnName;
         $thead .= "</tr></thead>";
 
+        /**
+         * Construct the table
+         */
         $table .= $thead;
         $table .= $tbody;
         $table .= "</table>";
 
+        //return table
         return $table;
     }
 
     /**
      * Create modal
-     * @param $modalId
-     * @param array $modalTabConfig
-     * @param array $btnSuccessConfig
+     * @param array $modalConfig - The information needed for modal
+     * @param array $btnSuccessConfig - The config needed for button success text and id. ex: ['id' => 'btnUpdate', 'text' => 'Update']
      * @return string
      */
-    public function createModal($modalId, $modalTabConfig = [], $btnSuccessConfig = [])
+    public function createModal($modalConfig = [], $btnSuccessConfig = [])
     {
         /**
          * Set modal default value
          */
-        $modalTabConfig['id'] = $modalTabConfig['id'] ?? 'myModalTab';
-        $modalTabConfig['title'] = $modalTabConfig['title'] ?? 'Title';
-        $modalTabConfig['content'] = $modalTabConfig['content'] ?? 'Modal content';
-        $modalTabConfig['class'] = $modalTabConfig['class'] ?? 'glyphicons plus';
+        $modalConfig['id'] = $modalConfig['id'] ?? 'myModal';
+        $modalConfig['title'] = $modalConfig['title'] ?? 'Title';
+        $modalConfig['content'] = $modalConfig['content'] ?? 'Modal content';
+        $modalConfig['class'] = $modalConfig['class'] ?? 'glyphicons plus';
         /**
-         * Set modal button success
+         * Set modal button success default settings
          */
         $btnSuccessConfig['id'] = $btnSuccessConfig['id'] ?? 'btn-save';
         $btnSuccessConfig['text'] = $btnSuccessConfig['text'] ?? 'Save';
 
         $loader = '<div id="loader" class="overlay-loader hidden"><img class="loader-icon spinning-cog" src="/MelisCore/assets/images/cog12.svg" data-cog="cog12"></div>';
         $modal =
-            '<div class="modal fade" id="'.$modalId.'">'.
+            '<div class="modal fade" id="'.$modalConfig['id'].'">'.
                 '<div class="modal-dialog" role="modal">'.
-                    '<div class="modal-content" id="'.$modalId.'">'.
+                    '<div class="modal-content" id="'.$modalConfig['id'].'">'.
                         $loader.
                         '<div class="modal-body padding-none">'.
                             '<div class="wizard">'.
@@ -100,15 +122,15 @@ class MelisPlatformFrameworkSymfonyHelperExtension extends AbstractExtension
                                     '<div class="widget-head">'.
                                         '<ul class="nav nav-tabs">'.
                                             '<li class="active">'.
-                                                '<a href="#'.$modalTabConfig['id'].'" class="'.$modalTabConfig['class'].'" data-toggle="tab" aria-expanded="true"><i></i>'.
-                                                    '<p class="modal-tab-title">'.$modalTabConfig['title'].'</p>'.
+                                                '<a href="#myTab" class="'.$modalConfig['class'].'" data-toggle="tab" aria-expanded="true"><i></i>'.
+                                                    '<p class="modal-tab-title">'.$modalConfig['title'].'</p>'.
                                                 '</a>'.
                                             '</li>'.
                                         '</ul>'.
                                     '</div>'.
                                     '<div class="widget-body innerAll inner-2x">'.
                                         '<div class="tab-content">'.
-                                            '<div class="tab-pane active" id="'.$modalTabConfig['id'].'">'.$modalTabConfig['content'].'</div>'.
+                                            '<div class="tab-pane active" id="myTab">'.$modalConfig['content'].'</div>'.
                                         '</div>'.
                                         '<div align="right">'.
                                             '<button type="button" data-dismiss="modal" class="btn btn-danger pull-left">Cancel</button>'.
