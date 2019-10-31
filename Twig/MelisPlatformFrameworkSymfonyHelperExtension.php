@@ -11,11 +11,11 @@ class MelisPlatformFrameworkSymfonyHelperExtension extends AbstractExtension
      */
     protected $melisServiceManager;
     /**
-     * @var
+     * @var $viewHelperManager
      */
     protected $viewHelperManager;
     /**
-     * @var
+     * @var $container
      */
     protected $container;
 
@@ -37,56 +37,10 @@ class MelisPlatformFrameworkSymfonyHelperExtension extends AbstractExtension
     public function getFunctions()
     {
         return [
-            new TwigFunction('create_table', [$this, 'createTable']),
             new TwigFunction('create_modal', [$this, 'createModal']),
             //register melis platform helper
             new TwigFunction('melis_helper', [$this, 'getMelisPlatformHelper']),
         ];
-    }
-
-    /**
-     * Create table helper
-     *
-     * @param array $tableConfig - settings needed for your table
-     * @param array $tableColumns - table column header, you can pass also a translation key. ex: ["Column1", "tool.album_table_column_name"]
-     * @return string
-     */
-    public function createTable($tableConfig = array('id' => 'tableId', 'class' => 'table'), $tableColumns = [])
-    {
-        //get translation
-        $translation = $this->container->get('translator');
-
-        /**
-         * Prepare the table settings
-         */
-        $table = "<table";
-        $thead = "<thead><tr>";
-        $tbody = "<tbody></tbody>";
-        foreach ($tableConfig as $configAttrib => $configValues) {
-            $table .= ' ' . $configAttrib . ' = "' . $configValues . '"';
-        }
-        $table .= ">";
-
-        /**
-         * Construct the columns
-         */
-        $columnName = '';
-        foreach ($tableColumns as $values) {
-            $columnName .= '<th>' . $translation->trans($values) . '</th>';
-        }
-        //add column to header
-        $thead .= $columnName;
-        $thead .= "</tr></thead>";
-
-        /**
-         * Construct the table
-         */
-        $table .= $thead;
-        $table .= $tbody;
-        $table .= "</table>";
-
-        //return table
-        return $table;
     }
 
     /**
@@ -170,6 +124,7 @@ class MelisPlatformFrameworkSymfonyHelperExtension extends AbstractExtension
          * of melis helper
          */
         if(in_array($helperName, $this->melisServiceManager->getMelisHelperList())) {
+            $helperName = strtolower($helperName);
             $helper = $this->viewHelperManager->get($helperName);
             /**
              * Check function name if not empty
