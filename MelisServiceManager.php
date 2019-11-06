@@ -32,7 +32,7 @@ class MelisServiceManager
     }
 
     /**
-     * Get Melis Platform Back office
+     * Get Melis Platform Back office / Front
      * language locale
      *
      * @return mixed
