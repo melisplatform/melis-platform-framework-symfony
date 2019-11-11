@@ -64,7 +64,7 @@ class MelisPlatformFrameworkSymfonyHelperExtension extends AbstractExtension
          * Set modal button success default settings
          */
         $btnSuccessConfig['id'] = $btnSuccessConfig['id'] ?? 'btn-save';
-        $btnSuccessConfig['text'] = $btnSuccessConfig['text'] ?? 'tool.modal_helper_btn_save';
+        $btnSuccessConfig['text'] = $btnSuccessConfig['text'] ?? 'tool_modal_helper_btn_save';
 
         $loader = '<div id="loader" class="overlay-loader hidden"><img class="loader-icon spinning-cog" src="/MelisCore/assets/images/cog12.svg" data-cog="cog12"></div>';
         $modal =
@@ -79,7 +79,7 @@ class MelisPlatformFrameworkSymfonyHelperExtension extends AbstractExtension
                                         '<ul class="nav nav-tabs">'.
                                             '<li class="active">'.
                                                 '<a href="#myTab" class="'.$modalConfig['class'].'" data-toggle="tab" aria-expanded="true"><i></i>'.
-                                                    '<p class="modal-tab-title">'.$modalConfig['title'].'</p>'.
+                                                    '<p class="modal-tab-title">'.$translation->trans($modalConfig['title']).'</p>'.
                                                 '</a>'.
                                             '</li>'.
                                         '</ul>'.
@@ -89,7 +89,7 @@ class MelisPlatformFrameworkSymfonyHelperExtension extends AbstractExtension
                                             '<div class="tab-pane active" id="myTab">'.$modalConfig['content'].'</div>'.
                                         '</div>'.
                                         '<div align="right">'.
-                                            '<button type="button" data-dismiss="modal" class="btn btn-danger pull-left">'.$translation->trans('tool.modal_helper_btn_cancel').'</button>'.
+                                            '<button type="button" data-dismiss="modal" class="btn btn-danger pull-left">'.$translation->trans('tool_modal_helper_btn_cancel').'</button>'.
                                             '<button type="button" class="btn btn-success" id="'.$btnSuccessConfig['id'].'">'.$translation->trans($btnSuccessConfig['text']).'</button>'.
                                         '</div>'.
                                     '</div>'.

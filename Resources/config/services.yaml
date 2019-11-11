@@ -9,6 +9,13 @@ services:
     arguments: ['@doctrine.dbal.default_connection', '@service_container']
     tags:
       - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest}
+  #Register a listener
+  #so that Melis Platform can access all the
+  #Symfony translations
+  MelisPlatformFrameworkSymfony\EventListener\SymfonyTranslationsListener:
+    arguments: ['@service_container']
+    tags:
+      - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest}
   #Register the melis platform helper
   #via the twig extension
   MelisPlatformFrameworkSymfony\Twig\MelisPlatformFrameworkSymfonyHelperExtension:
