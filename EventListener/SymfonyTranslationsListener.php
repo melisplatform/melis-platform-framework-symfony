@@ -6,7 +6,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Zend\Config\Writer\PhpArray;
 
 /**
- * Class DatabaseSwitcherListener
+ * Class SymfonyTranslationsListener
  * @package MelisPlatformFrameworkSymfony\EventListener
  */
 class SymfonyTranslationsListener
