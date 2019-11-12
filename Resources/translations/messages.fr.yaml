@@ -1,2 +1,3 @@
 tool_modal_helper_btn_save: Enregistrer
 tool_modal_helper_btn_cancel: Annuler
+ttool_cannot_get_symfony_translations: Permission denied :Cannot get symfony translations
