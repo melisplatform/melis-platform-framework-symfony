@@ -52,6 +52,13 @@ $languageTable = $melisServices->getService('MelisCoreTableLang');
 $languageList = $languageTable->fetchAll()->toArray();
 ```
 
+### Event Listeners
+##### DatabaseSwitcherListener
+* This listener will force Symfony to use the Melis Platform database.
+##### SymfonyTranslationsListener
+* This listener will get all of Symfony translations and store it inside a file (Resources/translations/melis/symfony-translations.phtml) 
+so that Melis Platform can use this translations. This file MUST be writable.
+
 ## Authors
 
 * **Melis Technology** - [www.melistechnology.com](https://www.melistechnology.com/)

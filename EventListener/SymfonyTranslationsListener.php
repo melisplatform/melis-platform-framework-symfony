@@ -2,7 +2,6 @@
 
 namespace MelisPlatformFrameworkSymfony\EventListener;
 
-use mysql_xdevapi\Exception;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Zend\Config\Writer\PhpArray;
 
@@ -31,10 +30,18 @@ class SymfonyTranslationsListener
     public function onKernelRequest()
     {
         try {
+            /**
+             * THIS FILE MUST BE WRITABLE IN ORDER
+             * TO WRITE ALL THE TRANSLATIONS
+             */
             $transPath = __DIR__. '/../Resources/translations/melis/symfony-translations.phtml';
+
             if(file_exists($transPath)){
-                $translator = $this->container->get('translator');
                 if(is_writable($transPath)) {
+                    /**
+                     * Get all symfony translations
+                     */
+                    $translator = $this->container->get('translator');
                     //get only the translations on messages
                     $transList = $translator->getCatalogue()->all('messages');
 
@@ -44,12 +51,10 @@ class SymfonyTranslationsListener
                      */
                     $writer = new PhpArray();
                     file_put_contents($transPath, $writer->toString($transList));
-                }else{
-                    throw new Exception($translator->tans('tool_cannot_get_symfony_translations'));
                 }
             }
         }catch (\Exception $ex) {
-            exit($ex->getMessage());
+
         }
     }
 }
