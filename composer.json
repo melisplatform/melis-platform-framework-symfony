@@ -4,18 +4,18 @@
   "license": "OSL-3.0",
   "homepage": "https://github.com/melisplatform/melis-platform-framework-symfony",
   "support": {
-	"email": "contact@melistechnology.com",
+    "email": "contact@melistechnology.com",
     "source": "https://github.com/melisplatform/melis-platform-framework-symfony",
     "issues": "https://github.com/melisplatform/melis-platform-framework-symfony/issues",
-	"docs": "https://www.melistechnology.com/melistechnology/resources/download-documentation/id/17#documentation"
+    "docs": "https://www.melistechnology.com/melistechnology/resources/download-documentation/id/17#documentation"
   },
   "authors": [
-	{
-		"name": "Melis Technology",
-		"email": "contact@melistechnology.com",
-		"homepage": "https://www.melistechnology.com",
-		"role": "Developer"
-	}
+  	{
+  		"name": "Melis Technology",
+  		"email": "contact@melistechnology.com",
+  		"homepage": "https://www.melistechnology.com",
+  		"role": "Developer"
+  	}
   ],
   "keywords": [
     "cms",
@@ -50,12 +50,12 @@
     "symfony/yaml": "4.3.*"	  
   },
   "require-dev": {
-        "symfony/debug-pack": "*",
-        "symfony/maker-bundle": "^1.0",
-        "symfony/profiler-pack": "*",
-        "symfony/test-pack": "*",
-        "symfony/web-server-bundle": "4.3.*"
-    },	
+    "symfony/debug-pack": "*",
+    "symfony/maker-bundle": "^1.0",
+    "symfony/profiler-pack": "*",
+    "symfony/test-pack": "*",
+    "symfony/web-server-bundle": "4.3.*"
+  },	
   "autoload": {
     "psr-4": {
       "MelisPlatformFrameworkSymfony\\": ""
