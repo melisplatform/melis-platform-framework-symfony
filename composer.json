@@ -58,7 +58,8 @@
   },	
   "autoload": {
     "psr-4": {
-      "MelisPlatformFrameworkSymfony\\": ""
+      "MelisPlatformFrameworkSymfony\\": "",
+      "App\\": ["../../../thirdparty/Symfony/src/"]
     }
   }
 }
