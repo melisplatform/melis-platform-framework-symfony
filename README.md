@@ -38,12 +38,28 @@ return [
 * This class is the gateway for Symfony in order to make a connection to Melis platform. Therefore,
 using this class we can get all of Melis platform registered services.
 * You can call this class inside symfony application as a service by calling its registered
-service id ``melis_platform.service_manager``. (See example below)
+service key ``melis_platform.service_manager`` or by using a Dependency Injection. (See example below)
 
 Example:
 ```
-//Assuming we are inside of any custom Symfony controller that extends AbstractController of Symfony
+//Using Dependency Injection
 
+//Assuming we are inside a controller
+protected $melisServiceManager;
+
+//Inject MelisServiceManager in the controller constructor function
+public function __construct(MelisServiceManager $melisServiceManager)
+{
+    $this->melisServiceManager = $melisServiceManager;
+}
+//And then we can use the melis provider like this
+//to get the language list of the Back Office
+$melisCoreTableLang = $this->melisServiceManager->getService('MelisCoreTableLang');
+$melisCorelangList = $melisCoreTableLang->fetchAll()->toArray();
+
+//Using service key (melis_platform.service_manager)
+
+//Assuming we are inside of any custom Symfony controller that extends AbstractController of Symfony
 //Calling the service
 $melisServices = $this->get('melis_platform.service_manager');
 //Calling the MelisCoreTableLang service registered in Melis Platform
@@ -51,6 +67,30 @@ $languageTable = $melisServices->getService('MelisCoreTableLang');
 //Calling fetchAll function inside MelisCoreTableLang service and convert the result to array
 $languageList = $languageTable->fetchAll()->toArray();
 ```
+* Bundles that are inside the Symfony skeleton might have a problem accessing the ``melis_platform.service_manager`` service key
+inside their Controller that extends AbstractController since AbstractController only uses a limited container that only contains some services.
+
+    But we can still use the ``melis_platform.service_manager`` service key by overriding the ``getSubscribedServices`` function of the AbstractController
+    inside our Controller to register our service.
+    
+``` 
+public static function getSubscribedServices()
+{
+    return array_merge(parent::getSubscribedServices(),
+        [
+            'melis_platform.service_manager' => MelisServiceManager::class,
+        ]);
+}
+```
+
+
+
+### Event Listeners
+##### DatabaseSwitcherListener
+* This listener will force Symfony to use the Melis Platform database.
+##### SymfonyTranslationsListener
+* This listener will get all of Symfony translations and store it inside a file (Resources/translations/melis/symfony-translations.phtml) 
+so that Melis Platform can use this translations. This file MUST be writable.
 
 ## Authors
 

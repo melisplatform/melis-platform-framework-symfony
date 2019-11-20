@@ -1,11 +1,30 @@
 services:
   #This will hold all the available
   #Melis Platform Services
+  MelisPlatformFrameworkSymfony\MelisServiceManager:
+    public: true
+  #Create alias
   melis_platform.service_manager:
-      class: MelisPlatformFrameworkSymfony\MelisServiceManager
+    alias: MelisPlatformFrameworkSymfony\MelisServiceManager
+    public: true
   #Register a listener to use
   #the Melis db connection
   MelisPlatformFrameworkSymfony\EventListener\DatabaseSwitcherListener:
     arguments: ['@doctrine.dbal.default_connection', '@service_container']
     tags:
       - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest}
+  #Register a listener
+  #so that Melis Platform can access all the
+  #Symfony translations
+  MelisPlatformFrameworkSymfony\EventListener\SymfonyTranslationsListener:
+    arguments: ['@service_container']
+    tags:
+      - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest}
+  #Register the melis platform helper
+  #via the twig extension
+  MelisPlatformFrameworkSymfony\Twig\MelisPlatformFrameworkSymfonyHelperExtension:
+    arguments:
+      $melisServiceManager: '@melis_platform.service_manager'
+      $container: '@service_container'
+    tags:
+      - { name: twig.extension }
