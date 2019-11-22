@@ -1,0 +1,3 @@
+list_route:
+  path: /melis/create-module
+  controller: MelisPlatformFrameworkSymfony\Controller\ModuleController::createSymfonyModule
