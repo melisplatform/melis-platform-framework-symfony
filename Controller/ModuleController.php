@@ -2,13 +2,14 @@
 
 namespace MelisPlatformFrameworkSymfony\Controller;
 
+use MelisPlatformFrameworkSymfony\MelisServiceManager;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Yaml\Yaml;
 use Zend\Config\Writer\PhpArray;
 
-class ModuleController
+class ModuleController extends AbstractController
 {
-
     private function sampleData()
     {
         $data = [];
@@ -25,6 +26,35 @@ class ModuleController
             'cal_id', 'cal_event_title', 'cal_date_start',
             'cal_date_end', 'cal_created_by', 'cal_last_update_by',
             'cal_date_last_update', 'cal_date_added'
+        ];
+
+        $data['step2'] = [
+            'en_EN' => [
+                'tcf-title' => 'Laravel Tool',
+                'tcf-desc' => 'Laravel tool description',
+                'tcf-lang-local' => 'en_EN'
+            ],
+            'fr_FR' => [
+                'tcf-title' => '',
+                'tcf-desc' => '',
+                'tcf-lang-local' => 'fr_FR'
+            ],
+        ];
+
+        $data['step5'] = [
+            'tcf-db-table-col-editable' => [
+                'cal_id', 'cal_event_title', 'cal_date_start',
+                'cal_date_end', 'cal_created_by', 'cal_last_update_by',
+                'cal_date_last_update', 'cal_date_added'
+            ],
+            'tcf-db-table-col-required' => [
+                'cal_id', 'cal_event_title', 'cal_date_start',
+                'cal_date_end', 'cal_date_added'
+            ],
+            'tcf-db-table-col-type' => [
+                'MelisText', 'MelisCoreTinyMCE', 'Datepicker', 'Datepicker',
+                'MelisText', 'MelisText', 'Datetimepicker', 'Datetimepicker'
+            ]
         ];
 
         $data['step6'] = [
@@ -111,6 +141,10 @@ class ModuleController
                                  */
                                 $this->processTranslations($data, $destination);
                                 /**
+                                 * Process Form Builder
+                                 */
+                                $builder = $this->processFormBuilder($data, $moduleName);
+                                /**
                                  * Process the replacement of file
                                  * and contents
                                  */
@@ -121,7 +155,7 @@ class ModuleController
                                         'symfony_tpl' => $this->generateCase($moduleName, 2),
                                         'SampleEntity' => ucfirst($entityName),
                                         'sampleEntity' => strtolower($entityName),
-                                        'dynamic-form-builder' => $this->processFormFields(),
+                                        'dynamic-form-builder' => $builder,
                                     ]
                                 );
                             }else{
@@ -200,68 +234,130 @@ class ModuleController
     private function processTranslations($data, $moduleDir)
     {
         $transFolder = $moduleDir . '/Resources/translations';
+
         $transData = [];
-        $langList = [];
+        $notEmptyKeyHolder = [];
         if(!empty($data['step6'])){
             /**
              * Loop through each language
              */
-            foreach($data['step6'] as $lang => $data){
+            foreach($data['step6'] as $lang => $transContainer){
                 $langLocale = explode('_', $lang);
                 $transData[$langLocale[0]] = [];
-                array_push($langList, $langLocale[0]);
                 /**
                  * Loop through array that contains
                  * the translations
                  */
-                foreach($data as $value){
-                    $transArr = [];
+                foreach($transContainer as $value){
+                    //include step2 translations
+                    $value = array_merge($value, $data['step2'][$lang]);
                     /**
                      * Process the translations
                      */
                     foreach($value as $colName => $translations) {
                         //exclude field that starts in tcf
-                        if(strpos($colName, 'tcf') === false) {
-                            //don't include empty translations
-//                            if (!empty($translations)) {
-                                $key = 'tool_symfony_tpl_' . $colName;
-                                if(strpos($colName, 'tcinputdesc') !== false)
-                                    $key = str_replace('tcinputdesc', 'tooltip', $key);
-                                $transArr[$key] = $translations;
-//                            }
+                        if (!in_array($colName, ['tcf-lang-local', 'tcf-tbl-type'])){
+
+                            if(strpos($colName, 'tcf') !== false)
+                                $colName = str_replace('tcf-', '', $colName);
+
+                            $key = 'tool_symfony_tpl_' . $colName;
+                            if(strpos($colName, 'tcinputdesc') !== false)
+                                $key = str_replace('tcinputdesc', 'tooltip', $key);
+
+                            $transData[$langLocale[0]][$key] = $translations;
+
+                            if (!empty($translations)) {
+                                $notEmptyKeyHolder[$key] = $translations;
+                            }
                         }
                     }
-                    $transData[$langLocale[0]] = $transArr;
                 }
             }
         }
-        print_r($transData);
-        print_r($langList);
+
+        /**
+         * Get value from a language
+         * and assign it to those fields that
+         * are empty from the different language
+         */
+        foreach ($transData As $local => $texts)
+            foreach ($notEmptyKeyHolder As $key => $text)
+                if (empty($texts[$key]))
+                    $transData[$local][$key] = $text;
+
+        /**
+         * Add value to fields that are empty
+         */
+        foreach($transData as $local => $trans){
+            foreach($trans as $key => $text){
+                if(empty($text)){
+                    $value = str_replace('tool_symfony_tpl_', '', $key);
+                    $value = str_replace('_', ' ', $value);
+                    $transData[$local][$key] = ucfirst($value);
+                }
+            }
+        }
+
+        /**
+         * Lets create a file and put the translations on it
+         */
+        $writer = new PhpArray();
+        foreach($transData as $lang => $translations){
+            $fileName = $transFolder.'/messages.'.$lang.'.yaml.phtml';
+            $fp = fopen($fileName,'x+');
+            fwrite($fp, $writer->toString($translations));
+            fclose($fp);
+        }
     }
 
-    private function processFormFields()
+    /**
+     * Generate form builder
+     *
+     * @param $data
+     * @param $moduleName
+     * @return string
+     */
+    private function processFormBuilder($data, $moduleName)
     {
-        $builder = '$builder';
-        $builder .= "
-            ->add('alb_name', TextType::class, [
-                'label' => 'tool_album_table_column_name',
-                'label_attr' => [
-                    'label_tooltip' => 'tool_album_table_column_name_tooltip'
-                ],
-                'constraints' => new NotBlank(),
-                'required' => true,
-            ])
-            ->add('alb_song_num', null, [
-                'label' => 'tool_album_table_column_song_no',
-                'label_attr' => [
-                    'label_tooltip' => 'tool_album_table_column_song_no_tooltip'
-                ],
-                'constraints' => [
-                    new NotBlank(),
-                    new Positive(['message' => 'tool_song_number_int_only'])
-                ],
-                'required' => true,
-            ]);";
+        $builder = '';
+        if(!empty($data['step5'])) {
+            $fieldsInfo = $data['step5'];
+            $builder = '$builder';
+            $modName = $this->generateCase($moduleName, 2);
+
+            $fields = $fieldsInfo['tcf-db-table-col-editable'] ?? [];
+            $fieldsRequired = $fieldsInfo['tcf-db-table-col-required'] ?? [];
+            $fieldsType = $fieldsInfo['tcf-db-table-col-type'] ?? [];
+
+            foreach($fields as $key => $fieldName){
+                //check if field is required
+                $isRequired = (in_array($fieldName, $fieldsRequired)) ? true : false;
+                //get field type
+                if(!empty($fieldsType[$key])){
+                    if($fieldsType[$key] == 'MelisText')
+                        $type = 'TextType';
+                    else
+                        $type = 'TextType';
+                }else{
+                    $type = 'TextType';
+                }
+
+                $builder .= "
+                ->add('".$fieldName."', ".$type."::class, [
+                    'label' => 'tool_".$modName."_".$fieldName."',
+                    'label_attr' => [
+                        'label_tooltip' => 'tool_".$modName."_".$fieldName."_tooltip'
+                    ]";
+                if($isRequired) {
+                    $builder .= ",\n\t\t\t\t\t'constraints' => new NotBlank(),
+                    'required' => true,
+                    ])";
+                }else{
+                    $builder .= "])";
+                }
+            }
+        }
         return $builder;
     }
 
@@ -344,7 +440,7 @@ class ModuleController
                         $this->replaceFileTextContent($fileName, $fileName, $search, $replace);
                     }
                     /**
-                     * Convert config.yaml.phtml into config.yaml file
+                     * Convert example.yaml.phtml into example.yaml file
                      */
                     if (strpos($value, '.yaml.phtml') !== false) {
                         $data = Yaml::dump(include($fileName), 10);
