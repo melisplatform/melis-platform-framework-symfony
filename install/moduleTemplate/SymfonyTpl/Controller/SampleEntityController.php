@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Bundle\SymfonyTplBundle\Controller;
+namespace App\Bundle\SymfonyTpl\Controller;
 
-use App\Bundle\SymfonyTplBundle\Entity\SampleEntity;
-use App\Bundle\SymfonyTplBundle\Form\Type\SampleEntityFormType;
+use App\Bundle\SymfonyTpl\Entity\SampleEntity;
+use App\Bundle\SymfonyTpl\Form\Type\SampleEntityFormType;
 use MelisPlatformFrameworkSymfony\MelisServiceManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -15,10 +15,10 @@ use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SampleEntityController extends AbstractController
 {
-
     /**
      * Store all the parameters
      * @var ParameterBagInterface
@@ -34,6 +34,24 @@ class SampleEntityController extends AbstractController
     }
 
     /**
+     * Override getSubscribedServices function inside AbstractController
+     * to add the MelisServiceManager and translator
+     * since AbstractController only uses a limited container
+     * that only contains some services.
+     * Or you can use Dependency Injection.
+     *
+     * @return array
+     */
+    public static function getSubscribedServices()
+    {
+        return array_merge(parent::getSubscribedServices(),
+        [
+            'melis_platform.service_manager' => MelisServiceManager::class,
+            'translator' => TranslatorInterface::class,
+        ]);
+    }
+
+    /**
      * Function to get the tool
      *
      * @return Response
@@ -41,7 +59,7 @@ class SampleEntityController extends AbstractController
     public function getSymfonyTplTool(): Response
     {
         try {
-            $view = $this->render('@SymfonyTplBundle/lists.html.twig',
+            $view = $this->render('@SymfonyTpl/lists.html.twig',
                 [
                     'tableConfig' => $this->getTableConfig(),
                 ])->getContent();
@@ -58,7 +76,7 @@ class SampleEntityController extends AbstractController
      * @return JsonResponse
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
-    public function getData(Request $request)
+    public function getSampleEntityData(Request $request)
     {
         /**
          * Prepare the serializer to convert
@@ -77,7 +95,7 @@ class SampleEntityController extends AbstractController
         $sortOrder = $sortOrder[0]['dir'];
         //get column name to sort
         $colId = array_keys($this->getTableConfigColumns());
-        $selCol = $request->get('order', 'alb_id');
+        $selCol = $request->get('order', 'sample_primary_id');
         $selCol = $colId[$selCol[0]['column']];
         //convert column name(ex. albName) to exact field name in the table(ex. alb_name)
         $selCol = ltrim(strtolower(preg_replace('/[A-Z]([A-Z](?![a-z]))*/', '_$0', $selCol)), '_');
@@ -96,14 +114,14 @@ class SampleEntityController extends AbstractController
         //get total records
         $total = $repository->getTotalRecords();
         //get data
-        $tableData = $repository->getAlbum($search, $this->getSearchableColumns(), $selCol, $sortOrder, $length, $start);
+        $tableData = $repository->getSampleEntityData($search, $this->getSearchableColumns(), $selCol, $sortOrder, $length, $start);
         //convert entity object to array
         $tableData = $serializer->normalize($tableData, null);
 
         //insert album id to every row
         for ($ctr = 0; $ctr < count($tableData); $ctr++) {
             // add DataTable RowID, this will be added in the <tr> tags in each rows
-            $tableData[$ctr]['DT_RowId'] = $tableData[$ctr]['albId'];
+            $tableData[$ctr]['DT_RowId'] = $tableData[$ctr]['samplePrimaryId'];
         }
 
         //get total filtered record
@@ -139,7 +157,7 @@ class SampleEntityController extends AbstractController
 
                 if (!$entity) {
                     throw $this->createNotFoundException(
-                        $translator->trans('tool_SymfonyTpl_no_found_item').' '. $id
+                        $translator->trans('tool_symfony_tpl_no_found_item').' '. $id
                     );
                 }
             }else{
@@ -151,11 +169,11 @@ class SampleEntityController extends AbstractController
              */
             $form = $this->createForm(SampleEntityFormType::class, $entity, [
                 'attr' => [
-                    'id' => 'form'
+                    'id' => 'sample_entity_form'
                 ]
             ]);
 
-            return $this->render('@SymfonyTplBundle/form.html.twig', ['form' => $form->createView()]);
+            return $this->render('@SymfonyTpl/form.html.twig', ['form' => $form->createView()]);
         }catch (\Exception $ex){
             exit($ex->getMessage());
         }
@@ -171,7 +189,7 @@ class SampleEntityController extends AbstractController
     {
         $itemId = null;
         $result = [
-            'title' => 'Album',
+            'title' => 'SampleEntity',
             'success' => false,
             'message' => '',
             'errors' => []
@@ -191,7 +209,7 @@ class SampleEntityController extends AbstractController
                     $typeCode = 'SYMFONYTPL_TOOL_UPDATE';
                     if (!$entity) {
                         throw $this->createNotFoundException(
-                            $translator->trans('tool_SymfonyTpl_no_found_item') .' '. $id
+                            $translator->trans('tool_symfony_tpl_no_found_item') .' '. $id
                         );
                     }
                 }
@@ -205,14 +223,14 @@ class SampleEntityController extends AbstractController
                     // executes the queries
                     $entityManager->flush();
                     //get id
-                    $itemId = $entity->getAlbId();
+                    $itemId = $entity->getSamplePrimaryId();
 
-                    $result['message'] = (empty($id)) ? $translator->trans('tool_sampleEntity_successfully_saved') : $translator->trans('tool_SymfonyTpl_successfully_updated');
+                    $result['message'] = (empty($id)) ? $translator->trans('tool_symfony_tpl_successfully_saved') : $translator->trans('tool_symfony_tpl_successfully_updated');
                     $result['success'] = true;
                     //set icon for flash messenger
                     $icon = 'glyphicon-info-sign';
                 }else{
-                    $result['message'] = (empty($id)) ? $translator->trans('tool_SymfonyTpl_unable_to_save') : $translator->trans('tool_SymfonyTpl_unable_to_update');
+                    $result['message'] = (empty($id)) ? $translator->trans('tool_symfony_tpl_unable_to_save') : $translator->trans('tool_symfony_tpl_unable_to_update');
                     $result['errors'] = $this->getErrorsFromForm($form);
                     //set icon for flash messenger
                     $icon = 'glyphicon-warning-sign';
@@ -247,14 +265,14 @@ class SampleEntityController extends AbstractController
         $result = [
             'title' => 'SampleEntity',
             'success' => false,
-            'message' => $translator->trans('tool_SymfonyTpl_cannot_delete'),
+            'message' => $translator->trans('tool_symfony_tpl_cannot_delete'),
         ];
         try {
             $entityManager = $this->getDoctrine()->getManager();
             $entity = $entityManager->getRepository(SampleEntity::class)->find($id);
             $entityManager->remove($entity);
             $entityManager->flush();
-            $result['message'] = $translator->trans('tool_SymfonyTpl_successfully_deleted');
+            $result['message'] = $translator->trans('tool_symfony_tpl_successfully_deleted');
             $result['success'] = true;
             $icon = 'glyphicon-info-sign';
         }catch (\Exception $ex){
@@ -354,8 +372,8 @@ class SampleEntityController extends AbstractController
     {
         $translator = $this->get('translator');
         $tableConfig = [];
-        if(!empty($this->parameters->get('symfony_demo_album_table'))){
-            $tableConfig = $this->parameters->get('symfony_demo_album_table');
+        if(!empty($this->parameters->get('symfony_tpl_table'))){
+            $tableConfig = $this->parameters->get('symfony_tpl_table');
             $tableConfig = $this->translateConfig($tableConfig, $translator);
         }
         return $tableConfig;
@@ -377,20 +395,6 @@ class SampleEntityController extends AbstractController
             }
         }
         return $config;
-    }
-
-    /**
-     * Add MelisServiceManager to the
-     * container
-     *
-     * @return array
-     */
-    public static function getSubscribedServices()
-    {
-        return array_merge(parent::getSubscribedServices(),
-            [
-                'melis_platform.service_manager' => MelisServiceManager::class,
-            ]);
     }
 
     /**

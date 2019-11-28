@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Bundle\SymfonyTplBundle\Repository;
+namespace App\Bundle\SymfonyTpl\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use App\Bundle\SymfonyTplBundle\Entity\SampleEntity;
+use App\Bundle\SymfonyTpl\Entity\SampleEntity;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -37,7 +37,7 @@ class SampleEntityRepository extends ServiceEntityRepository
      * @param null $offset
      * @return mixed
      */
-    public function getData($search = '', $searchableColumns = [], $orderBy = null, $order = null, $limit = null, $offset = null)
+    public function getSampleEntityData($search = '', $searchableColumns = [], $orderBy = null, $order = null, $limit = null, $offset = null)
     {
         $qb = $this->createQueryBuilder('a');
 

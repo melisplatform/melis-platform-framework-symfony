@@ -1,14 +1,19 @@
 <?php
 
-namespace App\Bundle\SymfonyTplBundle\Form\Type;
+namespace App\Bundle\SymfonyTpl\Form\Type;
 
-use App\Bundle\SymfonyTplBundle\Entity\SampleEntity;
+use App\Bundle\SymfonyTpl\Entity\SampleEntity;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Positive;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
 class SampleEntityFormType extends AbstractType
 {
@@ -18,7 +23,7 @@ class SampleEntityFormType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        dynamic-form-builder;
+        //MODULE_FORM_BUILDER;
     }
 
     /**

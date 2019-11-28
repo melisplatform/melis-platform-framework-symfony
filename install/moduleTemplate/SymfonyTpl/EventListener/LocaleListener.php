@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Bundle\SymfonyTplBundle\EventListener;
+namespace App\Bundle\SymfonyTpl\EventListener;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
