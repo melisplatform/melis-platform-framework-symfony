@@ -62,6 +62,7 @@ class SampleEntityController extends AbstractController
             $view = $this->render('@SymfonyTpl/lists.html.twig',
                 [
                     'tableConfig' => $this->getTableConfig(),
+                    'modalConfig' => $this->getModalConfig()
                 ])->getContent();
 
             return new Response($view);
@@ -169,7 +170,7 @@ class SampleEntityController extends AbstractController
              */
             $form = $this->createForm(SampleEntityFormType::class, $entity, [
                 'attr' => [
-                    'id' => 'sample_entity_form'
+                    'id' => 'sampleEntity_form'
                 ]
             ]);
 
@@ -377,6 +378,21 @@ class SampleEntityController extends AbstractController
             $tableConfig = $this->translateConfig($tableConfig, $translator);
         }
         return $tableConfig;
+    }
+
+    /**
+     * Get modal config
+     * @return array|mixed
+     */
+    private function getModalConfig()
+    {
+        $translator = $this->get('translator');
+        $modalConfig = [];
+        if(!empty($this->parameters->get('symfony_tpl_modal'))){
+            $modalConfig = $this->parameters->get('symfony_tpl_modal');
+            $modalConfig = $this->translateConfig($modalConfig, $translator);
+        }
+        return $modalConfig;
     }
 
     /**

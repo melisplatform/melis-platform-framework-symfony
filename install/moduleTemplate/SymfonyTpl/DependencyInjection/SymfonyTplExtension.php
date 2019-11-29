@@ -29,14 +29,14 @@ class SymfonyTplExtension extends Extension implements PrependExtensionInterface
         $loader->load('services.yaml');
 
         /**
-         * Make a parameter to access the table config
+         * Make a parameter to access the config
          */
         foreach($configs as $config){
             if(!empty($config)){
-                if(!empty($config['table'])){
+                if(!empty($config['table']))
                     $container->setParameter('symfony_tpl_table', $config['table']['symfony_tpl_table']);
-                    break;
-                }
+                if(!empty($config['modal']))
+                    $container->setParameter('symfony_tpl_modal', $config['modal']['symfony_tpl_modal']);
             }
         }
     }

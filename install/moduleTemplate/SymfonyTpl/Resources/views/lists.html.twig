@@ -8,9 +8,5 @@
           need to modify everything in the javascript to determine whether
           we are going to update or create a record
     #}
-    {{ create_modal(
-        {'id': 'symfonyTplToolModal'},
-        {'id':'btn-save-symfonyTplTool'}
-    )|raw
-    }}
+    {{ create_modal(modalConfig)|raw }}
 {% endblock %}

@@ -50,17 +50,16 @@ class ModuleController extends AbstractController
 
         $data['step3'] = [
             'tcf-db-table' => 'melis_calendar',
-            'tcf-db-table-has-language' => 1,
-            'tcf-db-table-language-tbl' => 'melis_cms_news_texts',
-            'tcf-db-table-language-pri-fk' => 'cnews_id',
-            'tcf-db-table-language-lang-fk' => 'cnews_lang_id',
+            'tcf-db-table-has-language' => '',
+            'tcf-db-table-language-tbl' => '',
+            'tcf-db-table-language-pri-fk' => '',
+            'tcf-db-table-language-lang-fk' => '',
         ];
 
         $data['step4']['tcf-db-table-cols'] = [
             'cal_id', 'cal_event_title', 'cal_date_start',
             'cal_date_end', 'cal_created_by', 'cal_last_update_by',
-            'cal_date_last_update', 'cal_date_added',
-            'tclangtblcol_cnews_text_id', 'tclangtblcol_cnews_title'
+            'cal_date_last_update', 'cal_date_added'
         ];
 
 
@@ -68,8 +67,7 @@ class ModuleController extends AbstractController
             'tcf-db-table-col-editable' => [
                 'cal_id', 'cal_event_title', 'cal_date_start',
                 'cal_date_end', 'cal_created_by', 'cal_last_update_by',
-                'cal_date_last_update', 'cal_date_added',
-                'tclangtblcol_cnews_text_id', 'tclangtblcol_cnews_title'
+                'cal_date_last_update', 'cal_date_added'
             ],
             'tcf-db-table-col-required' => [
                 'cal_id', 'cal_event_title', 'cal_date_start',
@@ -77,8 +75,7 @@ class ModuleController extends AbstractController
             ],
             'tcf-db-table-col-type' => [
                 'MelisText', 'MelisCoreTinyMCE', 'Datepicker', 'Datepicker',
-                'MelisText', 'MelisText', 'Datetimepicker', 'Datetimepicker',
-                'MelisText', 'MelisText'
+                'MelisText', 'MelisText', 'Datetimepicker', 'Datetimepicker'
             ]
         ];
 
@@ -132,6 +129,196 @@ class ModuleController extends AbstractController
         return $data;
     }
 
+    private function multipleData()
+    {
+        $data = [];
+
+        $data['step1'] = [
+            'tcf-name' => 'SymfonyTool',
+            'tcf-tool-type' => 'db',
+            'tcf-tool-edit-type' => 'modal',
+            'tcf-create-microservice' => '0',
+            'tcf-create-framework-tool' => '1',
+            'tcf-tool-framework' => 'symfony',
+        ];
+
+        $data['step2'] = [
+            'en_EN' => [
+                'tcf-title' => 'Symfony Tool',
+                'tcf-desc' => 'Symfony tool description',
+                'tcf-lang-local' => 'en_EN'
+            ],
+            'fr_FR' => [
+                'tcf-title' => '',
+                'tcf-desc' => '',
+                'tcf-lang-local' => 'fr_FR'
+            ],
+        ];
+
+        $data['step3'] = [
+            'tcf-db-table' => 'melis_cms_news',
+            'tcf-db-table-has-language' => 1,
+            'tcf-db-table-language-tbl' => 'melis_cms_news_texts',
+            'tcf-db-table-language-pri-fk' => 'cnews_id',
+            'tcf-db-table-language-lang-fk' => 'cnews_lang_id',
+        ];
+
+        $data['step4']['tcf-db-table-cols'] = [
+            'cnews_id', 'cnews_status', 'cnews_image1',
+            'cnews_image2', 'cnews_image3', 'cnews_documents1',
+            'cnews_documents2', 'cnews_documents3', 'cnews_creation_date',
+            'cnews_publish_date', 'cnews_unpublish_date', 'cnews_slider_id',
+            'cnews_site_id', 'tclangtblcol_cnews_text_id', 'tclangtblcol_cnews_title',
+            'tclangtblcol_cnews_subtitle', 'tclangtblcol_cnews_paragraph1', 'tclangtblcol_cnews_paragraph2',
+            'tclangtblcol_cnews_paragraph3', 'tclangtblcol_cnews_paragraph4', 'tclangtblcol_cnews_lang_id',
+        ];
+
+        $data['step4']['tcf-db-table-col-display'] = [
+            'raw_view', 'dot_color', 'char_length_limit',
+            'char_length_limit', 'char_length_limit', 'char_length_limit',
+            'char_length_limit', 'raw_view', 'raw_view',
+            'raw_view', 'raw_view', 'raw_view',
+            'site_name', 'raw_view', 'raw_view',
+            'raw_view', 'char_length_limit', 'char_length_limit',
+            'raw_view', 'raw_view', 'lang_name',
+        ];
+
+
+        $data['step5'] = [
+            'tcf-db-table-col-editable' => [
+                'cnews_id', 'cnews_status', 'cnews_image1',
+                'cnews_image2', 'cnews_image3', 'cnews_documents1',
+                'cnews_documents2', 'cnews_documents3', 'cnews_creation_date',
+                'cnews_publish_date', 'cnews_unpublish_date', 'cnews_slider_id',
+                'cnews_site_id', 'tclangtblcol_cnews_text_id', 'tclangtblcol_cnews_title',
+                'tclangtblcol_cnews_subtitle', 'tclangtblcol_cnews_paragraph1', 'tclangtblcol_cnews_paragraph2',
+                'tclangtblcol_cnews_paragraph3', 'tclangtblcol_cnews_paragraph4',
+                'tclangtblcol_cnews_id', 'tclangtblcol_cnews_lang_id',
+            ],
+            'tcf-db-table-col-required' => [
+                'cnews_id', 'cnews_status', 'cnews_creation_date',
+                'tclangtblcol_cnews_text_id', 'tclangtblcol_cnews_id', 'tclangtblcol_cnews_lang_id'
+            ],
+            'tcf-db-table-col-type' => [
+                'MelisText', 'Switch', 'File', 'File',
+                'File', 'File', 'File', 'File',
+                'Datetimepicker', 'Datetimepicker', 'Datetimepicker', 'MelisText',
+                'MelisCmsPluginSiteSelect', 'MelisText', 'MelisText', 'TextArea',
+                'MelisCoreTinyMCE', 'MelisCoreTinyMCE', 'MelisCoreTinyMCE', 'MelisCoreTinyMCE',
+                'MelisText', 'MelisText',
+            ]
+        ];
+
+        $data['step6'] = [
+            'en_EN' => [
+                'pri_tbl' => [
+                    'cnews_id' => 'ID',
+                    'cnews_id_tcinputdesc' => '',
+                    'cnews_status' => 'Status',
+                    'cnews_status_tcinputdesc' => '',
+                    'cnews_image1' => 'Image 1',
+                    'cnews_image1_tcinputdesc' => '',
+                    'cnews_image2' => 'Image 2',
+                    'cnews_image2_tcinputdesc' => '',
+                    'cnews_image3' => 'Image 3',
+                    'cnews_image3_tcinputdesc' => '',
+                    'cnews_documents1' => 'Docs 1',
+                    'cnews_documents1_tcinputdesc' => '',
+                    'cnews_documents2' => 'Docs 2',
+                    'cnews_documents2_tcinputdesc' => '',
+                    'cnews_documents3' => 'Docs 3',
+                    'cnews_documents3_tcinputdesc' => '',
+                    'cnews_creation_date' => 'Date created',
+                    'cnews_creation_date_tcinputdesc' => '',
+                    'cnews_publish_date' => 'Date published',
+                    'cnews_publish_date_tcinputdesc' => '',
+                    'cnews_unpublish_date' => 'Date unpublished',
+                    'cnews_unpublish_date_tcinputdesc' => '',
+                    'cnews_slider_id' => 'Slider ID',
+                    'cnews_slider_id_tcinputdesc' => '',
+                    'cnews_site_id' => 'Site ID',
+                    'cnews_site_id_tcinputdesc' => '',
+                    'tcf-lang-local' => 'en_EN',
+                    'tcf-tbl-type' => 'pri_tbl',
+                ],
+                'lang_tbl' => [
+                    'tclangtblcol_cnews_text_id' => 'ID',
+                    'tclangtblcol_cnews_text_id_tcinputdesc' => '',
+                    'tclangtblcol_cnews_title' => 'Title',
+                    'tclangtblcol_cnews_title_tcinputdesc' => '',
+                    'tclangtblcol_cnews_subtitle' => 'Sub Title',
+                    'tclangtblcol_cnews_subtitle_tcinputdesc' => '',
+                    'tclangtblcol_cnews_paragraph1' => 'P1',
+                    'tclangtblcol_cnews_paragraph1_tcinputdesc' => '',
+                    'tclangtblcol_cnews_paragraph2' => 'P2',
+                    'tclangtblcol_cnews_paragraph2_tcinputdesc' => '',
+                    'tclangtblcol_cnews_paragraph3' => 'P3',
+                    'tclangtblcol_cnews_paragraph3_tcinputdesc' => '',
+                    'tclangtblcol_cnews_paragraph4' => 'P4',
+                    'tclangtblcol_cnews_paragraph4_tcinputdesc' => '',
+                    'tclangtblcol_cnews_lang_id' => 'Language ID',
+                    'tclangtblcol_cnews_lang_id_tcinputdesc' => '',
+                    'tcf-lang-local' => 'en_EN',
+                    'tcf-tbl-type' => 'lang_tbl',
+                ]
+            ],
+            'fr_FR' => [
+                'pri_tbl' => [
+                    'cnews_id' => '',
+                    'cnews_id_tcinputdesc' => '',
+                    'cnews_status' => '',
+                    'cnews_status_tcinputdesc' => '',
+                    'cnews_image1' => '',
+                    'cnews_image1_tcinputdesc' => '',
+                    'cnews_image2' => '',
+                    'cnews_image2_tcinputdesc' => '',
+                    'cnews_image3' => '',
+                    'cnews_image3_tcinputdesc' => '',
+                    'cnews_documents1' => '',
+                    'cnews_documents1_tcinputdesc' => '',
+                    'cnews_documents2' => '',
+                    'cnews_documents2_tcinputdesc' => '',
+                    'cnews_documents3' => '',
+                    'cnews_documents3_tcinputdesc' => '',
+                    'cnews_creation_date' => '',
+                    'cnews_creation_date_tcinputdesc' => '',
+                    'cnews_publish_date' => '',
+                    'cnews_publish_date_tcinputdesc' => '',
+                    'cnews_unpublish_date' => '',
+                    'cnews_unpublish_date_tcinputdesc' => '',
+                    'cnews_slider_id' => '',
+                    'cnews_slider_id_tcinputdesc' => '',
+                    'cnews_site_id' => '',
+                    'cnews_site_id_tcinputdesc' => '',
+                    'tcf-lang-local' => 'fr_FR',
+                    'tcf-tbl-type' => 'lang_tbl',
+                ],
+                'lang_tbl' => [
+                    'tclangtblcol_cnews_text_id' => '',
+                    'tclangtblcol_cnews_text_id_tcinputdesc' => '',
+                    'tclangtblcol_cnews_title' => '',
+                    'tclangtblcol_cnews_title_tcinputdesc' => '',
+                    'tclangtblcol_cnews_subtitle' => '',
+                    'tclangtblcol_cnews_subtitle_tcinputdesc' => '',
+                    'tclangtblcol_cnews_paragraph1' => '',
+                    'tclangtblcol_cnews_paragraph1_tcinputdesc' => '',
+                    'tclangtblcol_cnews_paragraph2' => '',
+                    'tclangtblcol_cnews_paragraph2_tcinputdesc' => '',
+                    'tclangtblcol_cnews_paragraph3' => '',
+                    'tclangtblcol_cnews_paragraph3_tcinputdesc' => '',
+                    'tclangtblcol_cnews_paragraph4' => '',
+                    'tclangtblcol_cnews_paragraph4_tcinputdesc' => '',
+                    'tclangtblcol_cnews_lang_id' => '',
+                    'tclangtblcol_cnews_lang_id_tcinputdesc' => '',
+                    'tcf-lang-local' => 'fr_FR',
+                    'tcf-tbl-type' => 'lang_tbl',
+                ]
+            ]
+        ];
+
+        return $data;
+    }
+
     /**
      * @param $data
      */
@@ -161,7 +348,7 @@ class ModuleController extends AbstractController
             'message' => '',
         ];
 
-        $data = $this->sampleData();
+        $data = $this->multipleData();
 
         if(!empty($data['step1']['tcf-name'])){
             //get module name
@@ -424,6 +611,9 @@ class ModuleController extends AbstractController
                                         if (strpos($colName, 'tcf') !== false)
                                             $colName = str_replace('tcf-', '', $colName);
 
+                                        if (strpos($colName, 'tclangtblcol_') !== false)
+                                            $colName = str_replace('tclangtblcol_', '', $colName);
+
                                         $key = 'tool_symfony_tpl_' . $colName;
                                         if (strpos($colName, 'tcinputdesc') !== false)
                                             $key = str_replace('tcinputdesc', 'tooltip', $key);
@@ -671,6 +861,8 @@ class ModuleController extends AbstractController
                     'class' => 'form-control input-inline datepicker',
                     'data-provide' => 'datepicker',
                 ]";
+            }elseif($field == 'File'){
+                $opt['type'] = 'FileType';
             }else
                 $opt['type'] = 'TextType';
         }else{

@@ -46,25 +46,37 @@ class MelisPlatformFrameworkSymfonyHelperExtension extends AbstractExtension
     /**
      * Create modal
      * @param array $modalConfig - The information needed for modal
-     * @param array $btnSuccessConfig - The config needed for button success text and id. ex: ['id' => 'btnUpdate', 'text' => 'Update']
      * @return string
      */
-    public function createModal($modalConfig = [], $btnSuccessConfig = [])
+    public function createModal($modalConfig)
     {
+        $btnSubmitConfig = [];
         //get translation
         $translation = $this->container->get('translator');
         /**
          * Set modal default value
          */
         $modalConfig['id'] = $modalConfig['id'] ?? 'myModal';
-        $modalConfig['title'] = $modalConfig['title'] ?? 'Title';
-        $modalConfig['content'] = $modalConfig['content'] ?? 'Modal content';
-        $modalConfig['class'] = $modalConfig['class'] ?? 'glyphicons plus';
         /**
          * Set modal button success default settings
          */
-        $btnSuccessConfig['id'] = $btnSuccessConfig['id'] ?? 'btn-save';
-        $btnSuccessConfig['text'] = $btnSuccessConfig['text'] ?? 'tool_modal_helper_btn_save';
+        $btnSubmitConfig['btnSubmitId'] = $btnSubmitConfig['btnSubmitId'] ?? 'btn-save';
+        $btnSubmitConfig['btnSubmitText'] = $btnSubmitConfig['btnSubmitText'] ?? 'Save';
+
+        $header = '';
+        $content = '';
+        $ctr = 0;
+        foreach($modalConfig['tabs'] as $key => $tabData){
+            $active = (!$ctr) ? 'active' : '';
+            $header .= '<li class="'.$active.'">'.
+                            '<a href="#'.$key.'" class="'.$tabData["class"].'" data-toggle="tab" aria-expanded="true"><i></i>'.
+                                '<p class="modal-tab-title">'.$tabData["title"].'</p>'.
+                            '</a>'.
+                        '</li>';
+
+            $content .= '<div class="tab-pane '.$active.'" id="'.$key.'">'.$tabData['content'].'</div>';
+            $ctr++;
+        }
 
         $loader = '<div id="loader" class="overlay-loader hidden"><img class="loader-icon spinning-cog" src="/MelisCore/assets/images/cog12.svg" data-cog="cog12"></div>';
         $modal =
@@ -76,21 +88,15 @@ class MelisPlatformFrameworkSymfonyHelperExtension extends AbstractExtension
                             '<div class="wizard">'.
                                 '<div class="widget widget-tabs widget-tabs-double widget-tabs-responsive margin-none border-none">'.
                                     '<div class="widget-head">'.
-                                        '<ul class="nav nav-tabs">'.
-                                            '<li class="active">'.
-                                                '<a href="#myTab" class="'.$modalConfig['class'].'" data-toggle="tab" aria-expanded="true"><i></i>'.
-                                                    '<p class="modal-tab-title">'.$translation->trans($modalConfig['title']).'</p>'.
-                                                '</a>'.
-                                            '</li>'.
+                                        '<ul class="nav nav-tabs">'
+                                            .$header.
                                         '</ul>'.
                                     '</div>'.
                                     '<div class="widget-body innerAll inner-2x">'.
-                                        '<div class="tab-content">'.
-                                            '<div class="tab-pane active" id="myTab">'.$modalConfig['content'].'</div>'.
-                                        '</div>'.
+                                        '<div class="tab-content">'.$content.'</div>'.
                                         '<div align="right">'.
                                             '<button type="button" data-dismiss="modal" class="btn btn-danger pull-left">'.$translation->trans('tool_modal_helper_btn_cancel').'</button>'.
-                                            '<button type="button" class="btn btn-success" id="'.$btnSuccessConfig['id'].'">'.$translation->trans($btnSuccessConfig['text']).'</button>'.
+                                            '<button type="button" class="btn btn-success" id="'.$btnSubmitConfig['btnSubmitId'].'">'.$translation->trans($btnSubmitConfig['btnSubmitText']).'</button>'.
                                         '</div>'.
                                     '</div>'.
                                 '</div>'.
