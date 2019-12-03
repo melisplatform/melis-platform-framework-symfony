@@ -348,7 +348,7 @@ class ModuleController extends AbstractController
             'message' => '',
         ];
 
-        $data = $this->multipleData();
+        $data = $this->sampleData();
 
         if(!empty($data['step1']['tcf-name'])){
             //get module name
@@ -378,9 +378,9 @@ class ModuleController extends AbstractController
                             if ($res) {
                                 if (is_writable($destination)) {
                                     /**
-                                     * Add Table columns to the config
+                                     * Process config
                                      */
-                                    $this->processTableColumns($data, $destination);
+                                    $this->processConfigs($data, $destination);
                                     /**
                                      * Process module translations
                                      */
@@ -397,6 +397,7 @@ class ModuleController extends AbstractController
                                         [
                                             'SymfonyTpl' => ucfirst($this->module_name),
                                             'symfonyTpl' => lcfirst($this->module_name),
+                                            'symfonytpl' => strtolower($this->module_name),
                                             'SYMFONYTPL' => strtoupper($this->module_name),
                                             'symfony_tpl' => $this->generateCase($this->module_name, 2),
                                             'SampleEntity' => ucfirst($this->pt_entity_name),
@@ -525,7 +526,7 @@ class ModuleController extends AbstractController
      * @param $dir
      * @throws \Exception
      */
-    private function processTableColumns($data, $dir)
+    private function processConfigs($data, $dir)
     {
         try {
             $configFile = $dir . '/Resources/config/config.yaml.phtml';
@@ -533,33 +534,54 @@ class ModuleController extends AbstractController
                 if(is_writable($configFile)){
                     $configData = include($configFile);
                     if (!empty($configData)) {
-                        /**
-                         * Insert table columns
-                         * and searchable columns
-                         */
-                        if (!empty($configData['symfony_tpl']['table']['symfony_tpl_table'])) {
-                            if (!empty($data['step4'])) {
-                                $colList = [];
-                                $columns = $data['step4']['tcf-db-table-cols'];
-                                $searchableCols = [];
-                                foreach ($columns as $key => $col) {
-                                    $col = ($this->has_language) ? str_replace('tclangtblcol_', '', $col) : $col ;
-                                    $colList[$this->generateCase($col, 4)] = [
-                                        'text' => 'tool_symfony_tpl_' . $col,
-                                        'css' => [
-                                            'width' => '20%',
-                                            'padding-right' => 0
-                                        ],
-                                        'sortable' => true,
-                                    ];
-                                    array_push($searchableCols, $col);
-                                }
-
-                                $configData['symfony_tpl']['table']['symfony_tpl_table']['columns'] = $colList;
-                                $configData['symfony_tpl']['table']['symfony_tpl_table']['searchables'] = $searchableCols;
-                                $writer = new PhpArray();
-                                file_put_contents($configFile, $writer->toString($configData));
+                        if (!empty($data['step4'])) {
+                            $colList = [];
+                            $columns = $data['step4']['tcf-db-table-cols'];
+                            $searchableCols = [];
+                            /**
+                             * Process Table columns
+                             */
+                            foreach ($columns as $key => $col) {
+                                $col = ($this->has_language) ? str_replace('tclangtblcol_', '', $col) : $col ;
+                                $colList[$this->generateCase($col, 4)] = [
+                                    'text' => 'tool_symfony_tpl_' . $col,
+                                    'css' => [
+                                        'width' => '20%',
+                                        'padding-right' => 0
+                                    ],
+                                    'sortable' => true,
+                                ];
+                                array_push($searchableCols, $col);
                             }
+
+                            $configData['symfony_tpl']['table']['symfony_tpl_table']['columns'] = $colList;
+                            $configData['symfony_tpl']['table']['symfony_tpl_table']['searchables'] = $searchableCols;
+
+                            /**
+                             * Add language tab on modal
+                             */
+                            if($this->has_language){
+                                $tabs = $configData['symfony_tpl']['modal']['symfony_tpl_modal']['tabs'];
+                                $modalLangTab = [
+                                    'tab_language' => [
+                                        'title' => 'Language',
+                                        'content' => '',
+                                        'class' => 'glyphicons language',
+                                        'form' => [
+                                            'form_id' => 'sampleEntity_lang_form',
+                                            'entity_class_name' => 'App\Bundle\SymfonyTpl\Entity\\'.$this->st_entity_name,
+                                            'form_type_class_name' => 'App\Bundle\SymfonyTpl\Form\Type\\'.$this->st_entity_name.'FormType',
+                                            'form_view_file' => '@SymfonyTool/form_language.html.twig',
+                                        ]
+                                    ]
+                                ];
+                                $configData['symfony_tpl']['modal']['symfony_tpl_modal']['tabs'] = array_merge($tabs, $modalLangTab);
+                            }else{
+                                unlink($dir.'/Resources/views/form_language.html.twig');
+                            }
+
+                            $writer = new PhpArray();
+                            file_put_contents($configFile, $writer->toString($configData));
                         }
                     }
                 }else{
@@ -709,7 +731,6 @@ class ModuleController extends AbstractController
                         $isPrimary = ($this->pt_pk == $fieldName) ? : false;
                         $this->constructBuilderAndEntity($pt_getterSetter,$pt_builder, $fieldsInfo, $fieldName, $key, $modName, $isPrimary);
                     }
-                    //don't include primary key
                 }
 
                 /**
@@ -748,14 +769,14 @@ class ModuleController extends AbstractController
     }
 
     /**
-     * @param $entity_content
+     * @param $_content
      * @param $find
      * @param $replace
      * @param $fileName
      */
-    private function createSecondaryTableFiles($entity_content, $find, $replace, $fileName)
+    private function createSecondaryTableFiles($_content, $find, $replace, $fileName)
     {
-        $content = str_replace($find, $replace, $entity_content);
+        $content = str_replace($find, $replace, $_content);
         $content = str_replace('SampleEntity', $this->st_entity_name, $content);
         $content = str_replace('sample_table_name', $this->secondary_table, $content);
         $content = str_replace('sample_primary_id', $this->st_pk, $content);
@@ -854,12 +875,12 @@ class ModuleController extends AbstractController
                 $opt['type'] = 'TextType';
             }
             elseif($field == 'MelisCoreTinyMCE') {
-                $opt['type'] = 'TextareaType';
-            }elseif($field == "Datepicker"){
-                $opt['type'] = 'TextType';
+                $opt['type'] = '\MelisPlatformFrameworkSymfony\Form\Type\MelisTinyMceType';
+            }elseif($field == "Datepicker" || $field == "Datetimepicker"){
+                $opt['type'] = '\MelisPlatformFrameworkSymfony\Form\Type\MelisDateType';
+                $format = ($field == 'Datepicker') ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm:ss';
                 $opt['attr'] = ",\n\t\t\t\t'attr' => [
-                    'class' => 'form-control input-inline datepicker',
-                    'data-provide' => 'datepicker',
+                    'date_format' => '".$format."',
                 ]";
             }elseif($field == 'File'){
                 $opt['type'] = 'FileType';

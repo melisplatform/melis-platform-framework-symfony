@@ -1,0 +1,10 @@
+{% block melistinymce_row -%}
+    {% set attr = attr|merge({class: (attr.class|default('') ~ ' form-control')|trim}) %}
+    {% set force_error = true %}
+    {{- block('form_row') }}
+
+    <script type="text/javascript">
+        var fieldId = "#{{ id }}";
+        melisTinyMCE.createTinyMCE("tool", fieldId, {height: 200, relative_urls: false,  remove_script_host: false, convert_urls : false});
+    </script>
+{%- endblock melistinymce_row %}

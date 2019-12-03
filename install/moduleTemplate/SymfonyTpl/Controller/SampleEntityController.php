@@ -137,44 +137,62 @@ class SampleEntityController extends AbstractController
     }
 
     /**
-     * Create form
+     * Get SymfonyTpl Modal Content
      * @param $id
      * @return Response
      */
-    public function createSampleEntityForm($id)
+    public function getSymfonyTplModalContent($id)
     {
         try{
+            $data = [];
             $translator = $this->get('translator');
-            /**
-             * If id is not empty,
-             * then we retrieve the data by id and
-             * pass it data to form
-             * else just create the form
-             */
-            if(!empty($id)) {
-                $entity = $this->getDoctrine()
-                    ->getRepository(SampleEntity::class)
-                    ->find($id);
+            foreach($this->getModalConfig()['tabs'] as $tabName => $tab) {
+                /**
+                 * Form key on the modal config is optional
+                 * but if it exist, then we gonna use it as
+                 * our modal content, else we use the content
+                 * key value in the modal config. Content key value is
+                 * the default content of modal
+                 *
+                 *
+                 * Check if modal tab is gonna use a form
+                 */
+                if(!empty($tab['form'])) {
+                    $entityName = $tab['form']['entity_class_name'];
+                    $formTypeName = $tab['form']['form_type_class_name'];
+                    $formView = $tab['form']['form_view_file'];
+                    $formId = $tab['form']['form_id'];
+                    /**
+                     * If id is not empty,
+                     * then we retrieve the data by id and
+                     * pass it data to form
+                     * else just create the form
+                     */
+                    if (!empty($id)) {
+                        $entity = $this->getDoctrine()
+                            ->getRepository($entityName)
+                            ->find($id);
 
-                if (!$entity) {
-                    throw $this->createNotFoundException(
-                        $translator->trans('tool_symfony_tpl_no_found_item').' '. $id
-                    );
+                        if (!$entity) {
+                            throw $this->createNotFoundException(
+                                $translator->trans('tool_symfony_tool_no_found_item') . ' ' . $id
+                            );
+                        }
+                    } else {
+                        $entity = new $entityName();
+                    }
+                    /**
+                     * Create form
+                     */
+                    $form = $this->createForm($formTypeName, $entity, [
+                        'attr' => [
+                            'id' => $formId
+                        ]
+                    ]);
+                    $data[$tabName] = $this->renderView($formView, ['form' => $form->createView()]);
                 }
-            }else{
-                $entity = new SampleEntity();
             }
-
-            /**
-             * Create album form
-             */
-            $form = $this->createForm(SampleEntityFormType::class, $entity, [
-                'attr' => [
-                    'id' => 'sampleEntity_form'
-                ]
-            ]);
-
-            return $this->render('@SymfonyTpl/form.html.twig', ['form' => $form->createView()]);
+            return new JsonResponse($data);
         }catch (\Exception $ex){
             exit($ex->getMessage());
         }

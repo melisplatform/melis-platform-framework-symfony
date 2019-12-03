@@ -1,12 +1,6 @@
 <?php
 
 return [
-    'twig' => [
-        'form_themes' => [
-            'bootstrap_3_layout.html.twig',
-            '@MelisPlatformFrameworkSymfony/Form/form_label_with_tooltip_template.html.twig'
-        ]
-    ],
     'symfony_tpl' => [
         'table' => [
             'symfony_tpl_table' => [
@@ -46,8 +40,14 @@ return [
                 'tabs' => [
                     'tab_properties' => [
                         'title' => 'Properties',
-                        'content' => 'Test content',
-                        'class' => 'glyphicons plus'
+                        'content' => '',
+                        'class' => 'glyphicons plus',
+                        'form' => [
+                            'form_id' => 'sampleEntity_prop_form',
+                            'entity_class_name' => 'App\Bundle\SymfonyTpl\Entity\SampleEntity',
+                            'form_type_class_name' => 'App\Bundle\SymfonyTpl\Form\Type\SampleEntityFormType',
+                            'form_view_file' => '@SymfonyTool/form.html.twig',
+                        ]
                     ]
                 ]
             ]
