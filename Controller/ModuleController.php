@@ -75,7 +75,7 @@ class ModuleController extends AbstractController
             ],
             'tcf-db-table-col-type' => [
                 'MelisText', 'MelisCoreTinyMCE', 'Datepicker', 'Datepicker',
-                'MelisText', 'MelisText', 'Datetimepicker', 'Datetimepicker'
+                'File', 'MelisText', 'Datetimepicker', 'Datetimepicker',
             ]
         ];
 
@@ -883,7 +883,7 @@ class ModuleController extends AbstractController
                     'date_format' => '".$format."',
                 ]";
             }elseif($field == 'File'){
-                $opt['type'] = 'FileType';
+                $opt['type'] = '\MelisPlatformFrameworkSymfony\Form\Type\MelisFileType';
             }else
                 $opt['type'] = 'TextType';
         }else{

@@ -4,3 +4,4 @@ twig:
     - '@MelisPlatformFrameworkSymfony/Form/form_label_with_tooltip_template.html.twig'
     - '@MelisPlatformFrameworkSymfony/Form/melis_tinymce_field_type.html.twig'
     - '@MelisPlatformFrameworkSymfony/Form/melis_date_field_type.html.twig'
+    - '@MelisPlatformFrameworkSymfony/Form/melis_file_field_type.html.twig'

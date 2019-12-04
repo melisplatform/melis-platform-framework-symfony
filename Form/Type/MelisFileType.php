@@ -3,10 +3,10 @@
 namespace MelisPlatformFrameworkSymfony\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class MelisDateType extends AbstractType
+class MelisFileType extends AbstractType
 {
     /**
      * @param OptionsResolver $resolver
@@ -18,7 +18,7 @@ class MelisDateType extends AbstractType
 
     public function getParent()
     {
-        return TextType::class;
+        return FileType::class;
     }
 
     /**
@@ -26,7 +26,7 @@ class MelisDateType extends AbstractType
      */
     public function getName()
     {
-        return 'melisdate';
+        return 'melisfile';
     }
 
     /**
@@ -34,6 +34,6 @@ class MelisDateType extends AbstractType
      */
     public function getBlockPrefix()
     {
-        return 'melisdate';
+        return 'melisfile';
     }
 }

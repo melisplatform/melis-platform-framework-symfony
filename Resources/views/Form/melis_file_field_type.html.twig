@@ -1,0 +1,7 @@
+{% block melisfile_row -%}
+    {{- block('form_row') }}
+    <script type="application/javascript">
+        var selector = "#{{ id }}";
+        $(selector).filestyle();
+    </script>
+{% endblock melisfile_row %}
