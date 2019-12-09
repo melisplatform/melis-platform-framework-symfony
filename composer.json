@@ -23,6 +23,10 @@
     "zf2",
     "module"
   ],
+  "extra": {
+    "melis-module": false,
+    "module-name": "MelisPlatformFrameworkSymfony"
+  },
   "require": {
     "melisplatform/melis-platform-frameworks": "^3.1",
     "ext-ctype": "*",
