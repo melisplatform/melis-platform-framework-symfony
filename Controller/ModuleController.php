@@ -21,6 +21,14 @@ class ModuleController extends AbstractController
     private $st_pk = '';
     private $module_name = '';
     private $has_language = false;
+    private $pre_add_trans = [
+        'en' => [
+            'tool_symfony_tpl_common_add' => 'Add',
+        ],
+        'fr' => [
+            'tool_symfony_tpl_common_add' => 'Ajouter',
+        ]
+    ];
 
     private function sampleData()
     {
@@ -75,7 +83,7 @@ class ModuleController extends AbstractController
             ],
             'tcf-db-table-col-type' => [
                 'MelisText', 'MelisCoreTinyMCE', 'Datepicker', 'Datepicker',
-                'File', 'MelisText', 'Datetimepicker', 'Datetimepicker',
+                'File', 'Switch', 'Datetimepicker', 'Datetimepicker',
             ]
         ];
 
@@ -382,13 +390,13 @@ class ModuleController extends AbstractController
                                      */
                                     $this->processConfigs($data, $destination);
                                     /**
-                                     * Process module translations
-                                     */
-                                    $this->processTranslations($data, $destination);
-                                    /**
                                      * Process Form Builder and Entity
                                      */
                                     $this->processFormBuilderAndEntity($data, $destination);
+                                    /**
+                                     * Process module translations
+                                     */
+                                    $this->processTranslations($data, $destination);
                                     /**
                                      * Process the replacement of file
                                      * and contents
@@ -681,6 +689,19 @@ class ModuleController extends AbstractController
                     foreach ($transData as $lang => $translations) {
                         $fileName = $transFolder . '/messages.' . $lang . '.yaml.phtml';
                         $fp = fopen($fileName, 'x+');
+
+                        //include other translations
+                        if(isset($this->pre_add_trans[$lang])){
+                            $translations = array_merge($translations, $this->pre_add_trans[$lang]);
+                        }else{
+                            /**
+                             * If $lang(es for Spanish) is not in the $this->pre_add_trans,
+                             * then we use translations of en language in es language
+                             * so that the translations still exist in every language
+                             */
+                            $translations = array_merge($translations, $this->pre_add_trans['en']);
+                        }
+
                         fwrite($fp, $writer->toString($translations));
                         fclose($fp);
                     }
@@ -803,7 +824,7 @@ class ModuleController extends AbstractController
         //check if field is required
         $isRequired = (in_array($fieldName, $fieldsRequired)) ? true : false;
         //get field type
-        $fieldOpt = $this->getFieldTypeAndAttr($fieldsType[$key]);
+        $fieldOpt = $this->getFieldTypeAndAttr($fieldsType[$key], $fieldName);
 
         $builder .= "
             ->add('" . $fieldName . "', " . $fieldOpt['type'] . "::class, [
@@ -861,9 +882,10 @@ class ModuleController extends AbstractController
 
     /**
      * @param $field
+     * @param $fieldName
      * @return array
      */
-    private function getFieldTypeAndAttr($field)
+    private function getFieldTypeAndAttr($field, $fieldName)
     {
         $opt = [
             'type' => 'TextType',
@@ -882,6 +904,19 @@ class ModuleController extends AbstractController
                 $opt['attr'] = ",\n\t\t\t\t'attr' => [
                     'date_format' => '".$format."',
                 ]";
+            }elseif($field == 'Switch'){
+                $opt['type'] = '\MelisPlatformFrameworkSymfony\Form\Type\MelisSwitchType';
+                $labelOn = 'tool_symfony_tpl_'.$fieldName.'_switch_on_label';
+                $labelOff= 'tool_symfony_tpl_'.$fieldName.'_switch_off_label';
+                $opt['attr'] = ",\n\t\t\t\t'attr' => [
+                    'data-on-label' => '".$labelOn."',
+                    'data-off-label' => '".$labelOff."',
+                ]";
+                //add translation
+                $this->pre_add_trans['en'][$labelOn] = 'On';
+                $this->pre_add_trans['fr'][$labelOn] = 'On';
+                $this->pre_add_trans['en'][$labelOff] = 'Off';
+                $this->pre_add_trans['fr'][$labelOff] = 'Off';
             }elseif($field == 'File'){
                 $opt['type'] = '\MelisPlatformFrameworkSymfony\Form\Type\MelisFileType';
             }else

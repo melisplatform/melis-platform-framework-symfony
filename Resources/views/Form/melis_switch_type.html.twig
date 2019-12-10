@@ -1,0 +1,29 @@
+{% block melis_switch_row -%}
+    {% set selectorId = id ~ '_' ~ random(100) %}
+    <div class="form-group{% if not valid %} has-error{% endif %}">
+        {% if required %}
+            {% set label_attr = label_attr|merge({'class': (label_attr.class|default('') ~ ' required')|trim}) %}
+        {% endif %}
+
+        <label
+            {% for attrname, attrvalue in label_attr %}
+            {{ attrname }}="{{ attrvalue }}"
+            {% endfor %}>
+            {{ label|trans({}, translation_domain) }}
+            {% if label_attr.label_tooltip is defined %}
+                <i class="fa fa-info-circle fa-lg pull-right tip-info" data-toggle="tooltip" data-placement="left" title="" data-original-title="{{ label_attr.label_tooltip|trans({}, translation_domain) }}"></i>
+            {% endif %}
+        </label>
+        <div id="{{ selectorId }}" class="make-switch" data-input-name="{{ name }}"
+             data-on-label="{{ attr['data-on-label']|default('On')|trans({}, translation_domain) }}"
+             data-off-label="{{ attr['data-off-label']|default('Off')|trans({}, translation_domain) }}"
+             data-label-icon="{{ attr['data-label-icon']|default('glyphicon glyphicon-resize-horizontal') }}">
+            <input type="checkbox" name="{{ name }}" id="{{ id }}" />
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        var selector = "#{{ selectorId }}";
+        $(selector).bootstrapSwitch();
+    </script>
+{%- endblock melis_switch_row %}
