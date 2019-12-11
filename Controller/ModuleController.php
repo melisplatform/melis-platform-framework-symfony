@@ -82,8 +82,8 @@ class ModuleController extends AbstractController
                 'cal_date_end', 'cal_date_added', 'tclangtblcol_cnews_text_id'
             ],
             'tcf-db-table-col-type' => [
-                'MelisText', 'MelisCoreTinyMCE', 'Datepicker', 'Datepicker',
-                'File', 'Switch', 'Datetimepicker', 'Datetimepicker',
+                'MelisText', 'MelisCoreTinyMCE', 'Datepicker', 'MelisCoreUserSelect',
+                'File', 'Switch', 'MelisCmsLanguageSelect', 'Datetimepicker',
             ]
         ];
 
@@ -840,7 +840,7 @@ class ModuleController extends AbstractController
                 'required' => true,
             ])";
         } else {
-            $builder .= "])";
+            $builder .= "\n\t\t\t])";
         }
     }
 
@@ -911,6 +911,7 @@ class ModuleController extends AbstractController
                 $opt['attr'] = ",\n\t\t\t\t'attr' => [
                     'data-on-label' => '".$labelOn."',
                     'data-off-label' => '".$labelOff."',
+                    'data-label-icon' => 'glyphicon glyphicon-resize-horizontal',
                 ]";
                 //add translation
                 $this->pre_add_trans['en'][$labelOn] = 'On';
@@ -919,6 +920,52 @@ class ModuleController extends AbstractController
                 $this->pre_add_trans['fr'][$labelOff] = 'Off';
             }elseif($field == 'File'){
                 $opt['type'] = '\MelisPlatformFrameworkSymfony\Form\Type\MelisFileType';
+                $fileBtnText = 'tool_symfony_tpl_'.$fieldName.'_btn_text';
+                $opt['attr'] = ",\n\t\t\t\t'attr' => [
+                    'filestyle_options' => [
+                        'buttonBefore' => true,
+                        'buttonText' => '".$fileBtnText."',
+                    ]
+                ]";
+                //add translation
+                $this->pre_add_trans['en'][$fileBtnText] = 'Choose file';
+                $this->pre_add_trans['fr'][$fileBtnText] = 'Choisir un fichier';
+            }elseif($field == 'MelisCoreUserSelect'){
+                $userSelectPlaceholder = 'tool_symfony_tpl_'.$fieldName.'_select_placeholder';
+                $opt['type'] = 'EntityType';
+                $opt['attr'] = ",\n\t\t\t\t'class' => \MelisPlatformFrameworkSymfony\Entity\MelisUser::class".
+                               ",\n\t\t\t\t'choice_label' => 'usr_name'".
+                               ",\n\t\t\t\t'placeholder' => '".$userSelectPlaceholder."'";
+                //add translation
+                $this->pre_add_trans['en'][$userSelectPlaceholder] = 'Select user';
+                $this->pre_add_trans['fr'][$userSelectPlaceholder] = 'Select user';
+            }elseif($field == 'MelisCmsLanguageSelect'){
+                $cmsLangSelectPlaceholder = 'tool_symfony_tpl_'.$fieldName.'_select_placeholder';
+                $opt['type'] = 'EntityType';
+                $opt['attr'] = ",\n\t\t\t\t'class' => \MelisPlatformFrameworkSymfony\Entity\MelisCmsLanguage::class".
+                               ",\n\t\t\t\t'choice_label' => 'lang_cms_name'".
+                               ",\n\t\t\t\t'placeholder' => '".$cmsLangSelectPlaceholder."'";
+                //add translation
+                $this->pre_add_trans['en'][$cmsLangSelectPlaceholder] = 'Select language';
+                $this->pre_add_trans['fr'][$cmsLangSelectPlaceholder] = 'Select language';
+            }elseif($field == 'MelisCmsPluginSiteSelect'){
+                $siteSelectPlaceholder = 'tool_symfony_tpl_'.$fieldName.'_select_placeholder';
+                $opt['type'] = 'EntityType';
+                $opt['attr'] = ",\n\t\t\t\t'class' => \MelisPlatformFrameworkSymfony\Entity\MelisCmsLanguage::class".
+                               ",\n\t\t\t\t'choice_label' => 'site_name'".
+                               ",\n\t\t\t\t'placeholder' => '".$siteSelectPlaceholder."'";
+                //add translation
+                $this->pre_add_trans['en'][$siteSelectPlaceholder] = 'Select site';
+                $this->pre_add_trans['fr'][$siteSelectPlaceholder] = 'Select site';
+            }elseif($field == 'MelisCmsTemplateSelect'){
+                $siteSelectPlaceholder = 'tool_symfony_tpl_'.$fieldName.'_select_placeholder';
+                $opt['type'] = 'EntityType';
+                $opt['attr'] = ",\n\t\t\t\t'class' => \MelisPlatformFrameworkSymfony\Entity\MelisCmsTemplate::class".
+                               ",\n\t\t\t\t'choice_label' => 'tpl_name'".
+                               ",\n\t\t\t\t'placeholder' => '".$siteSelectPlaceholder."'";
+                //add translation
+                $this->pre_add_trans['en'][$siteSelectPlaceholder] = 'Select template';
+                $this->pre_add_trans['fr'][$siteSelectPlaceholder] = 'Select template';
             }else
                 $opt['type'] = 'TextType';
         }else{

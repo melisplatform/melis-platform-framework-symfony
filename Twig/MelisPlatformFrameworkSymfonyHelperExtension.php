@@ -38,9 +38,22 @@ class MelisPlatformFrameworkSymfonyHelperExtension extends AbstractExtension
     {
         return [
             new TwigFunction('create_modal', [$this, 'createModal']),
+            new TwigFunction('remove_key', [$this, 'removeKey']),
             //register melis platform helper
             new TwigFunction('melis_helper', [$this, 'getMelisPlatformHelper']),
         ];
+    }
+
+    /**
+     * Unset key from array
+     * @param $key
+     * @param $array
+     * @return mixed
+     */
+    public function removeKey($key, $array)
+    {
+        unset($array[$key]);
+        return $array;
     }
 
     /**

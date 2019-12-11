@@ -1,7 +1,21 @@
 {% block melisfile_row -%}
-    {{- block('form_row') }}
+
+    {% if attr['filestyle_options'] is defined %}
+        {% set options = attr['filestyle_options'] %}
+        {% set options = options|merge({'buttonText': options['buttonText']|trans({}, translation_domain)}) %}
+        {% set attr = remove_key('filestyle_options', attr) %}
+    {% endif %}
+
+    <div class="form-group{% if not valid %} has-error{% endif %}">
+        {{- form_label(form) }}
+        <input type="file" name="{{ name }}" id="{{ id }}"
+        {% for attrname, attrvalue in attr %}
+            {{ attrname }}="{{ attrvalue }}"
+        {% endfor %}
+        />
+    </div>
     <script type="application/javascript">
         var selector = "#{{ id }}";
-        $(selector).filestyle();
+        $(selector).filestyle({{ options|default({})|json_encode|raw }});
     </script>
 {% endblock melisfile_row %}
