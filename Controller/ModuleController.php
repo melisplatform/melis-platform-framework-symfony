@@ -82,8 +82,8 @@ class ModuleController extends AbstractController
                 'cal_date_end', 'cal_date_added', 'tclangtblcol_cnews_text_id'
             ],
             'tcf-db-table-col-type' => [
-                'MelisText', 'MelisCoreTinyMCE', 'Datepicker', 'MelisCoreUserSelect',
-                'File', 'Switch', 'MelisCmsLanguageSelect', 'Datetimepicker',
+                'MelisText', 'MelisCoreTinyMCE', 'Datepicker', 'Datepicker',
+                'MelisCoreUserSelect', 'MelisCoreUserSelect', 'Datepicker', 'Datepicker',
             ]
         ];
 
@@ -820,7 +820,7 @@ class ModuleController extends AbstractController
         $fieldsRequired = $fieldsInfo['tcf-db-table-col-required'] ?? [];
         $fieldsType = $fieldsInfo['tcf-db-table-col-type'] ?? [];
 
-        $this->constructEntitySettersGetters($getterSetter, $fieldName, $isPrimary);
+        $this->constructEntitySettersGetters($getterSetter, $fieldName, $isPrimary, $fieldsType[$key]);
         //check if field is required
         $isRequired = (in_array($fieldName, $fieldsRequired)) ? true : false;
         //get field type
@@ -848,20 +848,28 @@ class ModuleController extends AbstractController
      * @param $getterSetter
      * @param $column
      * @param $isPrimary
+     * @param $fieldType
      * @return string
      */
-    private function constructEntitySettersGetters(&$getterSetter, $column, $isPrimary)
+    private function constructEntitySettersGetters(&$getterSetter, $column, $isPrimary, $fieldType)
     {
         $funcName = ucfirst($this->generateCase($column, 4));
         //variable header
-        $type = "";
-        if($isPrimary){
-            $getterSetter .= "/**\n\t* @ORM\Id()\n\t* @ORM\GeneratedValue()\n\t* @ORM\Column(type=\"integer\")\n\t*/";
-            $type = 'int';
+        $type = "string";
+        if($fieldType == 'MelisCoreUserSelect'){
+            $userEntity = "MelisPlatformFrameworkSymfony\Entity\MelisUser";
+            $type = "\\$userEntity";
+            $getterSetter .= "\t/**\n\t".'* @ORM\OneToOne(targetEntity="'.$userEntity.'")'."\n\t".
+                             '* @ORM\JoinColumn(name="'.$column.'", referencedColumnName="usr_id")'."\n\t*/";
         }else{
-            $getterSetter .= "\t/**\n\t* @ORM\Column(type=\"string\", length=255)\n\t*/";
-            $type = 'string';
+            if($isPrimary){
+                $getterSetter .= "/**\n\t* @ORM\Id()\n\t* @ORM\GeneratedValue()\n\t* @ORM\Column(type=\"integer\")\n\t*/";
+                $type = 'int';
+            }else{
+                $getterSetter .= "\t/**\n\t* @ORM\Column(type=\"string\", length=255)\n\t*/";
+            }
         }
+
         //variables
         $getterSetter .= "\n\tprivate $".$column.";\n\n";
         //getters
@@ -870,13 +878,12 @@ class ModuleController extends AbstractController
                             "\t\t".'return $this->'.$column.";\n".
                         "\t}\n\n";
         //setters
-        if(!$isPrimary) {
-            $getterSetter .= "\tpublic function set" . $funcName . "(?string $" . $column . "): self\n" .
-                "\t{\n" .
-                "\t\t" . '$this->' . $column . " = $" . $column . ";\n" .
-                "\t\t" . 'return $this' . ";\n" .
-                "\t}\n\n";
-        }
+        $getterSetter .= "\tpublic function set" . $funcName . "(?".$type." $" . $column . "): self\n" .
+            "\t{\n" .
+            "\t\t" . '$this->' . $column . " = $" . $column . ";\n" .
+            "\t\t" . 'return $this' . ";\n" .
+            "\t}\n\n";
+
         return $getterSetter;
     }
 

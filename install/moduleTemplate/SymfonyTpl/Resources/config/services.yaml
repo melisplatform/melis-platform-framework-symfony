@@ -1,6 +1,8 @@
 services:
-  App\Bundle\SymfonyTpl\Repository\SampleRepository:
+  #Register and Autowire All Repository
+  App\Bundle\SymfonyTool\Repository\:
     autowire: true
+    resource: '../../Repository/*'
     tags: ['doctrine.repository_service']
   #registering a locale listener to use the melis platform language with higher priority
   App\Bundle\SymfonyTpl\EventListener\LocaleListener:
