@@ -823,7 +823,7 @@ class ModuleController extends AbstractController
         $this->constructEntitySettersGetters($getterSetter, $fieldName, $isPrimary, $fieldsType[$key]);
         //check if field is required
         $isRequired = (in_array($fieldName, $fieldsRequired)) ? true : false;
-        //get field type
+        //get field type option
         $fieldOpt = $this->getFieldTypeAndAttr($fieldsType[$key], $fieldName);
 
         $builder .= "
@@ -853,14 +853,27 @@ class ModuleController extends AbstractController
      */
     private function constructEntitySettersGetters(&$getterSetter, $column, $isPrimary, $fieldType)
     {
+        $fieldSelectType = ['MelisCoreUserSelect', 'MelisCmsLanguageSelect', 'MelisCmsPluginSiteSelect', 'MelisCmsTemplateSelect'];
         $funcName = ucfirst($this->generateCase($column, 4));
         //variable header
         $type = "string";
-        if($fieldType == 'MelisCoreUserSelect'){
-            $userEntity = "MelisPlatformFrameworkSymfony\Entity\MelisUser";
-            $type = "\\$userEntity";
-            $getterSetter .= "\t/**\n\t".'* @ORM\OneToOne(targetEntity="'.$userEntity.'")'."\n\t".
-                             '* @ORM\JoinColumn(name="'.$column.'", referencedColumnName="usr_id")'."\n\t*/";
+        if(in_array($fieldType, $fieldSelectType)){
+            if($fieldType == "MelisCoreUserSelect") {
+                $entity = "MelisPlatformFrameworkSymfony\Entity\MelisUser";
+                $refCOl = "usr_id";
+            }elseif($fieldType == "MelisCmsLanguageSelect"){
+                $entity = "MelisPlatformFrameworkSymfony\Entity\MelisCmsLanguage";
+                $refCOl = "lang_cms_id";
+            }elseif($fieldType == "MelisCmsPluginSiteSelect"){
+                $entity = "MelisPlatformFrameworkSymfony\Entity\MelisCmsSite";
+                $refCOl = "site_id";
+            }else{
+                $entity = "MelisPlatformFrameworkSymfony\Entity\MelisCmsTemplate";
+                $refCOl = "tpl_id";
+            }
+            $type = "\\$entity";
+            $getterSetter .= "\t/**\n\t".'* @ORM\OneToOne(targetEntity="'.$entity.'")'."\n\t".
+                             '* @ORM\JoinColumn(name="'.$column.'", referencedColumnName="'.$refCOl.'")'."\n\t*/";
         }else{
             if($isPrimary){
                 $getterSetter .= "/**\n\t* @ORM\Id()\n\t* @ORM\GeneratedValue()\n\t* @ORM\Column(type=\"integer\")\n\t*/";
@@ -973,6 +986,8 @@ class ModuleController extends AbstractController
                 //add translation
                 $this->pre_add_trans['en'][$siteSelectPlaceholder] = 'Select template';
                 $this->pre_add_trans['fr'][$siteSelectPlaceholder] = 'Select template';
+            }elseif($field == 'TextArea'){
+                $opt['type'] = 'TextareaType';
             }else
                 $opt['type'] = 'TextType';
         }else{
