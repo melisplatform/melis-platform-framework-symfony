@@ -171,9 +171,12 @@ class MelisPlatformFrameworkSymfonyHelperExtension extends AbstractExtension
                     /**
                      * Check parameters to apply
                      */
-                    if (!empty($params))
-                        return call_user_func_array($helper, $params);
-                    else
+                    if (!empty($params)) {
+                        if(is_array($params))
+                            return call_user_func_array($helper, (array)$params);
+                        else
+                            return $helper($params);
+                    }else
                         return $helper();
                 } else {
                     return '';

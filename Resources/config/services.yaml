@@ -1,4 +1,9 @@
 services:
+  MelisPlatformFrameworkSymfony\Controller\ModuleController:
+    autowire: true
+    public: true
+    arguments:
+      $melisServiceManager: '@melis_platform.service_manager'
   #Autowire All Repository
   MelisPlatformFrameworkSymfony\Repository\:
     autowire: true

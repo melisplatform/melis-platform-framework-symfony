@@ -2,6 +2,7 @@
 
 namespace App\Bundle\SymfonyTpl\Controller;
 
+use App\Bundle\SymfonyTpl\Service\SymfonyTplService;
 use App\Bundle\SymfonyTpl\Entity\SampleEntity;
 use App\Bundle\SymfonyTpl\Form\Type\SampleEntityFormType;
 use MelisPlatformFrameworkSymfony\MelisServiceManager;
@@ -24,13 +25,20 @@ class SampleEntityController extends AbstractController
      * @var ParameterBagInterface
      */
     protected $parameters;
+    /**
+     * @var $toolService
+     */
+    protected $toolService;
 
     /**
+     * SampleEntityController constructor.
      * @param ParameterBagInterface $parameterBag
+     * @param SymfonyTplService $toolService
      */
-    public function __construct(ParameterBagInterface $parameterBag)
+    public function __construct(ParameterBagInterface $parameterBag, SymfonyTplService $toolService)
     {
         $this->parameters = $parameterBag;
+        $this->toolService = $toolService;
     }
 
     /**
@@ -119,11 +127,16 @@ class SampleEntityController extends AbstractController
         //convert entity object to array
         $tableData = $serializer->normalize($tableData, null);
 
-        //insert album id to every row
         for ($ctr = 0; $ctr < count($tableData); $ctr++) {
             // add DataTable RowID, this will be added in the <tr> tags in each rows
+            //insert id to every row
             $tableData[$ctr]['DT_RowId'] = $tableData[$ctr]['samplePrimaryId'];
         }
+
+        /**
+         * Update column display
+         */
+        $tableData = $this->toolService->updateTableDisplay($tableData, $this->getTableConfigColumnsDisplay());
 
         //get total filtered record
         $totalFilteredRecord = $serializer->normalize($repository->getTotalFilteredRecord());
@@ -250,15 +263,15 @@ class SampleEntityController extends AbstractController
                     $icon = 'glyphicon-info-sign';
                 }else{
                     $result['message'] = (empty($id)) ? $translator->trans('tool_symfony_tpl_unable_to_save') : $translator->trans('tool_symfony_tpl_unable_to_update');
-                    $result['errors'] = $this->getErrorsFromForm($form);
+                    $result['errors'] = $this->toolService->getErrorsFromForm($form);
                     //set icon for flash messenger
                     $icon = 'glyphicon-warning-sign';
                 }
 
                 //add message notification
-                $this->addToFlashMessenger($result['title'], $result['message'], $icon);
+                $this->toolService->addToFlashMessenger($result['title'], $result['message'], $icon);
                 //save logs
-                $this->saveLogs($result['title'], $result['message'], $result['success'], $typeCode, $itemId);
+                $this->toolService->saveLogs($result['title'], $result['message'], $result['success'], $typeCode, $itemId);
             }
         }catch (\Exception $ex){
             $result['message'] = $ex->getMessage();
@@ -299,64 +312,11 @@ class SampleEntityController extends AbstractController
         }
 
         //add message notification
-        $this->addToFlashMessenger($result['title'], $result['message'], $icon);
+        $this->toolService->addToFlashMessenger($result['title'], $result['message'], $icon);
         //save logs
-        $this->saveLogs($result['title'], $result['message'], $result['success'], $typeCode, $id);
+        $this->toolService->saveLogs($result['title'], $result['message'], $result['success'], $typeCode, $id);
 
         return new JsonResponse($result);
-    }
-
-    /**
-     * Get form errors
-     * @param FormInterface $form
-     * @return array
-     */
-    private function getErrorsFromForm(FormInterface $form)
-    {
-        $translator = $this->get('translator');
-        $errors = array();
-        foreach ($form->getErrors() as $error) {
-            $errors[] = $error->getMessage();
-        }
-        foreach ($form->all() as $childForm) {
-            if ($childForm instanceof FormInterface) {
-                if ($childErrors = $this->getErrorsFromForm($childForm)) {
-                    $errMessage = $childErrors[0] ?? null;
-                    $fieldLabel = $childForm->getConfig()->getOption('label');
-                    $fieldLabel = $translator->trans($fieldLabel);
-                    $errors[$childForm->getName()] = ['error_message' => $errMessage, 'label' => $fieldLabel];
-                }
-            }
-        }
-
-        return $errors;
-    }
-
-    /**
-     * Add logs to notification
-     * @param $title
-     * @param $message
-     * @param string $icon
-     */
-    private function addToFlashMessenger($title, $message, $icon = 'glyphicon-info-sign')
-    {
-        $icon = 'glyphicon '.$icon;
-        $flashMessenger = $this->melisServiceManager()->getService('MelisCoreFlashMessenger');
-        $flashMessenger->addToFlashMessenger($title, $message, $icon);
-    }
-
-    /**
-     * Save logs
-     * @param $title
-     * @param $message
-     * @param $success
-     * @param $typeCode
-     * @param $itemId
-     */
-    private function saveLogs($title, $message, $success, $typeCode, $itemId)
-    {
-        $logs = $this->melisServiceManager()->getService('MelisCoreLogService');
-        $logs->saveLog($title, $message, $success, $typeCode, $itemId);
     }
 
     /**
@@ -367,6 +327,18 @@ class SampleEntityController extends AbstractController
     {
         if(!empty($this->getTableConfig()['searchables'])){
             return $this->getTableConfig()['searchables'];
+        }
+        return [];
+    }
+
+    /**
+     * Get table columns
+     * @return array
+     */
+    private function getTableConfigColumnsDisplay()
+    {
+        if(!empty($this->getTableConfig()['columnDisplay'])){
+            return $this->getTableConfig()['columnDisplay'];
         }
         return [];
     }
@@ -389,11 +361,10 @@ class SampleEntityController extends AbstractController
      */
     private function getTableConfig()
     {
-        $translator = $this->get('translator');
         $tableConfig = [];
         if(!empty($this->parameters->get('symfony_tpl_table'))){
             $tableConfig = $this->parameters->get('symfony_tpl_table');
-            $tableConfig = $this->translateConfig($tableConfig, $translator);
+            $tableConfig = $this->toolService->translateConfig($tableConfig);
         }
         return $tableConfig;
     }
@@ -404,31 +375,12 @@ class SampleEntityController extends AbstractController
      */
     private function getModalConfig()
     {
-        $translator = $this->get('translator');
         $modalConfig = [];
         if(!empty($this->parameters->get('symfony_tpl_modal'))){
             $modalConfig = $this->parameters->get('symfony_tpl_modal');
-            $modalConfig = $this->translateConfig($modalConfig, $translator);
+            $modalConfig = $this->toolService->translateConfig($modalConfig);
         }
         return $modalConfig;
-    }
-
-    /**
-     * Translate some text in the config
-     * @param $config
-     * @param $translator
-     * @return mixed
-     */
-    private function translateConfig($config, $translator)
-    {
-        foreach($config as $key => $value){
-            if(is_array($value)){
-                $config[$key] = $this->translateConfig($value, $translator);
-            }else{
-                $config[$key] = $translator->trans($value);
-            }
-        }
-        return $config;
     }
 
     /**

@@ -40,4 +40,12 @@ class MelisCmsSite
     {
         return $this->site_name;
     }
+
+    /**
+     * @return string|null
+     */
+    public function getRawData(): ?string
+    {
+        return $this->getSiteId();
+    }
 }

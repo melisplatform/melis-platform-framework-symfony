@@ -1,4 +1,8 @@
 services:
+  #register custom service
+  App\Bundle\SymfonyTpl\Service\SymfonyTplService:
+    autowire: true
+    public: true
   #Register and Autowire All Repository
   App\Bundle\SymfonyTool\Repository\:
     autowire: true

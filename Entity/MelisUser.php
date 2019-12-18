@@ -74,4 +74,12 @@ class MelisUser
     {
         return $this->usr_firstname. ' ' .$this->usr_lastname;
     }
+
+    /**
+     * @return string|null
+     */
+    public function getRawData(): ?string
+    {
+        return $this->getUsrId();
+    }
 }

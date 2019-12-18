@@ -52,4 +52,12 @@ class MelisCmsLanguage
     {
         return $this->lang_cms_name;
     }
+
+    /**
+     * @return string|null
+     */
+    public function getRawData(): ?string
+    {
+        return $this->getLangCmsId();
+    }
 }

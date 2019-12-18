@@ -13,6 +13,11 @@ use function Composer\Autoload\includeFile;
 
 class ModuleController extends AbstractController
 {
+    /**
+     * @var MelisServiceManager
+     */
+    private $melisServiceManager;
+
     private $primary_table = '';
     private $pt_entity_name = '';
     private $pt_pk = '';
@@ -24,11 +29,28 @@ class ModuleController extends AbstractController
     private $pre_add_trans = [
         'en' => [
             'tool_symfony_tpl_common_add' => 'Add',
+            'tool_symfony_tpl_successfully_saved' => 'Record successfully saved',
+            'tool_symfony_tpl_successfully_updated' => 'Record successfully updated',
+            'tool_symfony_tpl_unable_to_update' => 'Unable to update record',
+            'tool_symfony_tpl_unable_to_save' => 'Unable to save record',
         ],
         'fr' => [
             'tool_symfony_tpl_common_add' => 'Ajouter',
+            'tool_symfony_tpl_successfully_saved' => 'Record successfully saved',
+            'tool_symfony_tpl_successfully_updated' => 'Record successfully updated',
+            'tool_symfony_tpl_unable_to_update' => 'Unable to update record',
+            'tool_symfony_tpl_unable_to_save' => 'Unable to save record',
         ]
     ];
+
+    /**
+     * ModuleController constructor.
+     * @param $melisServiceManager
+     */
+    public function __construct($melisServiceManager)
+    {
+        $this->melisServiceManager = $melisServiceManager;
+    }
 
     private function sampleData()
     {
@@ -64,10 +86,17 @@ class ModuleController extends AbstractController
             'tcf-db-table-language-lang-fk' => '',
         ];
 
-        $data['step4']['tcf-db-table-cols'] = [
-            'cal_id', 'cal_event_title', 'cal_date_start',
-            'cal_date_end', 'cal_created_by', 'cal_last_update_by',
-            'cal_date_last_update', 'cal_date_added'
+        $data['step4'] = [
+            'tcf-db-table-cols' => [
+                'cal_id', 'cal_event_title', 'cal_date_start',
+                'cal_date_end', 'cal_created_by', 'cal_last_update_by',
+                'cal_date_last_update', 'cal_date_added'
+            ],
+            'tcf-db-table-col-display' => [
+                'raw_view', 'raw_view', 'raw_view',
+                'raw_view', 'admin_name', 'admin_name',
+                'raw_view', 'raw_view'
+            ]
         ];
 
 
@@ -474,8 +503,8 @@ class ModuleController extends AbstractController
                      * just above it using a regex
                      */
                     $bundleKey = "\tApp\Bundle\\" . $this->module_name . "\\" . $this->module_name . "Bundle::class => ['all' => true],\n";
-                    $bodyRegex = '/(];(?![\s\S]*];[\s\S]*$))/im';
-                    $newBundles = preg_replace($bodyRegex, "$bundleKey$1", file_get_contents($bundle));
+                    $regex = '/(];(?![\s\S]*];[\s\S]*$))/im';
+                    $newBundles = preg_replace($regex, "$bundleKey$1", file_get_contents($bundle));
                     file_put_contents($bundle, $newBundles);
 
                     //include Bundle routes in the main routes
@@ -530,6 +559,8 @@ class ModuleController extends AbstractController
     }
 
     /**
+     * Create module config
+     *
      * @param $data
      * @param $dir
      * @throws \Exception
@@ -545,7 +576,9 @@ class ModuleController extends AbstractController
                         if (!empty($data['step4'])) {
                             $colList = [];
                             $columns = $data['step4']['tcf-db-table-cols'];
+                            $columnsDisplay = $data['step4']['tcf-db-table-col-display'];
                             $searchableCols = [];
+                            $colsDisplay = [];
                             /**
                              * Process Table columns
                              */
@@ -560,10 +593,12 @@ class ModuleController extends AbstractController
                                     'sortable' => true,
                                 ];
                                 array_push($searchableCols, $col);
+                                $colsDisplay[$this->generateCase($col, 4)] = $columnsDisplay[$key];
                             }
 
                             $configData['symfony_tpl']['table']['symfony_tpl_table']['columns'] = $colList;
                             $configData['symfony_tpl']['table']['symfony_tpl_table']['searchables'] = $searchableCols;
+                            $configData['symfony_tpl']['table']['symfony_tpl_table']['columnDisplay'] = $colsDisplay;
 
                             /**
                              * Add language tab on modal
@@ -603,7 +638,14 @@ class ModuleController extends AbstractController
         }
     }
 
+    private function processTableDisplay($data)
+    {
+
+    }
+
     /**
+     * Create module translations
+     *
      * @param $data
      * @param $moduleDir
      * @throws \Exception
@@ -904,19 +946,43 @@ class ModuleController extends AbstractController
      * @param $field
      * @param $fieldName
      * @return array
+     * @throws \Exception
      */
     private function getFieldTypeAndAttr($field, $fieldName)
     {
+        //default entity select type of melis platform
+        $fieldSelectType = ['MelisCoreUserSelect', 'MelisCmsLanguageSelect', 'MelisCmsPluginSiteSelect', 'MelisCmsTemplateSelect'];
+
         $opt = [
             'type' => 'TextType',
             'attr' => ''
         ];
 
         if(!empty($field)){
-            if($field == 'MelisText') {
+            if(in_array($field, $fieldSelectType)){
+                if($field == 'MelisCoreUserSelect'){
+                    $entityName = 'MelisUser';
+                    $choiceLabel = 'usr_name';
+                }elseif($field == 'MelisCmsLanguageSelect'){
+                    $entityName = 'MelisCmsLanguage';
+                    $choiceLabel = 'lang_cms_name';
+                }elseif($field == 'MelisCmsPluginSiteSelect'){
+                    $entityName = 'MelisCmsSite';
+                    $choiceLabel = 'site_name';
+                }else{
+                    $entityName = 'MelisCmsTemplate';
+                    $choiceLabel = 'tpl_name';
+                }
+                $opt['type'] = '\MelisPlatformFrameworkSymfony\Form\Type\MelisEntitySelectType';
+                $opt['attr'] = ",\n\t\t\t\t'class' => \MelisPlatformFrameworkSymfony\Entity\\".$entityName."::class".
+                    ",\n\t\t\t\t'choice_label' => '".$choiceLabel."'".
+                    ",\n\t\t\t\t'placeholder' => 'tool_symfony_tpl_common_select_choose'";
+                //add translation
+                $this->pre_add_trans['en']['tool_symfony_tpl_common_select_choose'] = 'Choose';
+                $this->pre_add_trans['fr']['tool_symfony_tpl_common_select_choose'] = 'Choisissez';
+            }elseif($field == 'MelisText') {
                 $opt['type'] = 'TextType';
-            }
-            elseif($field == 'MelisCoreTinyMCE') {
+            }elseif($field == 'MelisCoreTinyMCE') {
                 $opt['type'] = '\MelisPlatformFrameworkSymfony\Form\Type\MelisTinyMceType';
             }elseif($field == "Datepicker" || $field == "Datetimepicker"){
                 $opt['type'] = '\MelisPlatformFrameworkSymfony\Form\Type\MelisDateType';
@@ -950,46 +1016,11 @@ class ModuleController extends AbstractController
                 //add translation
                 $this->pre_add_trans['en'][$fileBtnText] = 'Choose file';
                 $this->pre_add_trans['fr'][$fileBtnText] = 'Choisir un fichier';
-            }elseif($field == 'MelisCoreUserSelect'){
-                $userSelectPlaceholder = 'tool_symfony_tpl_'.$fieldName.'_select_placeholder';
-                $opt['type'] = 'EntityType';
-                $opt['attr'] = ",\n\t\t\t\t'class' => \MelisPlatformFrameworkSymfony\Entity\MelisUser::class".
-                               ",\n\t\t\t\t'choice_label' => 'usr_name'".
-                               ",\n\t\t\t\t'placeholder' => '".$userSelectPlaceholder."'";
-                //add translation
-                $this->pre_add_trans['en'][$userSelectPlaceholder] = 'Select user';
-                $this->pre_add_trans['fr'][$userSelectPlaceholder] = 'Select user';
-            }elseif($field == 'MelisCmsLanguageSelect'){
-                $cmsLangSelectPlaceholder = 'tool_symfony_tpl_'.$fieldName.'_select_placeholder';
-                $opt['type'] = 'EntityType';
-                $opt['attr'] = ",\n\t\t\t\t'class' => \MelisPlatformFrameworkSymfony\Entity\MelisCmsLanguage::class".
-                               ",\n\t\t\t\t'choice_label' => 'lang_cms_name'".
-                               ",\n\t\t\t\t'placeholder' => '".$cmsLangSelectPlaceholder."'";
-                //add translation
-                $this->pre_add_trans['en'][$cmsLangSelectPlaceholder] = 'Select language';
-                $this->pre_add_trans['fr'][$cmsLangSelectPlaceholder] = 'Select language';
-            }elseif($field == 'MelisCmsPluginSiteSelect'){
-                $siteSelectPlaceholder = 'tool_symfony_tpl_'.$fieldName.'_select_placeholder';
-                $opt['type'] = 'EntityType';
-                $opt['attr'] = ",\n\t\t\t\t'class' => \MelisPlatformFrameworkSymfony\Entity\MelisCmsLanguage::class".
-                               ",\n\t\t\t\t'choice_label' => 'site_name'".
-                               ",\n\t\t\t\t'placeholder' => '".$siteSelectPlaceholder."'";
-                //add translation
-                $this->pre_add_trans['en'][$siteSelectPlaceholder] = 'Select site';
-                $this->pre_add_trans['fr'][$siteSelectPlaceholder] = 'Select site';
-            }elseif($field == 'MelisCmsTemplateSelect'){
-                $siteSelectPlaceholder = 'tool_symfony_tpl_'.$fieldName.'_select_placeholder';
-                $opt['type'] = 'EntityType';
-                $opt['attr'] = ",\n\t\t\t\t'class' => \MelisPlatformFrameworkSymfony\Entity\MelisCmsTemplate::class".
-                               ",\n\t\t\t\t'choice_label' => 'tpl_name'".
-                               ",\n\t\t\t\t'placeholder' => '".$siteSelectPlaceholder."'";
-                //add translation
-                $this->pre_add_trans['en'][$siteSelectPlaceholder] = 'Select template';
-                $this->pre_add_trans['fr'][$siteSelectPlaceholder] = 'Select template';
             }elseif($field == 'TextArea'){
                 $opt['type'] = 'TextareaType';
-            }else
+            }else {
                 $opt['type'] = 'TextType';
+            }
         }else{
             $opt['type'] = 'TextType';
         }
