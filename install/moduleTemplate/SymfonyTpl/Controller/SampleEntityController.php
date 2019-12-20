@@ -202,7 +202,14 @@ class SampleEntityController extends AbstractController
                             'id' => $formId
                         ]
                     ]);
-                    $data[$tabName] = $this->renderView($formView, ['form' => $form->createView()]);
+                    /**
+                     * get languages if we have a language tab
+                     */
+                    if($tabName == 'tab_language'){
+                        $param['languages'] = $this->toolService->getCmsLanguages();
+                    }
+                    $param['form'] = $form->createView();
+                    $data[$tabName] = $this->renderView($formView, $param);
                 }
             }
             return new JsonResponse($data);

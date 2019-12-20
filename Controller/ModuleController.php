@@ -385,7 +385,7 @@ class ModuleController extends AbstractController
             'message' => '',
         ];
 
-        $data = $this->sampleData();
+        $data = $this->multipleData();
 
         if(!empty($data['step1']['tcf-name'])){
             //get module name
@@ -636,11 +636,6 @@ class ModuleController extends AbstractController
         }catch (\Exception $ex){
             throw new \Exception('Cannot create table columns: '. $ex->getMessage());
         }
-    }
-
-    private function processTableDisplay($data)
-    {
-
     }
 
     /**
@@ -946,7 +941,6 @@ class ModuleController extends AbstractController
      * @param $field
      * @param $fieldName
      * @return array
-     * @throws \Exception
      */
     private function getFieldTypeAndAttr($field, $fieldName)
     {

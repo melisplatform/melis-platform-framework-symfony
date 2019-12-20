@@ -12,6 +12,7 @@ use Symfony\Component\Validator\Constraints\Positive;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\RadioType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 class SampleEntityFormType extends AbstractType
 {

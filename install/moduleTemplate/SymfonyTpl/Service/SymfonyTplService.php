@@ -29,6 +29,21 @@ class SymfonyTplService
     }
 
     /**
+     * Get Melis Cms langauges
+     * @return array
+     */
+    public function getCmsLanguages()
+    {
+        try {
+            $cmsLangTable = $this->melisServiceManager->getService('MelisEngineTableCmsLang');
+            $result = $cmsLangTable->fetchAll()->toArray();
+            return $result;
+        }catch (\Exception $ex){
+            return [];
+        }
+    }
+
+    /**
      * Update table display depending on
      * column display type in the config
      *
