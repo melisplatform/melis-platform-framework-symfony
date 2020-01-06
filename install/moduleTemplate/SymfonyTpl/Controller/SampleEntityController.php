@@ -206,9 +206,20 @@ class SampleEntityController extends AbstractController
                      * get languages if we have a language tab
                      */
                     if($tabName == 'tab_language'){
-                        $param['languages'] = $this->toolService->getCmsLanguages();
+                        $languages = $this->toolService->getCmsLanguages();
+                        $param['languages'] = $languages;
+                        $forms = [];
+                        /**
+                         * This will create a form per language
+                         */
+                        foreach($languages as $key => $lang){
+                            $locale = $lang['lang_cms_locale'];
+                            $forms[$locale] = $form->createView();
+                        }
+                        $param['form'] = $forms;
+                    }else {
+                        $param['form'] = $form->createView();
                     }
-                    $param['form'] = $form->createView();
                     $data[$tabName] = $this->renderView($formView, $param);
                 }
             }

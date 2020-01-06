@@ -25,19 +25,23 @@
             </div>
             <div class="col-xs-12 col-md-8">
                 <div class="tab-content">
-                    {% for key,lang in languages %}
-                        {% set locale = languages[key]['lang_cms_locale'] %}
-                        {% if key == 0 %}
+                    {% set ctr = 0 %}
+                    {% for locale,f in form %}
+                        {% if ctr == 0 %}
                             {% set active = 'active' %}
                         {% else %}
                             {% set active = '' %}
                         {% endif %}
+                        {% set ctr = ctr + 1 %}
+
                         <div id="symfony_tool_tool_{{ locale }}" class="tab-pane product-text-tab-content {{ active }}">
-                            {{ form_start(form, {'attr': {'id': form.vars.attr['id'] ~ '_' ~ locale}}) }}
-                            {% for key,field in form.children %}
-                                {{ form_row(field, {'id': field.vars['id'] ~ '_' ~ locale }) }}
+                            {% for key,field in f.children %}
+                                {% if field.vars['id'] == '_token' %}
+                                    {{ form_row(field) }}
+                                {% else %}
+                                    {{ form_row(field, {'id': field.vars['id'] ~ '_' ~ locale, 'name': field.vars['name'] ~ '_' ~ locale, 'full_name': field.vars['full_name'] ~ '_' ~ locale }) }}
+                                {% endif %}
                             {% endfor %}
-                            {{ form_end(form) }}
                         </div>
                     {% endfor %}
                 </div>
