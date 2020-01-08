@@ -24,6 +24,7 @@ class ModuleController extends AbstractController
     private $secondary_table = '';
     private $st_entity_name = '';
     private $st_pk = '';
+    private $st_fk = '';
     private $module_name = '';
     private $has_language = false;
     private $pre_add_trans = [
@@ -366,6 +367,7 @@ class ModuleController extends AbstractController
             $this->pt_entity_name = str_replace('melis_', '', $this->primary_table);
             $this->pt_entity_name = ucfirst($this->generateCase($this->pt_entity_name, 4));
             $this->has_language = $data['step3']['tcf-db-table-has-language'] ?? false;
+            $this->st_fk = $data['step3']['tcf-db-table-language-pri-fk'] ?? '';
         }else{
             $this->pt_entity_name = $this->module_name;
         }
@@ -783,7 +785,7 @@ class ModuleController extends AbstractController
                         //process secondary table
                         $fieldName = str_replace('tclangtblcol_', '', $fieldName);
                         $isPrimary = ($this->st_pk == $fieldName) ? : false;
-                        $this->constructBuilderAndEntity($st_getterSetter,$st_builder, $fieldsInfo, $fieldName, $key, $modName, $isPrimary);
+                        $this->constructBuilderAndEntity($st_getterSetter,$st_builder, $fieldsInfo, $fieldName, $key, $modName, $isPrimary, false);
                     }else{
                         //process primary table
                         $isPrimary = ($this->pt_pk == $fieldName) ? : false;
@@ -798,8 +800,12 @@ class ModuleController extends AbstractController
 
                 $entity_filename = $modulePath.'/Entity/SampleEntity.php';
                 $form_filename = $modulePath.'/Form/Type/SampleEntityFormType.php';
+                $controller_filename = $modulePath.'/Controller/SampleEntityController.php';
 
-                //create entity for secondary table
+                /**
+                 * Process Files for
+                 * secondary table
+                 */
                 if($this->has_language){
                     //Entity
                     $entity_content = file_get_contents($entity_filename);
@@ -813,6 +819,22 @@ class ModuleController extends AbstractController
                     $repo_content = file_get_contents($modulePath.'/Repository/SampleEntityRepository.php');
                     $fileName = $modulePath.'/Repository/'.$this->st_entity_name.'Repository.php';
                     $this->createSecondaryTableFiles($repo_content, '', '', $fileName);
+
+                    /**
+                     * Add connection to first table and secondary table
+                     */
+
+                    //Add connection to the first table entity with the second table entity
+                    $assoc = "\t/**\n\t".'* @ORM\OneToOne(targetEntity="'.$this->st_entity_name.'",mappedBy="'.$this->st_fk.'")'."\n\t*/";
+                    $pt_getterSetter = $this->constructEntitySettersGetters($pt_getterSetter, $this->secondary_table, false, '', $this->st_entity_name, $assoc);
+                    /**
+                     * Update controller data
+                     */
+                    $contData = '$tableData[$ctr] = array_merge($tableData[$ctr], $tableData[$ctr]["'.$this->generateCase($this->secondary_table,4).'"]);'."\n\t\t\t".
+                                'unset($tableData[$ctr]["melisCmsNewsTexts"]);';
+                    $this->replaceFileTextContent($controller_filename, $controller_filename, '//SECOND_TABLE_DATA', $contData);
+                }else{
+                    $this->replaceFileTextContent($controller_filename, $controller_filename, '//SECOND_TABLE_DATA', '');
                 }
 
                 //Create primary table entity
@@ -850,14 +872,15 @@ class ModuleController extends AbstractController
      * @param $fieldName
      * @param $key
      * @param $modName
-     * @param $isPrimary
+     * @param $isPrimaryKey
+     * @param $isPrimaryTable
      */
-    private function constructBuilderAndEntity(&$getterSetter, &$builder, $fieldsInfo, $fieldName, $key, $modName, $isPrimary)
+    private function constructBuilderAndEntity(&$getterSetter, &$builder, $fieldsInfo, $fieldName, $key, $modName, $isPrimaryKey, $isPrimaryTable = true)
     {
         $fieldsRequired = $fieldsInfo['tcf-db-table-col-required'] ?? [];
         $fieldsType = $fieldsInfo['tcf-db-table-col-type'] ?? [];
 
-        $this->constructEntitySettersGetters($getterSetter, $fieldName, $isPrimary, $fieldsType[$key]);
+        $this->constructEntitySettersGetters($getterSetter, $fieldName, $isPrimaryKey, $fieldsType[$key], 'string', null, $isPrimaryTable);
         //check if field is required
         $isRequired = (in_array($fieldName, $fieldsRequired)) ? true : false;
         //get field type option
@@ -884,16 +907,18 @@ class ModuleController extends AbstractController
     /**
      * @param $getterSetter
      * @param $column
-     * @param $isPrimary
+     * @param $isPrimaryKey
      * @param $fieldType
+     * @param $type
+     * @param $assoc
+     * @param $isPrimaryTable
      * @return string
      */
-    private function constructEntitySettersGetters(&$getterSetter, $column, $isPrimary, $fieldType)
+    private function constructEntitySettersGetters(&$getterSetter, $column, $isPrimaryKey, $fieldType, $type = "string", $assoc = null, $isPrimaryTable = true)
     {
         $fieldSelectType = ['MelisCoreUserSelect', 'MelisCmsLanguageSelect', 'MelisCmsPluginSiteSelect', 'MelisCmsTemplateSelect'];
         $funcName = ucfirst($this->generateCase($column, 4));
         //variable header
-        $type = "string";
         if(in_array($fieldType, $fieldSelectType)){
             if($fieldType == "MelisCoreUserSelect") {
                 $entity = "MelisPlatformFrameworkSymfony\Entity\MelisUser";
@@ -912,11 +937,21 @@ class ModuleController extends AbstractController
             $getterSetter .= "\t/**\n\t".'* @ORM\OneToOne(targetEntity="'.$entity.'")'."\n\t".
                              '* @ORM\JoinColumn(name="'.$column.'", referencedColumnName="'.$refCOl.'")'."\n\t*/";
         }else{
-            if($isPrimary){
+            if($isPrimaryKey){
                 $getterSetter .= "/**\n\t* @ORM\Id()\n\t* @ORM\GeneratedValue()\n\t* @ORM\Column(type=\"integer\")\n\t*/";
                 $type = 'int';
             }else{
-                $getterSetter .= "\t/**\n\t* @ORM\Column(type=\"string\", length=255)\n\t*/";
+                if(!$isPrimaryTable && $column == $this->st_fk){
+                    $getterSetter .= "\t/**\n\t".'* @ORM\OneToOne(targetEntity="'.$this->pt_entity_name.'", inversedBy="'.$this->secondary_table.'")'."\n\t".
+                        '* @ORM\JoinColumn(name="'.$this->pt_pk.'", referencedColumnName="'.$this->st_fk.'")'."\n\t*/";
+                    $type = $this->pt_entity_name;
+                }else{
+                    if(!empty($assoc)){
+                        $getterSetter .= $assoc;
+                    }else {
+                        $getterSetter .= "\t/**\n\t* @ORM\Column(type=\"string\", length=255)\n\t*/";
+                    }
+                }
             }
         }
 

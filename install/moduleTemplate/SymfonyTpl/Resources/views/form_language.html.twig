@@ -35,13 +35,15 @@
                         {% set ctr = ctr + 1 %}
 
                         <div id="symfony_tool_tool_{{ locale }}" class="tab-pane product-text-tab-content {{ active }}">
-                            {% for key,field in f.children %}
-                                {% if field.vars['id'] == '_token' %}
-                                    {{ form_row(field) }}
-                                {% else %}
-                                    {{ form_row(field, {'id': field.vars['id'] ~ '_' ~ locale, 'name': field.vars['name'] ~ '_' ~ locale, 'full_name': field.vars['full_name'] ~ '_' ~ locale }) }}
-                                {% endif %}
-                            {% endfor %}
+                            {{ form_start(f, {'attr': {'id': f.vars.attr['id'] ~ '_' ~ locale}}) }}
+                                {% for key,field in f.children %}
+                                    {% if field.vars['id'] == '_token' %}
+                                        {{ form_row(field) }}
+                                    {% else %}
+                                        {{ form_row(field, {'id': field.vars['id'] ~ '_' ~ locale, 'name': field.vars['name'] ~ '_' ~ locale, 'full_name': field.vars['full_name'] ~ '_' ~ locale }) }}
+                                    {% endif %}
+                                {% endfor %}
+                            {{ form_end(f) }}
                         </div>
                     {% endfor %}
                 </div>

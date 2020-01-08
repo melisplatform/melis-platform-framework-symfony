@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -91,9 +92,12 @@ class SampleEntityController extends AbstractController
          * Prepare the serializer to convert
          * Entity object to array
          */
-        $encoders = [new XmlEncoder(), new JsonEncoder()];
-        $normalizers = [new ObjectNormalizer()];
-        $serializer = new Serializer($normalizers, $encoders);
+        $encoder = new JsonEncoder();
+        $defaultContext = [
+            AbstractNormalizer::CIRCULAR_REFERENCE_HANDLER => function ($object, $format, $context) {},
+        ];
+        $normalizer = new ObjectNormalizer(null, null, null, null, null, null, $defaultContext);
+        $serializer = new Serializer([$normalizer], [$encoder]);
 
         /**
          * Prepare all the parameters needed
@@ -128,6 +132,7 @@ class SampleEntityController extends AbstractController
         $tableData = $serializer->normalize($tableData, null);
 
         for ($ctr = 0; $ctr < count($tableData); $ctr++) {
+            //SECOND_TABLE_DATA
             // add DataTable RowID, this will be added in the <tr> tags in each rows
             //insert id to every row
             $tableData[$ctr]['DT_RowId'] = $tableData[$ctr]['samplePrimaryId'];
