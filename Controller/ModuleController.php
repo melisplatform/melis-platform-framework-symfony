@@ -716,6 +716,7 @@ class ModuleController extends AbstractController
                             if (empty($text)) {
                                 $value = str_replace('tool_symfony_tpl_', '', $key);
                                 $value = str_replace('_', ' ', $value);
+                                $value = str_replace('tooltip', '', $value);
                                 $transData[$local][$key] = ucfirst($value);
                             }
                         }
@@ -1055,7 +1056,7 @@ class ModuleController extends AbstractController
                 $this->pre_add_trans['fr'][$labelOff] = 'Off';
             }elseif($field == 'File'){
                 $opt['type'] = '\MelisPlatformFrameworkSymfony\Form\Type\MelisFileType';
-                $fileBtnText = 'tool_symfony_tpl_'.$fieldName.'_btn_text';
+                $fileBtnText = 'tool_symfony_tpl_common_choose_file';
                 $opt['attr'] = ",\n\t\t\t\t'attr' => [
                     'filestyle_options' => [
                         'buttonBefore' => true,
@@ -1063,8 +1064,10 @@ class ModuleController extends AbstractController
                     ]
                 ]";
                 //add translation
-                $this->pre_add_trans['en'][$fileBtnText] = 'Choose file';
-                $this->pre_add_trans['fr'][$fileBtnText] = 'Choisir un fichier';
+                if(!array_key_exists($fileBtnText, $this->pre_add_trans['en'])) {
+                    $this->pre_add_trans['en'][$fileBtnText] = 'Choose file';
+                    $this->pre_add_trans['fr'][$fileBtnText] = 'Choisir un fichier';
+                }
             }elseif($field == 'TextArea'){
                 $opt['type'] = 'TextareaType';
             }else {
