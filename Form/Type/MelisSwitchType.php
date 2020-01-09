@@ -16,11 +16,6 @@ class MelisSwitchType extends AbstractType
 
     }
 
-    public function getParent()
-    {
-        return CheckboxType::class;
-    }
-
     /**
      * {@inheritdoc}
      */

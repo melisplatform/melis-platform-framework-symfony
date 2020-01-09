@@ -616,7 +616,7 @@ class ModuleController extends AbstractController
                                             'form_id' => 'sampleEntity_lang_form',
                                             'entity_class_name' => 'App\Bundle\SymfonyTpl\Entity\\'.$this->st_entity_name,
                                             'form_type_class_name' => 'App\Bundle\SymfonyTpl\Form\Type\\'.$this->st_entity_name.'FormType',
-                                            'form_view_file' => '@SymfonyTool/form_language.html.twig',
+                                            'form_view_file' => '@SymfonyTpl/form_language.html.twig',
                                         ]
                                     ]
                                 ];
@@ -884,7 +884,7 @@ class ModuleController extends AbstractController
         //check if field is required
         $isRequired = (in_array($fieldName, $fieldsRequired)) ? true : false;
         //get field type option
-        $fieldOpt = $this->getFieldTypeAndAttr($fieldsType[$key], $fieldName);
+        $fieldOpt = $this->getFieldTypeAndAttr($fieldsType[$key], $fieldName, $isPrimaryTable);
 
         $builder .= "
             ->add('" . $fieldName . "', " . $fieldOpt['type'] . "::class, [
@@ -975,9 +975,10 @@ class ModuleController extends AbstractController
     /**
      * @param $field
      * @param $fieldName
+     * @param $isPrimaryTable
      * @return array
      */
-    private function getFieldTypeAndAttr($field, $fieldName)
+    private function getFieldTypeAndAttr($field, $fieldName, $isPrimaryTable)
     {
         //default entity select type of melis platform
         $fieldSelectType = ['MelisCoreUserSelect', 'MelisCmsLanguageSelect', 'MelisCmsPluginSiteSelect', 'MelisCmsTemplateSelect'];
@@ -1010,7 +1011,26 @@ class ModuleController extends AbstractController
                 $this->pre_add_trans['en']['tool_symfony_tpl_common_select_choose'] = 'Choose';
                 $this->pre_add_trans['fr']['tool_symfony_tpl_common_select_choose'] = 'Choisissez';
             }elseif($field == 'MelisText') {
-                $opt['type'] = 'TextType';
+                if(!$isPrimaryTable){
+                    /**
+                     * If second table foreign key is equal to
+                     * the field name, then we make the field
+                     * a entity type
+                     */
+                    if($this->st_fk == $fieldName){
+                        $opt['type'] = '\MelisPlatformFrameworkSymfony\Form\Type\MelisEntitySelectType';
+                        $opt['attr'] = ",\n\t\t\t\t'class' => \App\Bundle\SymfonyTool\Entity\\".$this->pt_entity_name."::class".
+                            ",\n\t\t\t\t'choice_label' => '".$this->pt_pk."'".
+                            ",\n\t\t\t\t'placeholder' => 'tool_symfony_tpl_common_select_choose'";
+
+                        $this->pre_add_trans['en']['tool_symfony_tpl_common_select_choose'] = 'Choose';
+                        $this->pre_add_trans['fr']['tool_symfony_tpl_common_select_choose'] = 'Choisissez';
+                    }else{
+                        $opt['type'] = 'TextType';
+                    }
+                }else{
+                    $opt['type'] = 'TextType';
+                }
             }elseif($field == 'MelisCoreTinyMCE') {
                 $opt['type'] = '\MelisPlatformFrameworkSymfony\Form\Type\MelisTinyMceType';
             }elseif($field == "Datepicker" || $field == "Datetimepicker"){

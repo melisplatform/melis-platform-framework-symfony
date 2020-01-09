@@ -132,10 +132,11 @@ class SampleEntityController extends AbstractController
         $tableData = $serializer->normalize($tableData, null);
 
         for ($ctr = 0; $ctr < count($tableData); $ctr++) {
-            //SECOND_TABLE_DATA
             // add DataTable RowID, this will be added in the <tr> tags in each rows
             //insert id to every row
             $tableData[$ctr]['DT_RowId'] = $tableData[$ctr]['samplePrimaryId'];
+
+            //SECOND_TABLE_DATA
         }
 
         /**
