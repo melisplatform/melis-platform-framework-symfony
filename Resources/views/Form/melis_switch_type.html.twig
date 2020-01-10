@@ -14,16 +14,18 @@
                 <i class="fa fa-info-circle fa-lg pull-right tip-info" data-toggle="tooltip" data-placement="left" title="" data-original-title="{{ label_attr.label_tooltip|trans({}, translation_domain) }}"></i>
             {% endif %}
         </label>
+
         <div id="{{ selectorId }}" class="make-switch" data-input-name="{{ name }}"
              data-on-label="{{ attr['data-on-label']|default('On')|trans({}, translation_domain) }}"
              data-off-label="{{ attr['data-off-label']|default('Off')|trans({}, translation_domain) }}"
              data-label-icon="{{ attr['data-label-icon']|default('glyphicon glyphicon-resize-horizontal') }}">
-            <input type="checkbox" name="{{ name }}" id="{{ id }}" />
+            <input type="checkbox" name="{{ name }}" id="{{ id }}"/>
         </div>
     </div>
 
     <script type="text/javascript">
         var selector = "#{{ selectorId }}";
         $(selector).bootstrapSwitch();
+        $(selector).bootstrapSwitch('setState', {{ data }});
     </script>
 {%- endblock melis_switch_row %}

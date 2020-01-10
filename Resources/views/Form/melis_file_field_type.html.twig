@@ -1,8 +1,11 @@
 {% block melisfile_row -%}
 
     {% if attr['filestyle_options'] is defined %}
+        {% if data is null %}
+            {% set data = '' %}
+        {% endif %}
         {% set options = attr['filestyle_options'] %}
-        {% set options = options|merge({'buttonText': options['buttonText']|trans({}, translation_domain)}) %}
+        {% set options = options|merge({'placeholder': data, 'buttonText': options['buttonText']|trans({}, translation_domain)}) %}
         {% set attr = remove_key('filestyle_options', attr) %}
     {% endif %}
 

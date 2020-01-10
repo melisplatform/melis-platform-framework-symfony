@@ -565,6 +565,30 @@ class ModuleController extends AbstractController
     }
 
     /**
+     * @param $tableName
+     * @return array
+     * @throws \Exception
+     */
+    private function getTableColumnType($tableName)
+    {
+        try {
+            $columnType = [];
+            if ($this->has('doctrine.dbal.default_connection')) {
+                $conn = $this->get('doctrine.dbal.default_connection');
+                $sm = $conn->getSchemaManager();
+                $columns = $sm->listTableColumns($tableName);
+
+                foreach ($columns as $column) {
+                    $columnType[$column->getName()] = $column->getType();
+                }
+            }
+            return $columnType;
+        }catch (\Exception $ex){
+            throw new \Exception('Error on getting column type');
+        }
+    }
+
+    /**
      * Create module config
      *
      * @param $data
@@ -784,17 +808,23 @@ class ModuleController extends AbstractController
                 $modName = $this->generateCase($this->module_name, 2);
                 $fields = $fieldsInfo['tcf-db-table-col-editable'] ?? [];
 
+                /**
+                 * Get Table Column Type
+                 */
+                $secTableColType = $this->getTableColumnType($this->secondary_table);
+                $firstTableColType = $this->getTableColumnType($this->primary_table);
+
                 foreach ($fields as $key => $fieldName) {
                     //check if we have a secondary table (language table)
                     if($this->has_language && strpos($fieldName, 'tclangtblcol_') !== false){
                         //process secondary table
                         $fieldName = str_replace('tclangtblcol_', '', $fieldName);
                         $isPrimary = ($this->st_pk == $fieldName) ? : false;
-                        $this->constructBuilderAndEntity($st_getterSetter,$st_builder, $fieldsInfo, $fieldName, $key, $modName, $isPrimary, false);
+                        $this->constructBuilderAndEntity($st_getterSetter,$st_builder, $fieldsInfo, $fieldName, $key, $modName, $isPrimary, false, $secTableColType);
                     }else{
                         //process primary table
                         $isPrimary = ($this->pt_pk == $fieldName) ? : false;
-                        $this->constructBuilderAndEntity($pt_getterSetter,$pt_builder, $fieldsInfo, $fieldName, $key, $modName, $isPrimary);
+                        $this->constructBuilderAndEntity($pt_getterSetter,$pt_builder, $fieldsInfo, $fieldName, $key, $modName, $isPrimary, true, $firstTableColType);
                     }
                 }
 
@@ -882,13 +912,14 @@ class ModuleController extends AbstractController
      * @param $modName
      * @param $isPrimaryKey
      * @param $isPrimaryTable
+     * @param $columnType
      */
-    private function constructBuilderAndEntity(&$getterSetter, &$builder, $fieldsInfo, $fieldName, $key, $modName, $isPrimaryKey, $isPrimaryTable = true)
+    private function constructBuilderAndEntity(&$getterSetter, &$builder, $fieldsInfo, $fieldName, $key, $modName, $isPrimaryKey, $isPrimaryTable = true, $columnType = [])
     {
         $fieldsRequired = $fieldsInfo['tcf-db-table-col-required'] ?? [];
         $fieldsType = $fieldsInfo['tcf-db-table-col-type'] ?? [];
 
-        $this->constructEntitySettersGetters($getterSetter, $fieldName, $isPrimaryKey, $fieldsType[$key], 'string', null, $isPrimaryTable);
+        $this->constructEntitySettersGetters($getterSetter, $fieldName, $isPrimaryKey, $fieldsType[$key], 'string', null, $isPrimaryTable, $columnType);
         //check if field is required
         $isRequired = (in_array($fieldName, $fieldsRequired)) ? true : false;
         //get field type option
@@ -920,9 +951,10 @@ class ModuleController extends AbstractController
      * @param $type
      * @param $assoc
      * @param $isPrimaryTable
+     * @param $columnType
      * @return string
      */
-    private function constructEntitySettersGetters(&$getterSetter, $column, $isPrimaryKey, $fieldType, $type = "string", $assoc = null, $isPrimaryTable = true)
+    private function constructEntitySettersGetters(&$getterSetter, $column, $isPrimaryKey, $fieldType, $type = "string", $assoc = null, $isPrimaryTable = true, $columnType = [])
     {
         $fieldSelectType = ['MelisCoreUserSelect', 'MelisCmsLanguageSelect', 'MelisCmsPluginSiteSelect', 'MelisCmsTemplateSelect'];
         $funcName = ucfirst($this->generateCase($column, 4));
@@ -950,6 +982,10 @@ class ModuleController extends AbstractController
                 $type = 'int';
             }else{
                 if(!$isPrimaryTable && $column == $this->st_fk){
+                    /**
+                     * This is to add association to the second table
+                     * foreign key to connect with the first table
+                     */
                     $getterSetter .= "\t/**\n\t".'* @ORM\OneToOne(targetEntity="'.$this->pt_entity_name.'", inversedBy="'.$this->secondary_table.'")'."\n\t".
                         '* @ORM\JoinColumn(name="'.$this->pt_pk.'", referencedColumnName="'.$this->st_fk.'")'."\n\t*/";
                     $type = $this->pt_entity_name;
@@ -957,7 +993,27 @@ class ModuleController extends AbstractController
                     if(!empty($assoc)){
                         $getterSetter .= $assoc;
                     }else {
-                        $getterSetter .= "\t/**\n\t* @ORM\Column(type=\"string\", length=255)\n\t*/";
+                        //Apply column type
+                        if(!empty($columnType)){
+                            if(array_key_exists($column, $columnType)){
+                                if($columnType[$column] == 'Integer') {
+                                    $type = 'int';
+                                    $colType = 'integer';
+                                }elseif($columnType[$column] == 'Boolean') {
+                                    $type = 'bool';
+                                    $colType = 'boolean';
+                                }elseif($columnType[$column] == 'Text') {
+                                    $type = 'string';
+                                    $colType = 'string';
+                                }else {
+                                    $type = 'string';
+                                    $colType = 'string';
+                                }
+                                $getterSetter .= "\t/**\n\t* @ORM\Column(type=\"".$colType."\")\n\t*/";
+                            }
+                        }else {
+                            $getterSetter .= "\t/**\n\t* @ORM\Column(type=\"string\")\n\t*/";
+                        }
                     }
                 }
             }
