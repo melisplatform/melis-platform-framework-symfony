@@ -255,11 +255,11 @@ class SampleEntityController extends AbstractController
             $translator = $this->get('translator');
             if($request->getMethod() == 'POST') {
                 $entityManager = $this->getDoctrine()->getManager();
-                if (empty($id)) {//create new album
+                if (empty($id)) {//create new data
                     $entity = new SampleEntity();
                     //set typeCode form logs
                     $typeCode = 'SYMFONYTPL_TOOL_SAVE';
-                } else {//update album
+                } else {//update data
                     $entity = $entityManager->getRepository(SampleEntity::class)->find($id);
                     //set typeCode form logs
                     $typeCode = 'SYMFONYTPL_TOOL_UPDATE';
@@ -273,6 +273,7 @@ class SampleEntityController extends AbstractController
                 $form->handleRequest($request);
                 //validate form
                 if($form->isSubmitted() && $form->isValid()) {
+                    //FILE_UPLOAD
                     $entity = $form->getData();
                     // tell Doctrine you want to (eventually) save the data (no queries yet)
                     $entityManager->persist($entity);

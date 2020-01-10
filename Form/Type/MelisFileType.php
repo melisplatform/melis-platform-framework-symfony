@@ -16,6 +16,11 @@ class MelisFileType extends AbstractType
 
     }
 
+    public function getParent()
+    {
+        return FileType::class;
+    }
+
     /**
      * {@inheritdoc}
      */

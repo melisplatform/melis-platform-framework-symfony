@@ -43,6 +43,7 @@ class ModuleController extends AbstractController
             'tool_symfony_tpl_unable_to_save' => 'Unable to save record',
         ]
     ];
+    private $fileInputLists = [];
 
     /**
      * ModuleController constructor.
@@ -380,6 +381,9 @@ class ModuleController extends AbstractController
         }
     }
 
+    /**
+     * @return JsonResponse
+     */
     public function createSymfonyModule()
     {
         $result = [
@@ -838,6 +842,9 @@ class ModuleController extends AbstractController
                     $this->replaceFileTextContent($controller_filename, $controller_filename, '//SECOND_TABLE_DATA', '');
                 }
 
+                //Add file upload code to the controller
+                $this->replaceFileTextContent($controller_filename, $controller_filename, '//FILE_UPLOAD', $this->addFileUploadToController());
+
                 //Create primary table entity
                 $this->replaceFileTextContent($entity_filename, $entity_filename, '//ENTITY_SETTERS_GETTERS', $pt_getterSetter);
                 //Create primary table form builder
@@ -1062,12 +1069,15 @@ class ModuleController extends AbstractController
                         'buttonBefore' => true,
                         'buttonText' => '".$fileBtnText."',
                     ]
-                ]";
+                ],\n\t\t\t\t'data_class' => null";
                 //add translation
                 if(!array_key_exists($fileBtnText, $this->pre_add_trans['en'])) {
                     $this->pre_add_trans['en'][$fileBtnText] = 'Choose file';
                     $this->pre_add_trans['fr'][$fileBtnText] = 'Choisir un fichier';
                 }
+                //get all file field name here
+                //to prepare the file upload in the controller
+                $this->fileInputLists[] = $fieldName;
             }elseif($field == 'TextArea'){
                 $opt['type'] = 'TextareaType';
             }else {
@@ -1078,6 +1088,28 @@ class ModuleController extends AbstractController
         }
 
         return $opt;
+    }
+
+    /**
+     * Add file upload to the
+     * controller
+     * @return string
+     */
+    private function addFileUploadToController()
+    {
+        $statement = '';
+        if(!empty($this->fileInputLists)){
+            foreach($this->fileInputLists as $key =>$fieldName){
+                $fName = ucfirst($this->generateCase($fieldName, 4));
+                $statement .= '$'.lcfirst($fName).' = $form["'.$fieldName.'"]->getData();'."\n\t\t\t\t\t".
+                                'if ($'.lcfirst($fName).') {'."\n\t\t\t\t\t\t".
+                                    '$fileName = $this->toolService->upload($'.lcfirst($fName).');'."\n\t\t\t\t\t\t".
+                                    '$entity->set'.$fName.'($fileName);'."\n\t\t\t\t\t".
+                                '}'."\n\t\t\t\t\t";
+            }
+        }
+
+        return $statement;
     }
 
     /**

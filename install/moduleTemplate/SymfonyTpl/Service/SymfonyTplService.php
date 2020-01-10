@@ -4,6 +4,8 @@ namespace App\Bundle\SymfonyTpl\Service;
 
 use MelisPlatformFrameworkSymfony\MelisServiceManager;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SymfonyTplService
@@ -200,5 +202,30 @@ class SymfonyTplService
             }
         }
         return $config;
+    }
+
+    /**
+     * Upload file
+     * @param UploadedFile $file
+     * @param $targetDirectory
+     * @return string
+     */
+    public function upload(UploadedFile $file, $targetDirectory = null)
+    {
+        //set target directory
+        if(empty($targetDirectory))
+            $targetDirectory = $_SERVER['DOCUMENT_ROOT'].'/../thirdparty/Symfony/public/images/';
+
+        $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $safeFilename = transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $originalFilename);
+        $fileName = $safeFilename.'.'.$file->guessExtension();
+
+        try {
+            $file->move($targetDirectory, $fileName);
+        } catch (FileException $e) {
+            // ... handle exception if something happens during file upload
+        }
+
+        return $fileName;
     }
 }
