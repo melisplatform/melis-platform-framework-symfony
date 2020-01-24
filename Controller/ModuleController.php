@@ -25,6 +25,7 @@ class ModuleController extends AbstractController
     private $st_entity_name = '';
     private $st_pk = '';
     private $st_fk = '';
+    private $lang_fk = '';
     private $module_name = '';
     private $has_language = false;
     private $pre_add_trans = [
@@ -34,6 +35,10 @@ class ModuleController extends AbstractController
             'tool_symfony_tpl_successfully_updated' => 'Record successfully updated',
             'tool_symfony_tpl_unable_to_update' => 'Unable to update record',
             'tool_symfony_tpl_unable_to_save' => 'Unable to save record',
+            'tool_confirm_modal_yes' => 'Yes',
+            'tool_confirm_modal_no' => 'No',
+            'tool_confirm_modal_title' => 'Delete Record',
+            'tool_confirm_modal_message' => 'Are you sure you want to delete this record?',
         ],
         'fr' => [
             'tool_symfony_tpl_common_add' => 'Ajouter',
@@ -41,9 +46,14 @@ class ModuleController extends AbstractController
             'tool_symfony_tpl_successfully_updated' => 'Record successfully updated',
             'tool_symfony_tpl_unable_to_update' => 'Unable to update record',
             'tool_symfony_tpl_unable_to_save' => 'Unable to save record',
+            'tool_confirm_modal_yes' => 'Yes',
+            'tool_confirm_modal_no' => 'No',
+            'tool_confirm_modal_title' => 'Delete Record',
+            'tool_confirm_modal_message' => 'Are you sure you want to delete this record ?',
         ]
     ];
     private $fileInputLists = [];
+    private $componentsDir = '';
 
     /**
      * ModuleController constructor.
@@ -232,7 +242,6 @@ class ModuleController extends AbstractController
                 'cnews_site_id', 'tclangtblcol_cnews_text_id', 'tclangtblcol_cnews_title',
                 'tclangtblcol_cnews_subtitle', 'tclangtblcol_cnews_paragraph1', 'tclangtblcol_cnews_paragraph2',
                 'tclangtblcol_cnews_paragraph3', 'tclangtblcol_cnews_paragraph4',
-                'tclangtblcol_cnews_id', 'tclangtblcol_cnews_lang_id',
             ],
             'tcf-db-table-col-required' => [
                 'cnews_id', 'cnews_status', 'cnews_creation_date',
@@ -369,6 +378,7 @@ class ModuleController extends AbstractController
             $this->pt_entity_name = ucfirst($this->generateCase($this->pt_entity_name, 4));
             $this->has_language = $data['step3']['tcf-db-table-has-language'] ?? false;
             $this->st_fk = $data['step3']['tcf-db-table-language-pri-fk'] ?? '';
+            $this->lang_fk = $data['step3']['tcf-db-table-language-lang-fk'] ?? '';
         }else{
             $this->pt_entity_name = $this->module_name;
         }
@@ -403,6 +413,7 @@ class ModuleController extends AbstractController
             $frameworkDir = $_SERVER['DOCUMENT_ROOT'] . '/../thirdparty/Symfony';
             $destination = $frameworkDir . '/src/Bundle/' . $this->module_name;
             $source = dirname(__FILE__) . '/../install/moduleTemplate/SymfonyTpl';
+            $this->componentsDir = dirname(__FILE__) . '/../install/moduleTemplate/components';
             //check if framework exist
             if(file_exists($frameworkDir)){
                 //check if framework is writable
@@ -433,24 +444,40 @@ class ModuleController extends AbstractController
                                      */
                                     $this->processTranslations($data, $destination);
                                     /**
+                                     * Update the controller for some codes to insert
+                                     */
+                                    $this->updateController($destination);
+                                    /**
                                      * Process the replacement of file
                                      * and contents
                                      */
-                                    $this->mapDirectory($destination,
-                                        [
-                                            'SymfonyTpl' => ucfirst($this->module_name),
-                                            'symfonyTpl' => lcfirst($this->module_name),
-                                            'symfonytpl' => strtolower($this->module_name),
-                                            'SYMFONYTPL' => strtoupper($this->module_name),
-                                            'symfony_tpl' => $this->generateCase($this->module_name, 2),
-                                            'SampleEntity' => ucfirst($this->pt_entity_name),
-                                            'sampleEntity' => strtolower($this->pt_entity_name),
-                                            'sample_table_name' => $this->primary_table,
-                                            'sample_primary_id' => $this->pt_pk,
-                                            'SamplePrimaryId' => ucfirst($this->generateCase($this->pt_pk, 4)),
-                                            'samplePrimaryId' => $this->generateCase($this->pt_pk, 4),
-                                        ]
-                                    );
+                                    $textToChange = [
+                                        'SymfonyTpl' => ucfirst($this->module_name),
+                                        'symfonyTpl' => lcfirst($this->module_name),
+                                        'symfonytpl' => strtolower($this->module_name),
+                                        'SYMFONYTPL' => strtoupper($this->module_name),
+                                        'symfony_tpl' => $this->generateCase($this->module_name, 2),
+                                        'SampleEntity' => ucfirst($this->pt_entity_name),
+                                        'sampleEntity' => strtolower($this->pt_entity_name),
+                                        'sample_table_name' => $this->primary_table,
+                                        'sample_primary_id' => $this->pt_pk,
+                                        'SamplePrimaryId' => ucfirst($this->generateCase($this->pt_pk, 4)),
+                                        'samplePrimaryId' => $this->generateCase($this->pt_pk, 4),
+                                    ];
+                                    //if has second table(language)
+                                    if($this->has_language){
+                                        //include other text needed to change
+                                        $textToChange = array_merge($textToChange, [
+                                            'secondary_table_pk' => $this->st_pk,
+                                            'secondary_tbl_pt_id' => $this->st_fk,
+                                            'SecondaryTblPtId' => ucfirst($this->generateCase($this->st_fk, 4)),
+                                            'LanguageFkId' => ucfirst($this->generateCase($this->lang_fk, 4)),
+                                            'languageFkId' => $this->generateCase($this->lang_fk, 4),
+                                            'secondaryTableName' => $this->generateCase($this->secondary_table, 4),
+                                            'SampleLanguageEntity' => ucfirst($this->st_entity_name),
+                                        ]);
+                                    }
+                                    $this->mapDirectory($destination, $textToChange);
 
                                     /**
                                      * After we successfully created the bundle,
@@ -804,7 +831,12 @@ class ModuleController extends AbstractController
                 $st_builder = '$builder';
                 $st_getterSetter = '';
                 $pt_builder = '$builder';
+                $stBuilderViewTransformer = '';
+                $ptBuilderViewTransformer = '';
                 $pt_getterSetter = '';
+                $ptOtherFields = [];
+                $stOtherFields = [];
+
                 $modName = $this->generateCase($this->module_name, 2);
                 $fields = $fieldsInfo['tcf-db-table-col-editable'] ?? [];
 
@@ -814,18 +846,46 @@ class ModuleController extends AbstractController
                 $secTableColType = $this->getTableColumnType($this->secondary_table);
                 $firstTableColType = $this->getTableColumnType($this->primary_table);
 
+                $ptOtherFields = $firstTableColType;
+                $stOtherFields = $secTableColType;
+
                 foreach ($fields as $key => $fieldName) {
                     //check if we have a secondary table (language table)
                     if($this->has_language && strpos($fieldName, 'tclangtblcol_') !== false){
                         //process secondary table
                         $fieldName = str_replace('tclangtblcol_', '', $fieldName);
+
+                        if(array_key_exists($fieldName, $stOtherFields)){
+                            unset($stOtherFields[$fieldName]);
+                        }
+
                         $isPrimary = ($this->st_pk == $fieldName) ? : false;
-                        $this->constructBuilderAndEntity($st_getterSetter,$st_builder, $fieldsInfo, $fieldName, $key, $modName, $isPrimary, false, $secTableColType);
+                        $this->constructBuilderAndEntity($st_getterSetter,$st_builder, $stBuilderViewTransformer, $fieldsInfo, $fieldName, $key, $modName, $isPrimary, false, $secTableColType);
                     }else{
+                        if(array_key_exists($fieldName, $ptOtherFields)){
+                            unset($ptOtherFields[$fieldName]);
+                        }
                         //process primary table
                         $isPrimary = ($this->pt_pk == $fieldName) ? : false;
-                        $this->constructBuilderAndEntity($pt_getterSetter,$pt_builder, $fieldsInfo, $fieldName, $key, $modName, $isPrimary, true, $firstTableColType);
+                        $this->constructBuilderAndEntity($pt_getterSetter,$pt_builder, $ptBuilderViewTransformer, $fieldsInfo, $fieldName, $key, $modName, $isPrimary, true, $firstTableColType);
                     }
+                }
+
+                /**
+                 * Include other columns in the entity that is not
+                 * selected in the tool creator
+                 */
+                //primary table
+                foreach($ptOtherFields as $columnName => $columnType){
+                    $pt_getterSetter = $this->constructEntitySettersGetters($pt_getterSetter, $columnName,
+                        false, null, 'string', null, true,
+                        $ptOtherFields);
+                }
+                //secondary table
+                foreach($stOtherFields as $columnName => $columnType){
+                    $st_getterSetter = $this->constructEntitySettersGetters($st_getterSetter, $columnName,
+                        false, null, 'string', null, false,
+                        $stOtherFields);
                 }
 
                 /**
@@ -835,7 +895,6 @@ class ModuleController extends AbstractController
 
                 $entity_filename = $modulePath.'/Entity/SampleEntity.php';
                 $form_filename = $modulePath.'/Form/Type/SampleEntityFormType.php';
-                $controller_filename = $modulePath.'/Controller/SampleEntityController.php';
 
                 /**
                  * Process Files for
@@ -847,6 +906,8 @@ class ModuleController extends AbstractController
                     $fileName = $modulePath.'/Entity/'.$this->st_entity_name.'.php';
                     $this->createSecondaryTableFiles($entity_content, '//ENTITY_SETTERS_GETTERS', $st_getterSetter, $fileName);
                     //FORM BUILDER
+                    //include builder view transformer
+                    $st_builder = $st_builder.$stBuilderViewTransformer;
                     $form_content = file_get_contents($form_filename);
                     $fileName = $modulePath.'/Form/Type/'.$this->st_entity_name.'FormType.php';
                     $this->createSecondaryTableFiles($form_content, '//MODULE_FORM_BUILDER', $st_builder, $fileName);
@@ -858,31 +919,52 @@ class ModuleController extends AbstractController
                     /**
                      * Add connection to first table and secondary table
                      */
-
                     //Add connection to the first table entity with the second table entity
-                    $assoc = "\t/**\n\t".'* @ORM\OneToOne(targetEntity="'.$this->st_entity_name.'",mappedBy="'.$this->st_fk.'")'."\n\t*/";
-                    $pt_getterSetter = $this->constructEntitySettersGetters($pt_getterSetter, $this->secondary_table, false, '', $this->st_entity_name, $assoc);
-                    /**
-                     * Update controller data
-                     */
-                    $contData = '$tableData[$ctr] = array_merge($tableData[$ctr], $tableData[$ctr]["'.$this->generateCase($this->secondary_table,4).'"]);'."\n\t\t\t".
-                                'unset($tableData[$ctr]["melisCmsNewsTexts"]);';
-                    $this->replaceFileTextContent($controller_filename, $controller_filename, '//SECOND_TABLE_DATA', $contData);
-                }else{
-                    $this->replaceFileTextContent($controller_filename, $controller_filename, '//SECOND_TABLE_DATA', '');
+                    $assoc = "\t/**\n\t".'* @ORM\OneToMany(targetEntity="'.$this->st_entity_name.'",mappedBy="'.$this->st_fk.'")'."\n\t*/";
+                    $pt_getterSetter = $this->constructEntitySettersGetters($pt_getterSetter, $this->secondary_table, false, '', '\Doctrine\ORM\PersistentCollection', $assoc);
                 }
-
-                //Add file upload code to the controller
-                $this->replaceFileTextContent($controller_filename, $controller_filename, '//FILE_UPLOAD', $this->addFileUploadToController());
-
                 //Create primary table entity
                 $this->replaceFileTextContent($entity_filename, $entity_filename, '//ENTITY_SETTERS_GETTERS', $pt_getterSetter);
                 //Create primary table form builder
+                //include builder view transformer
+                $pt_builder = $pt_builder.$ptBuilderViewTransformer;
                 $this->replaceFileTextContent($form_filename, $form_filename, '//MODULE_FORM_BUILDER', $pt_builder);
             }
             return $entity_formBuilder;
         }catch (\Exception $ex){
             throw new \Exception('Cannot create form builder and entity: '. $ex->getMessage());
+        }
+    }
+
+    /**
+     * Update some text inside controller
+     * @param $modulePath
+     */
+    public function updateController($modulePath)
+    {
+        $controller_filename = $modulePath.'/Controller/SampleEntityController.php';
+        /**
+         * Process Files for
+         * secondary table
+         */
+        if($this->has_language){
+            /**
+             * Update some of the data that's
+             * need to update inside Controller
+             */
+            //use second table entity name
+            $str = "use App\Bundle\SymfonyTpl\Entity\SampleLanguageEntity;\nuse App\Bundle\SymfonyTpl\Form\Type\SampleLanguageEntityFormType;";
+            $this->replaceFileTextContent($controller_filename, $controller_filename, '//ADDITIONAL_USE', $str);
+            //update listing of data in table to include the secondary table info
+            $this->replaceFileTextContent($controller_filename, $controller_filename, '//SECOND_TABLE_DATA', @file_get_contents($this->componentsDir.'/language-data-list.phtml'));
+            //update modal content to include language tab and its forms
+            $this->replaceFileTextContent($controller_filename, $controller_filename, '//LANGUAGE_FORM_BUILDER', @file_get_contents($this->componentsDir.'/language-form-builder.phtml'));
+            $this->replaceFileTextContent($controller_filename, $controller_filename, '//SAVE_FUNCTIONS', @file_get_contents($this->componentsDir.'/save-with-language.phtml'));
+        }else{
+            $this->replaceFileTextContent($controller_filename, $controller_filename, '//SECOND_TABLE_DATA', '');
+            $this->replaceFileTextContent($controller_filename, $controller_filename, '//LANGUAGE_FORM_BUILDER', '');
+            $this->replaceFileTextContent($controller_filename, $controller_filename, '//SAVE_FUNCTIONS', @file_get_contents($this->componentsDir.'/save-data.phtml'));
+            $this->replaceFileTextContent($controller_filename, $controller_filename, '//ADDITIONAL_USE', '');
         }
     }
 
@@ -906,6 +988,7 @@ class ModuleController extends AbstractController
     /**
      * @param $getterSetter
      * @param $builder
+     * @param $builderViewTransformer
      * @param $fieldsInfo
      * @param $fieldName
      * @param $key
@@ -914,7 +997,7 @@ class ModuleController extends AbstractController
      * @param $isPrimaryTable
      * @param $columnType
      */
-    private function constructBuilderAndEntity(&$getterSetter, &$builder, $fieldsInfo, $fieldName, $key, $modName, $isPrimaryKey, $isPrimaryTable = true, $columnType = [])
+    private function constructBuilderAndEntity(&$getterSetter, &$builder, &$builderViewTransformer, $fieldsInfo, $fieldName, $key, $modName, $isPrimaryKey, $isPrimaryTable = true, $columnType = [])
     {
         $fieldsRequired = $fieldsInfo['tcf-db-table-col-required'] ?? [];
         $fieldsType = $fieldsInfo['tcf-db-table-col-type'] ?? [];
@@ -934,12 +1017,25 @@ class ModuleController extends AbstractController
         if(!empty($fieldOpt['attr'])){
             $builder .= $fieldOpt['attr'];
         }
-        if ($isRequired) {
+        if ($isRequired && $fieldsType[$key] != 'Switch') {
+            //Dont the make the switch field as required since it will pass 0 and 1
             $builder .= ",\n\t\t\t\t'constraints' => new NotBlank(),
                 'required' => true,
             ])";
         } else {
             $builder .= "\n\t\t\t])";
+        }
+
+        //construct view transformer for Switch
+        if($fieldsType[$key] == 'Switch') {
+            $builderViewTransformer .= ";\n\n\t\t\t".'$builder->get("'.$fieldName.'")->addViewTransformer(new CallbackTransformer(
+                function ($normalizedFormat) {
+                    return $normalizedFormat;
+                },
+                function ($submittedFormat) {
+                    return ( $submittedFormat === "0") ? null : (string) $submittedFormat;
+                }
+            ))';
         }
     }
 
@@ -952,9 +1048,10 @@ class ModuleController extends AbstractController
      * @param $assoc
      * @param $isPrimaryTable
      * @param $columnType
+     * @param $addSetters
      * @return string
      */
-    private function constructEntitySettersGetters(&$getterSetter, $column, $isPrimaryKey, $fieldType, $type = "string", $assoc = null, $isPrimaryTable = true, $columnType = [])
+    private function constructEntitySettersGetters(&$getterSetter, $column, $isPrimaryKey, $fieldType = null, $type = "string", $assoc = null, $isPrimaryTable = true, $columnType = [], $addSetters = true)
     {
         $fieldSelectType = ['MelisCoreUserSelect', 'MelisCmsLanguageSelect', 'MelisCmsPluginSiteSelect', 'MelisCmsTemplateSelect'];
         $funcName = ucfirst($this->generateCase($column, 4));
@@ -986,7 +1083,7 @@ class ModuleController extends AbstractController
                      * This is to add association to the second table
                      * foreign key to connect with the first table
                      */
-                    $getterSetter .= "\t/**\n\t".'* @ORM\OneToOne(targetEntity="'.$this->pt_entity_name.'", inversedBy="'.$this->secondary_table.'")'."\n\t".
+                    $getterSetter .= "\t/**\n\t".'* @ORM\ManyToOne(targetEntity="'.$this->pt_entity_name.'", inversedBy="'.$this->secondary_table.'")'."\n\t".
                         '* @ORM\JoinColumn(name="'.$this->pt_pk.'", referencedColumnName="'.$this->st_fk.'")'."\n\t*/";
                     $type = $this->pt_entity_name;
                 }else{
@@ -1027,11 +1124,13 @@ class ModuleController extends AbstractController
                             "\t\t".'return $this->'.$column.";\n".
                         "\t}\n\n";
         //setters
-        $getterSetter .= "\tpublic function set" . $funcName . "(?".$type." $" . $column . "): self\n" .
-            "\t{\n" .
-            "\t\t" . '$this->' . $column . " = $" . $column . ";\n" .
-            "\t\t" . 'return $this' . ";\n" .
-            "\t}\n\n";
+        if($addSetters) {
+            $getterSetter .= "\tpublic function set" . $funcName . "(?" . $type . " $" . $column . "): self\n" .
+                "\t{\n" .
+                "\t\t" . '$this->' . $column . " = $" . $column . ";\n" .
+                "\t\t" . 'return $this' . ";\n" .
+                "\t}\n\n";
+        }
 
         return $getterSetter;
     }
@@ -1144,28 +1243,6 @@ class ModuleController extends AbstractController
         }
 
         return $opt;
-    }
-
-    /**
-     * Add file upload to the
-     * controller
-     * @return string
-     */
-    private function addFileUploadToController()
-    {
-        $statement = '';
-        if(!empty($this->fileInputLists)){
-            foreach($this->fileInputLists as $key =>$fieldName){
-                $fName = ucfirst($this->generateCase($fieldName, 4));
-                $statement .= '$'.lcfirst($fName).' = $form["'.$fieldName.'"]->getData();'."\n\t\t\t\t\t".
-                                'if ($'.lcfirst($fName).') {'."\n\t\t\t\t\t\t".
-                                    '$fileName = $this->toolService->upload($'.lcfirst($fName).');'."\n\t\t\t\t\t\t".
-                                    '$entity->set'.$fName.'($fileName);'."\n\t\t\t\t\t".
-                                '}'."\n\t\t\t\t\t";
-            }
-        }
-
-        return $statement;
     }
 
     /**

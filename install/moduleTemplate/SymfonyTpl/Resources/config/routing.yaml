@@ -22,7 +22,7 @@ create_form:
 #Save
 save_album:
   path: /melis/save-sampleEntity/{id}
-  controller: App\Bundle\SymfonyTpl\Controller\SampleEntityController::saveSampleEntity
+  controller: App\Bundle\SymfonyTpl\Controller\SampleEntityController::save
   defaults:   { id: 0 }
   methods: POST
 

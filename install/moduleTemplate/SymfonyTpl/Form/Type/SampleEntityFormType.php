@@ -7,6 +7,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Positive;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -26,13 +27,13 @@ class SampleEntityFormType extends AbstractType
     }
 
     /**
-     * Set form default value
      * @param OptionsResolver $resolver
      */
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-           'data_class' => SampleEntity::class
+           'data_class' => SampleEntity::class,
+            'allow_extra_fields' => true
         ]);
     }
 

@@ -2,18 +2,18 @@
 
 namespace App\Bundle\SymfonyTpl\Controller;
 
+//ADDITIONAL_USE
 use App\Bundle\SymfonyTpl\Service\SymfonyTplService;
 use App\Bundle\SymfonyTpl\Entity\SampleEntity;
 use App\Bundle\SymfonyTpl\Form\Type\SampleEntityFormType;
+use Doctrine\DBAL\Connection;
 use MelisPlatformFrameworkSymfony\MelisServiceManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
@@ -30,16 +30,22 @@ class SampleEntityController extends AbstractController
      * @var $toolService
      */
     protected $toolService;
+    /**
+     * @var $connection
+     */
+    protected $connection;
 
     /**
      * SampleEntityController constructor.
      * @param ParameterBagInterface $parameterBag
      * @param SymfonyTplService $toolService
+     * @param Connection $connection
      */
-    public function __construct(ParameterBagInterface $parameterBag, SymfonyTplService $toolService)
+    public function __construct(ParameterBagInterface $parameterBag, SymfonyTplService $toolService, Connection $connection)
     {
         $this->parameters = $parameterBag;
         $this->toolService = $toolService;
+        $this->connection = $connection;
     }
 
     /**
@@ -162,147 +168,127 @@ class SampleEntityController extends AbstractController
      */
     public function getSymfonyTplModalContent($id)
     {
-        try{
-            $data = [];
-            $translator = $this->get('translator');
-            foreach($this->getModalConfig()['tabs'] as $tabName => $tab) {
-                /**
-                 * Form key on the modal config is optional
-                 * but if it exist, then we gonna use it as
-                 * our modal content, else we use the content
-                 * key value in the modal config. Content key value is
-                 * the default content of modal
-                 *
-                 *
-                 * Check if modal tab is gonna use a form
-                 */
-                if(!empty($tab['form'])) {
-                    $entityName = $tab['form']['entity_class_name'];
-                    $formTypeName = $tab['form']['form_type_class_name'];
-                    $formView = $tab['form']['form_view_file'];
-                    $formId = $tab['form']['form_id'];
-                    /**
-                     * If id is not empty,
-                     * then we retrieve the data by id and
-                     * pass it data to form
-                     * else just create the form
-                     */
-                    if (!empty($id)) {
-                        $entity = $this->getDoctrine()
-                            ->getRepository($entityName)
-                            ->find($id);
+        $data = [];
+        foreach($this->getModalConfig()['tabs'] as $tabName => $tab) {
+            /**
+             * Form key on the modal config is optional
+             * but if it exist, then we gonna use it as
+             * our modal content, else we use the content
+             * key value in the modal config. Content key value is
+             * the default content of modal
+             *
+             *
+             * Check if modal tab is gonna use a form
+             */
+            if(!empty($tab['form'])) {
+                $entityName = $tab['form']['entity_class_name'];
+                $formTypeName = $tab['form']['form_type_class_name'];
+                $formView = $tab['form']['form_view_file'];
+                $formId = $tab['form']['form_id'];
 
-                        if (!$entity) {
-                            throw $this->createNotFoundException(
-                                $translator->trans('tool_symfony_tool_no_found_item') . ' ' . $id
-                            );
-                        }
-                    } else {
-                        $entity = new $entityName();
-                    }
+                /**
+                 * get languages if we have a language tab
+                 */
+                if($tabName == 'tab_language'){
+                    //process language form here
+                    //LANGUAGE_FORM_BUILDER
+                }else {
+                    $entity = $this->toolService->getEntity($this->getDoctrine(), $entityName, "find", $id);
                     /**
                      * Create form
                      */
-                    $form = $this->createForm($formTypeName, $entity, [
+                    $param['form'] = $this->createForm($formTypeName, $entity, [
                         'attr' => [
                             'id' => $formId
                         ]
-                    ]);
-                    /**
-                     * get languages if we have a language tab
-                     */
-                    if($tabName == 'tab_language'){
-                        $languages = $this->toolService->getCmsLanguages();
-                        $param['languages'] = $languages;
-                        $forms = [];
-                        /**
-                         * This will create a form per language
-                         */
-                        foreach($languages as $key => $lang){
-                            $locale = $lang['lang_cms_locale'];
-                            $forms[$locale] = $form->createView();
-                        }
-                        $param['form'] = $forms;
-                    }else {
-                        $param['form'] = $form->createView();
-                    }
-                    $data[$tabName] = $this->renderView($formView, $param);
+                    ])->createView();
                 }
+                $data[$tabName] = $this->renderView($formView, $param);
             }
-            return new JsonResponse($data);
-        }catch (\Exception $ex){
-            exit($ex->getMessage());
         }
+        return new JsonResponse($data);
+    }
+
+    //SAVE_FUNCTIONS
+
+    /**
+     * @param $id
+     * @param Request $request
+     * @return array
+     */
+    private function saveSampleEntity($id, Request $request)
+    {
+        /**
+         * Prepare the results
+         */
+        $result = [
+            'errors' => [],
+            'success' => false,
+            'id' => 0
+        ];
+        $entity = $this->toolService->getEntity($this->getDoctrine(), 'App\Bundle\SymfonyTpl\Entity\SampleEntity', "find", $id);
+        $form = $this->createForm(SampleEntityFormType::class, $entity);
+        $this->validatedAndSave($result, $form, $request, $entity);
+        return $result;
     }
 
     /**
-     * Save SampleEntity
-     * @param $id
-     * @param Request $request
-     * @return JsonResponse
+     * Validate the form and
+     * try to save the data
+     * @param $result
+     * @param $form
+     * @param $request
+     * @param $entity
      */
-    public function saveSampleEntity($id, Request $request): JsonResponse
+    private function validatedAndSave(&$result, $form, $request, $entity)
     {
-        $itemId = null;
-        $result = [
-            'title' => 'SampleEntity',
-            'success' => false,
-            'message' => '',
-            'errors' => []
-        ];
-
         try {
-            $translator = $this->get('translator');
-            if($request->getMethod() == 'POST') {
-                $entityManager = $this->getDoctrine()->getManager();
-                if (empty($id)) {//create new data
-                    $entity = new SampleEntity();
-                    //set typeCode form logs
-                    $typeCode = 'SYMFONYTPL_TOOL_SAVE';
-                } else {//update data
-                    $entity = $entityManager->getRepository(SampleEntity::class)->find($id);
-                    //set typeCode form logs
-                    $typeCode = 'SYMFONYTPL_TOOL_UPDATE';
-                    if (!$entity) {
-                        throw $this->createNotFoundException(
-                            $translator->trans('tool_symfony_tpl_no_found_item') .' '. $id
-                        );
+            $entityManager = $this->getDoctrine()->getManager();
+            $form->handleRequest($request);
+            //validate form
+            if ($form->isSubmitted() && $form->isValid()) {
+                /**
+                 * Check if there are some files needed to upload
+                 */
+                foreach ($request->files->all() as $fieldName => $file) {
+                    if (!empty($file)) {
+                        //create setter function name to set the file
+                        $fName = $this->toolService->generateFunctionName($fieldName);
+                        $fName = 'set' . $fName;
+                        $methods = get_class_methods(get_class($entity));
+                        if (in_array($fName, $methods)) {
+                            $fileName = $this->toolService->upload($file);
+                            $entity->$fName($fileName);
+                        }
                     }
                 }
-                $form = $this->createForm(SampleEntityFormType::class, $entity);
-                $form->handleRequest($request);
-                //validate form
-                if($form->isSubmitted() && $form->isValid()) {
-                    //FILE_UPLOAD
-                    $entity = $form->getData();
-                    // tell Doctrine you want to (eventually) save the data (no queries yet)
-                    $entityManager->persist($entity);
-                    // executes the queries
-                    $entityManager->flush();
-                    //get id
-                    $itemId = $entity->getSamplePrimaryId();
 
-                    $result['message'] = (empty($id)) ? $translator->trans('tool_symfony_tpl_successfully_saved') : $translator->trans('tool_symfony_tpl_successfully_updated');
-                    $result['success'] = true;
-                    //set icon for flash messenger
-                    $icon = 'glyphicon-info-sign';
-                }else{
-                    $result['message'] = (empty($id)) ? $translator->trans('tool_symfony_tpl_unable_to_save') : $translator->trans('tool_symfony_tpl_unable_to_update');
-                    $result['errors'] = $this->toolService->getErrorsFromForm($form);
-                    //set icon for flash messenger
-                    $icon = 'glyphicon-warning-sign';
+                $entity = $form->getData();
+                // tell Doctrine you want to (eventually) save the data (no queries yet)
+                $entityManager->persist($entity);
+                // executes the queries
+                $entityManager->flush();
+
+                /**
+                 * get the primary key identifier of the entity
+                 * so that we can return it's value
+                 */
+                $meta = $entityManager->getClassMetadata(get_class($entity));
+                $identifiers = $meta->getIdentifierFieldNames();
+                if (!empty($identifiers)) {
+                    //create a function to get the id ex: getPrimaryId()
+                    $funcName = $this->toolService->generateFunctionName($identifiers[0]);
+                    $funcName = 'get' . $funcName;
+                    $result['id'] = $entity->$funcName();
                 }
 
-                //add message notification
-                $this->toolService->addToFlashMessenger($result['title'], $result['message'], $icon);
-                //save logs
-                $this->toolService->saveLogs($result['title'], $result['message'], $result['success'], $typeCode, $itemId);
+                $result['success'] = true;
+            } else {
+                $result['errors'] = array_merge($result['errors'], $this->toolService->getErrorsFromForm($form));
             }
         }catch (\Exception $ex){
-            $result['message'] = $ex->getMessage();
+            $result['success'] = false;
         }
-
-        return new JsonResponse($result);
     }
 
     /**

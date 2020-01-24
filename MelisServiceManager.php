@@ -33,6 +33,41 @@ class MelisServiceManager
 
     /**
      * Get Melis Platform Back office / Front
+     * language id
+     * @return int
+     */
+    public function getMelisLangId()
+    {
+        $langId = 1;
+        try {
+            $uri = $_SERVER['REQUEST_URI'];
+            $uri = explode('/', $uri);
+            /**
+             * if uri starts with melis, then
+             * we get the melis back office
+             * language id
+             */
+            if (!empty($uri[1]) && $uri[1] == 'melis') {
+                $container = new Container('meliscore');
+                if (!empty($container['melis-lang-id']))
+                    $langId = $container['melis-lang-id'];
+            } else {
+                /**
+                 * get the front language id
+                 */
+                $container = new Container('melisplugins');
+                if (!empty($container['melis-plugins-lang-id']))
+                    $langId = $container['melis-plugins-lang-id'];
+            }
+        }catch (\Exception $ex){
+            $langId = 1;
+        }
+
+        return $langId;
+    }
+
+    /**
+     * Get Melis Platform Back office / Front
      * language locale
      *
      * @return mixed

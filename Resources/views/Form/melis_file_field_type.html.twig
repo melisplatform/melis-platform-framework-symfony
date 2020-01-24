@@ -11,7 +11,8 @@
 
     <div class="form-group{% if not valid %} has-error{% endif %}">
         {{- form_label(form) }}
-        <input type="file" name="{{ name }}" id="{{ id }}"
+{#        <input type="hidden" name="{{ name ~ '_value' }}" value="{{ data }}" />#}
+        <input type="file" name="{{ name }}" id="{{ id }}" data-value="{{ data }}"
         {% for attrname, attrvalue in attr %}
             {{ attrname }}="{{ attrvalue }}"
         {% endfor %}

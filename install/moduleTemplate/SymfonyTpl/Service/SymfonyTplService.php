@@ -6,6 +6,10 @@ use MelisPlatformFrameworkSymfony\MelisServiceManager;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SymfonyTplService
@@ -214,11 +218,12 @@ class SymfonyTplService
     {
         //set target directory
         if(empty($targetDirectory))
-            $targetDirectory = $_SERVER['DOCUMENT_ROOT'].'/../thirdparty/Symfony/public/images/';
+            $targetDirectory = $_SERVER['DOCUMENT_ROOT'].'/media/SymfonyTpl/';
 
         $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
         $safeFilename = transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $originalFilename);
-        $fileName = $safeFilename.'.'.$file->guessExtension();
+        $safeFilename .= '_'.uniqid();
+        $fileName = '/SymfonyTpl/'.$safeFilename.'.'.$file->guessExtension();
 
         try {
             $file->move($targetDirectory, $fileName);
@@ -227,5 +232,76 @@ class SymfonyTplService
         }
 
         return $fileName;
+    }
+
+    /**
+     * @param $data
+     * @param null $format
+     * @return array|bool|float|int|mixed|string
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     */
+    public function serialize($data, $format = null)
+    {
+        /**
+         * Prepare the serializer to convert
+         * Entity object to array
+         */
+        $encoder = new JsonEncoder();
+        $defaultContext = [
+            AbstractNormalizer::CIRCULAR_REFERENCE_HANDLER => function ($object, $format, $context) {
+            },
+        ];
+        $normalizer = new ObjectNormalizer(null, null, null, null, null, null, $defaultContext);
+        $serializer = new Serializer([$normalizer], [$encoder]);
+
+        return $serializer->normalize($data, $format);
+    }
+
+    /**
+     * Get Entity Information
+     *
+     * @param $doctrine
+     * @param $entityName
+     * @param $fn
+     * @param $param
+     * @return mixed
+     */
+    public function getEntity($doctrine, $entityName, $fn, $param)
+    {
+        if (!empty($param)) {
+            $entity = $doctrine
+                ->getRepository($entityName)
+                ->$fn($param);
+        }else{
+            $entity = new $entityName();
+        }
+
+        return $entity;
+    }
+
+    /**
+     * @param $name
+     * @return mixed|string
+     */
+    public function generateFunctionName($name)
+    {
+        $fName = ucwords(str_replace(array('-','_'), ' ', $name));
+        $fName = str_replace(' ', '', $fName);
+
+        return $fName;
+    }
+
+    /**
+     * This will whether all of the data
+     * in array is empty
+     * @param $array
+     * @return bool
+     */
+    public function isArrayEmpty($array) {
+        foreach($array as $key => $val) {
+            if (!empty($val))
+                return false;
+        }
+        return true;
     }
 }
