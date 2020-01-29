@@ -53,13 +53,13 @@
                      * Check if the saving is success
                      */
                     if($result['success']){
-                        $result['message'] = (empty($id)) ? $translator->trans('tool_symfony_tool_successfully_saved') : $translator->trans('tool_symfony_tool_successfully_updated');
+                        $result['message'] = (empty($id)) ? $translator->trans('tool_symfony_tpl_successfully_saved') : $translator->trans('tool_symfony_tpl_successfully_updated');
                         $icon = 'glyphicon-info-sign';
                         //commit the data
                         $this->connection->commit();
                     }else{
                         $icon = 'glyphicon-warning-sign';
-                        $result['message'] = (empty($id)) ? $translator->trans('tool_symfony_tool_unable_to_save') : $translator->trans('tool_symfony_tool_unable_to_update');
+                        $result['message'] = (empty($id)) ? $translator->trans('tool_symfony_tpl_unable_to_save') : $translator->trans('tool_symfony_tpl_unable_to_update');
                         //rollback db
                         $this->connection->rollBack();
                     }
@@ -128,6 +128,10 @@
                         if ($entity->getLanguageFkId() == $languageId) {
                             $form = $this->createForm(SampleLanguageEntityFormType::class, $entity);
                             $this->validatedAndSave($result, $form, $request, $entity);
+                            //if the validation is not success, then we stop and return the error
+                            if(!$result['success'])
+                                return $result;
+
                             $languageFound = true;
                             break;
                         }
@@ -144,6 +148,27 @@
                     * Insert new record
                     */
                     $this->saveSampleLanguageEntityNewRecord($result, $sampleEntityId, $languageId, $request);
+                }
+            }else{
+                /**
+                * This will delete the data in the db
+                * if the user submit an empty data that
+                * exist in the db(for update only)
+                */
+                if(!empty($dataCmsNewsTexts)){
+                    $entityManager = $this->getDoctrine()->getManager();
+                    foreach($dataCmsNewsTexts as $entity){
+                        if ($entity->getLanguageFkId() == $languageId) {
+                            try {
+                                $id = $this->toolService->getEntityPrimaryIdValue($entityManager, $entity);
+                                $entity = $entityManager->getRepository(get_class($entity))->find($id);
+                                $entityManager->remove($entity);
+                                $entityManager->flush();
+                            }catch (\Exception $ex){
+                                $result['success'] = false;
+                            }
+                        }
+                    }
                 }
             }
         }

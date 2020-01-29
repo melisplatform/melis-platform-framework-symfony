@@ -22,9 +22,13 @@ class SymfonyTplService
      * @var $translator
      */
     protected $translator;
+    /**
+     * @var string
+     */
+    protected $moduleName = 'SymfonyTpl';
 
     /**
-     * SymfonyToolService constructor.
+     * SymfonyTplService constructor.
      * @param MelisServiceManager $melisServiceManager
      * @param TranslatorInterface $translator
      */
@@ -218,12 +222,12 @@ class SymfonyTplService
     {
         //set target directory
         if(empty($targetDirectory))
-            $targetDirectory = $_SERVER['DOCUMENT_ROOT'].'/media/SymfonyTpl/';
+            $targetDirectory = $this->getDirectoryPath().'/'.$this->moduleName.'/';
 
         $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
         $safeFilename = transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $originalFilename);
         $safeFilename .= '_'.uniqid();
-        $fileName = '/SymfonyTpl/'.$safeFilename.'.'.$file->guessExtension();
+        $fileName = '/'.$this->moduleName.'/'.$safeFilename.'.'.$file->guessExtension();
 
         try {
             $file->move($targetDirectory, $fileName);
@@ -232,6 +236,14 @@ class SymfonyTplService
         }
 
         return $fileName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDirectoryPath()
+    {
+        return $_SERVER['DOCUMENT_ROOT'].'/media';
     }
 
     /**
@@ -272,11 +284,34 @@ class SymfonyTplService
             $entity = $doctrine
                 ->getRepository($entityName)
                 ->$fn($param);
+            //if result is empty, we create a blank entity
+            if(empty($entity)){
+                $entity = new $entityName();
+            }
         }else{
             $entity = new $entityName();
         }
 
         return $entity;
+    }
+
+    /**
+     * @param $entityManager
+     * @param $entity
+     * @return int
+     */
+    public function getEntityPrimaryIdValue($entityManager, $entity)
+    {
+        $id = 0;
+        $meta = $entityManager->getClassMetadata(get_class($entity));
+        $identifiers = $meta->getIdentifierFieldNames();
+        if (!empty($identifiers)) {
+            //create a function to get the id ex: getPrimaryId()
+            $funcName = $this->generateFunctionName($identifiers[0]);
+            $funcName = 'get' . $funcName;
+            $id = $entity->$funcName();
+        }
+        return $id;
     }
 
     /**

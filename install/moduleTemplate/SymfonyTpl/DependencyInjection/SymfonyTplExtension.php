@@ -17,8 +17,6 @@ class SymfonyTplExtension extends Extension implements PrependExtensionInterface
      */
     public function load(array $configs, ContainerBuilder $container)
     {
-//        $configuration = new Configuration();
-//        $config = $this->processConfiguration($configuration, $configs);
         /**
          * Load the bundle services
          */

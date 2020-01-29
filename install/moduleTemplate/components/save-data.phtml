@@ -35,13 +35,13 @@
                      * Check if the saving is success
                      */
                     if($result['success']){
-                        $result['message'] = (empty($id)) ? $translator->trans('tool_symfony_tool_successfully_saved') : $translator->trans('tool_symfony_tool_successfully_updated');
+                        $result['message'] = (empty($id)) ? $translator->trans('tool_symfony_tpl_successfully_saved') : $translator->trans('tool_symfony_tpl_successfully_updated');
                         $icon = 'glyphicon-info-sign';
                         //commit the data
                         $this->connection->commit();
                     }else{
                         $icon = 'glyphicon-warning-sign';
-                        $result['message'] = (empty($id)) ? $translator->trans('tool_symfony_tool_unable_to_save') : $translator->trans('tool_symfony_tool_unable_to_update');
+                        $result['message'] = (empty($id)) ? $translator->trans('tool_symfony_tpl_unable_to_save') : $translator->trans('tool_symfony_tpl_unable_to_update');
                         //rollback the db
                         $this->connection->rollBack();
                     }

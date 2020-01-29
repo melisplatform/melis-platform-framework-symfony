@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Yaml\Yaml;
 use Zend\Config\Writer\PhpArray;
+use Zend\Session\Container;
 use function Composer\Autoload\includeFile;
 
 class ModuleController extends AbstractController
@@ -30,30 +31,37 @@ class ModuleController extends AbstractController
     private $has_language = false;
     private $pre_add_trans = [
         'en' => [
+            'tool_symfony_tpl_tab_properties' => 'Properties',
+            'tool_symfony_tpl_tab_language' => 'Language',
             'tool_symfony_tpl_common_add' => 'Add',
             'tool_symfony_tpl_successfully_saved' => 'Record successfully saved',
             'tool_symfony_tpl_successfully_updated' => 'Record successfully updated',
             'tool_symfony_tpl_unable_to_update' => 'Unable to update record',
             'tool_symfony_tpl_unable_to_save' => 'Unable to save record',
-            'tool_confirm_modal_yes' => 'Yes',
-            'tool_confirm_modal_no' => 'No',
-            'tool_confirm_modal_title' => 'Delete Record',
-            'tool_confirm_modal_message' => 'Are you sure you want to delete this record?',
+            'tool_symfony_tpl_confirm_modal_yes' => 'Yes',
+            'tool_symfony_tpl_confirm_modal_no' => 'No',
+            'tool_symfony_tpl_confirm_modal_title' => 'Delete Record',
+            'tool_symfony_tpl_confirm_modal_message' => 'Are you sure you want to delete this record?',
         ],
         'fr' => [
+            'tool_symfony_tpl_tab_properties' => 'Properties',
+            'tool_symfony_tpl_tab_language' => 'Language',
             'tool_symfony_tpl_common_add' => 'Ajouter',
             'tool_symfony_tpl_successfully_saved' => 'Record successfully saved',
             'tool_symfony_tpl_successfully_updated' => 'Record successfully updated',
             'tool_symfony_tpl_unable_to_update' => 'Unable to update record',
             'tool_symfony_tpl_unable_to_save' => 'Unable to save record',
-            'tool_confirm_modal_yes' => 'Yes',
-            'tool_confirm_modal_no' => 'No',
-            'tool_confirm_modal_title' => 'Delete Record',
-            'tool_confirm_modal_message' => 'Are you sure you want to delete this record ?',
+            'tool_symfony_tpl_confirm_modal_yes' => 'Yes',
+            'tool_symfony_tpl_confirm_modal_no' => 'No',
+            'tool_symfony_tpl_confirm_modal_title' => 'Delete Record',
+            'tool_symfony_tpl_confirm_modal_message' => 'Are you sure you want to delete this record ?',
         ]
     ];
     private $fileInputLists = [];
     private $componentsDir = '';
+    private $assetsDir = '';
+    private $zendModuleDir = '';
+    private $savingType = '';
 
     /**
      * ModuleController constructor.
@@ -62,309 +70,6 @@ class ModuleController extends AbstractController
     public function __construct($melisServiceManager)
     {
         $this->melisServiceManager = $melisServiceManager;
-    }
-
-    private function sampleData()
-    {
-        $data = [];
-
-        $data['step1'] = [
-            'tcf-name' => 'SymfonyTool',
-            'tcf-tool-type' => 'db',
-            'tcf-tool-edit-type' => 'modal',
-            'tcf-create-microservice' => '0',
-            'tcf-create-framework-tool' => '1',
-            'tcf-tool-framework' => 'laravel',
-        ];
-
-        $data['step2'] = [
-            'en_EN' => [
-                'tcf-title' => 'Laravel Tool',
-                'tcf-desc' => 'Laravel tool description',
-                'tcf-lang-local' => 'en_EN'
-            ],
-            'fr_FR' => [
-                'tcf-title' => '',
-                'tcf-desc' => '',
-                'tcf-lang-local' => 'fr_FR'
-            ],
-        ];
-
-        $data['step3'] = [
-            'tcf-db-table' => 'melis_calendar',
-            'tcf-db-table-has-language' => '',
-            'tcf-db-table-language-tbl' => '',
-            'tcf-db-table-language-pri-fk' => '',
-            'tcf-db-table-language-lang-fk' => '',
-        ];
-
-        $data['step4'] = [
-            'tcf-db-table-cols' => [
-                'cal_id', 'cal_event_title', 'cal_date_start',
-                'cal_date_end', 'cal_created_by', 'cal_last_update_by',
-                'cal_date_last_update', 'cal_date_added'
-            ],
-            'tcf-db-table-col-display' => [
-                'raw_view', 'raw_view', 'raw_view',
-                'raw_view', 'admin_name', 'admin_name',
-                'raw_view', 'raw_view'
-            ]
-        ];
-
-
-        $data['step5'] = [
-            'tcf-db-table-col-editable' => [
-                'cal_id', 'cal_event_title', 'cal_date_start',
-                'cal_date_end', 'cal_created_by', 'cal_last_update_by',
-                'cal_date_last_update', 'cal_date_added'
-            ],
-            'tcf-db-table-col-required' => [
-                'cal_id', 'cal_event_title', 'cal_date_start',
-                'cal_date_end', 'cal_date_added', 'tclangtblcol_cnews_text_id'
-            ],
-            'tcf-db-table-col-type' => [
-                'MelisText', 'MelisCoreTinyMCE', 'Datepicker', 'Datepicker',
-                'MelisCoreUserSelect', 'MelisCoreUserSelect', 'Datepicker', 'Datepicker',
-            ]
-        ];
-
-        $data['step6'] = [
-            'en_EN' => [
-                'pri_tbl' => [
-                    'cal_id' => 'ID',
-                    'cal_id_tcinputdesc' => null,
-                    'cal_event_title' => 'Event',
-                    'cal_event_title_tcinputdesc' => null,
-                    'cal_date_start' =>' Date start',
-                    'cal_date_start_tcinputdesc' => null,
-                    'cal_date_end' => 'Date end',
-                    'cal_date_end_tcinputdesc' => null,
-                    'cal_created_by' => 'Created by',
-                    'cal_created_by_tcinputdesc' => null,
-                    'cal_last_update_by' => 'Last update by',
-                    'cal_last_update_by_tcinputdesc' => null,
-                    'cal_date_last_update' => 'Date last update',
-                    'cal_date_last_update_tcinputdesc' => null,
-                    'cal_date_added' => 'Date created',
-                    'cal_date_added_tcinputdesc' => null,
-                    'tcf-lang-local'=> 'en_EN',
-                    'tcf-tbl-type' => 'pri_tbl',
-                ]
-            ],
-            'fr_FR' => [
-                'pri_tbl' => [
-                    'cal_id' => 'ID Fr',
-                    'cal_id_tcinputdesc' => null,
-                    'cal_event_title' => null,
-                    'cal_event_title_tcinputdesc' => null,
-                    'cal_date_start' => null,
-                    'cal_date_start_tcinputdesc' => null,
-                    'cal_date_end' => null,
-                    'cal_date_end_tcinputdesc' => null,
-                    'cal_created_by' => null,
-                    'cal_created_by_tcinputdesc' => null,
-                    'cal_last_update_by' => null,
-                    'cal_last_update_by_tcinputdesc' => null,
-                    'cal_date_last_update' => null,
-                    'cal_date_last_update_tcinputdesc' => null,
-                    'cal_date_added' => null,
-                    'cal_date_added_tcinputdesc' => 'Sa Fr',
-                    'tcf-lang-local'=> 'fr_FR',
-                    'tcf-tbl-type' => 'pri_tbl',
-                ]
-            ]
-        ];
-
-        return $data;
-    }
-
-    private function multipleData()
-    {
-        $data = [];
-
-        $data['step1'] = [
-            'tcf-name' => 'SymfonyTool',
-            'tcf-tool-type' => 'db',
-            'tcf-tool-edit-type' => 'modal',
-            'tcf-create-microservice' => '0',
-            'tcf-create-framework-tool' => '1',
-            'tcf-tool-framework' => 'symfony',
-        ];
-
-        $data['step2'] = [
-            'en_EN' => [
-                'tcf-title' => 'Symfony Tool',
-                'tcf-desc' => 'Symfony tool description',
-                'tcf-lang-local' => 'en_EN'
-            ],
-            'fr_FR' => [
-                'tcf-title' => '',
-                'tcf-desc' => '',
-                'tcf-lang-local' => 'fr_FR'
-            ],
-        ];
-
-        $data['step3'] = [
-            'tcf-db-table' => 'melis_cms_news',
-            'tcf-db-table-has-language' => 1,
-            'tcf-db-table-language-tbl' => 'melis_cms_news_texts',
-            'tcf-db-table-language-pri-fk' => 'cnews_id',
-            'tcf-db-table-language-lang-fk' => 'cnews_lang_id',
-        ];
-
-        $data['step4']['tcf-db-table-cols'] = [
-            'cnews_id', 'cnews_status', 'cnews_image1',
-            'cnews_image2', 'cnews_image3', 'cnews_documents1',
-            'cnews_documents2', 'cnews_documents3', 'cnews_creation_date',
-            'cnews_publish_date', 'cnews_unpublish_date', 'cnews_slider_id',
-            'cnews_site_id', 'tclangtblcol_cnews_text_id', 'tclangtblcol_cnews_title',
-            'tclangtblcol_cnews_subtitle', 'tclangtblcol_cnews_paragraph1', 'tclangtblcol_cnews_paragraph2',
-            'tclangtblcol_cnews_paragraph3', 'tclangtblcol_cnews_paragraph4', 'tclangtblcol_cnews_lang_id',
-        ];
-
-        $data['step4']['tcf-db-table-col-display'] = [
-            'raw_view', 'dot_color', 'char_length_limit',
-            'char_length_limit', 'char_length_limit', 'char_length_limit',
-            'char_length_limit', 'raw_view', 'raw_view',
-            'raw_view', 'raw_view', 'raw_view',
-            'site_name', 'raw_view', 'raw_view',
-            'raw_view', 'char_length_limit', 'char_length_limit',
-            'raw_view', 'raw_view', 'lang_name',
-        ];
-
-
-        $data['step5'] = [
-            'tcf-db-table-col-editable' => [
-                'cnews_id', 'cnews_status', 'cnews_image1',
-                'cnews_image2', 'cnews_image3', 'cnews_documents1',
-                'cnews_documents2', 'cnews_documents3', 'cnews_creation_date',
-                'cnews_publish_date', 'cnews_unpublish_date', 'cnews_slider_id',
-                'cnews_site_id', 'tclangtblcol_cnews_text_id', 'tclangtblcol_cnews_title',
-                'tclangtblcol_cnews_subtitle', 'tclangtblcol_cnews_paragraph1', 'tclangtblcol_cnews_paragraph2',
-                'tclangtblcol_cnews_paragraph3', 'tclangtblcol_cnews_paragraph4',
-            ],
-            'tcf-db-table-col-required' => [
-                'cnews_id', 'cnews_status', 'cnews_creation_date',
-                'tclangtblcol_cnews_text_id', 'tclangtblcol_cnews_id', 'tclangtblcol_cnews_lang_id'
-            ],
-            'tcf-db-table-col-type' => [
-                'MelisText', 'Switch', 'File', 'File',
-                'File', 'File', 'File', 'File',
-                'Datetimepicker', 'Datetimepicker', 'Datetimepicker', 'MelisText',
-                'MelisCmsPluginSiteSelect', 'MelisText', 'MelisText', 'TextArea',
-                'MelisCoreTinyMCE', 'MelisCoreTinyMCE', 'MelisCoreTinyMCE', 'MelisCoreTinyMCE',
-                'MelisText', 'MelisText',
-            ]
-        ];
-
-        $data['step6'] = [
-            'en_EN' => [
-                'pri_tbl' => [
-                    'cnews_id' => 'ID',
-                    'cnews_id_tcinputdesc' => '',
-                    'cnews_status' => 'Status',
-                    'cnews_status_tcinputdesc' => '',
-                    'cnews_image1' => 'Image 1',
-                    'cnews_image1_tcinputdesc' => '',
-                    'cnews_image2' => 'Image 2',
-                    'cnews_image2_tcinputdesc' => '',
-                    'cnews_image3' => 'Image 3',
-                    'cnews_image3_tcinputdesc' => '',
-                    'cnews_documents1' => 'Docs 1',
-                    'cnews_documents1_tcinputdesc' => '',
-                    'cnews_documents2' => 'Docs 2',
-                    'cnews_documents2_tcinputdesc' => '',
-                    'cnews_documents3' => 'Docs 3',
-                    'cnews_documents3_tcinputdesc' => '',
-                    'cnews_creation_date' => 'Date created',
-                    'cnews_creation_date_tcinputdesc' => '',
-                    'cnews_publish_date' => 'Date published',
-                    'cnews_publish_date_tcinputdesc' => '',
-                    'cnews_unpublish_date' => 'Date unpublished',
-                    'cnews_unpublish_date_tcinputdesc' => '',
-                    'cnews_slider_id' => 'Slider ID',
-                    'cnews_slider_id_tcinputdesc' => '',
-                    'cnews_site_id' => 'Site ID',
-                    'cnews_site_id_tcinputdesc' => '',
-                    'tcf-lang-local' => 'en_EN',
-                    'tcf-tbl-type' => 'pri_tbl',
-                ],
-                'lang_tbl' => [
-                    'tclangtblcol_cnews_text_id' => 'ID',
-                    'tclangtblcol_cnews_text_id_tcinputdesc' => '',
-                    'tclangtblcol_cnews_title' => 'Title',
-                    'tclangtblcol_cnews_title_tcinputdesc' => '',
-                    'tclangtblcol_cnews_subtitle' => 'Sub Title',
-                    'tclangtblcol_cnews_subtitle_tcinputdesc' => '',
-                    'tclangtblcol_cnews_paragraph1' => 'P1',
-                    'tclangtblcol_cnews_paragraph1_tcinputdesc' => '',
-                    'tclangtblcol_cnews_paragraph2' => 'P2',
-                    'tclangtblcol_cnews_paragraph2_tcinputdesc' => '',
-                    'tclangtblcol_cnews_paragraph3' => 'P3',
-                    'tclangtblcol_cnews_paragraph3_tcinputdesc' => '',
-                    'tclangtblcol_cnews_paragraph4' => 'P4',
-                    'tclangtblcol_cnews_paragraph4_tcinputdesc' => '',
-                    'tclangtblcol_cnews_lang_id' => 'Language ID',
-                    'tclangtblcol_cnews_lang_id_tcinputdesc' => '',
-                    'tcf-lang-local' => 'en_EN',
-                    'tcf-tbl-type' => 'lang_tbl',
-                ]
-            ],
-            'fr_FR' => [
-                'pri_tbl' => [
-                    'cnews_id' => '',
-                    'cnews_id_tcinputdesc' => '',
-                    'cnews_status' => '',
-                    'cnews_status_tcinputdesc' => '',
-                    'cnews_image1' => '',
-                    'cnews_image1_tcinputdesc' => '',
-                    'cnews_image2' => '',
-                    'cnews_image2_tcinputdesc' => '',
-                    'cnews_image3' => '',
-                    'cnews_image3_tcinputdesc' => '',
-                    'cnews_documents1' => '',
-                    'cnews_documents1_tcinputdesc' => '',
-                    'cnews_documents2' => '',
-                    'cnews_documents2_tcinputdesc' => '',
-                    'cnews_documents3' => '',
-                    'cnews_documents3_tcinputdesc' => '',
-                    'cnews_creation_date' => '',
-                    'cnews_creation_date_tcinputdesc' => '',
-                    'cnews_publish_date' => '',
-                    'cnews_publish_date_tcinputdesc' => '',
-                    'cnews_unpublish_date' => '',
-                    'cnews_unpublish_date_tcinputdesc' => '',
-                    'cnews_slider_id' => '',
-                    'cnews_slider_id_tcinputdesc' => '',
-                    'cnews_site_id' => '',
-                    'cnews_site_id_tcinputdesc' => '',
-                    'tcf-lang-local' => 'fr_FR',
-                    'tcf-tbl-type' => 'lang_tbl',
-                ],
-                'lang_tbl' => [
-                    'tclangtblcol_cnews_text_id' => '',
-                    'tclangtblcol_cnews_text_id_tcinputdesc' => '',
-                    'tclangtblcol_cnews_title' => '',
-                    'tclangtblcol_cnews_title_tcinputdesc' => '',
-                    'tclangtblcol_cnews_subtitle' => '',
-                    'tclangtblcol_cnews_subtitle_tcinputdesc' => '',
-                    'tclangtblcol_cnews_paragraph1' => '',
-                    'tclangtblcol_cnews_paragraph1_tcinputdesc' => '',
-                    'tclangtblcol_cnews_paragraph2' => '',
-                    'tclangtblcol_cnews_paragraph2_tcinputdesc' => '',
-                    'tclangtblcol_cnews_paragraph3' => '',
-                    'tclangtblcol_cnews_paragraph3_tcinputdesc' => '',
-                    'tclangtblcol_cnews_paragraph4' => '',
-                    'tclangtblcol_cnews_paragraph4_tcinputdesc' => '',
-                    'tclangtblcol_cnews_lang_id' => '',
-                    'tclangtblcol_cnews_lang_id_tcinputdesc' => '',
-                    'tcf-lang-local' => 'fr_FR',
-                    'tcf-tbl-type' => 'lang_tbl',
-                ]
-            ]
-        ];
-
-        return $data;
     }
 
     /**
@@ -392,6 +97,9 @@ class ModuleController extends AbstractController
     }
 
     /**
+     * Function to create
+     * Symfony module
+     *
      * @return JsonResponse
      */
     public function createSymfonyModule()
@@ -401,11 +109,14 @@ class ModuleController extends AbstractController
             'message' => '',
         ];
 
-        $data = $this->multipleData();
+        $container = new Container('melistoolcreator');
+        $data = $container['melis-toolcreator'];
 
         if(!empty($data['step1']['tcf-name'])){
             //get module name
             $this->module_name = $this->generateCase($data['step1']['tcf-name'], 3);
+            //get saving type
+            $this->savingType = $data['step1']['tcf-tool-edit-type'] ?? 'modal';
             //Get Primary table name
             //use table as our entity name
             $this->setTableNameAndEntityName($data);
@@ -413,7 +124,10 @@ class ModuleController extends AbstractController
             $frameworkDir = $_SERVER['DOCUMENT_ROOT'] . '/../thirdparty/Symfony';
             $destination = $frameworkDir . '/src/Bundle/' . $this->module_name;
             $source = dirname(__FILE__) . '/../install/moduleTemplate/SymfonyTpl';
-            $this->componentsDir = dirname(__FILE__) . '/../install/moduleTemplate/components';
+            $this->componentsDir = dirname(__FILE__) . '/../install/moduleTemplate/Components';
+            $this->assetsDir = dirname(__FILE__) . '/../install/moduleTemplate/Assets';
+            $this->zendModuleDir = $_SERVER['DOCUMENT_ROOT'] . '/../module/'.$this->module_name;
+
             //check if framework exist
             if(file_exists($frameworkDir)){
                 //check if framework is writable
@@ -478,9 +192,13 @@ class ModuleController extends AbstractController
                                         ]);
                                     }
                                     $this->mapDirectory($destination, $textToChange);
-
                                     /**
-                                     * After we successfully created the bundle,
+                                     * Let's put the assets inside the Zend Module that we created
+                                     */
+                                    $this->processAssets();
+                                    /**
+                                     * After we successfully created the bundle
+                                     * and adding the assets,
                                      * lets try to activate it
                                      */
                                     $this->activateBundle($frameworkDir);
@@ -658,28 +376,38 @@ class ModuleController extends AbstractController
                             $configData['symfony_tpl']['table']['symfony_tpl_table']['columnDisplay'] = $colsDisplay;
 
                             /**
-                             * Add language tab on modal
+                             * Check if Module Saving is Modal base or Tab base
                              */
-                            if($this->has_language){
-                                $tabs = $configData['symfony_tpl']['modal']['symfony_tpl_modal']['tabs'];
-                                $modalLangTab = [
-                                    'tab_language' => [
-                                        'title' => 'Language',
-                                        'content' => '',
-                                        'class' => 'glyphicons language',
-                                        'form' => [
-                                            'form_id' => 'sampleEntity_lang_form',
-                                            'entity_class_name' => 'App\Bundle\SymfonyTpl\Entity\\'.$this->st_entity_name,
-                                            'form_type_class_name' => 'App\Bundle\SymfonyTpl\Form\Type\\'.$this->st_entity_name.'FormType',
-                                            'form_view_file' => '@SymfonyTpl/form_language.html.twig',
+                            if($this->savingType == 'modal') {
+                                /**
+                                 * Add properties tab on modal
+                                 */
+                                $modalData = ['modal' =>
+                                    [
+                                        'symfony_tpl_modal' => [
+                                            'id' => 'symfonyTplModal',
+                                            'btnSubmitText' => 'Save',
+                                            'btnSubmitId' => 'btn-save-symfonytpl',
+                                            'tabs' => []
                                         ]
                                     ]
                                 ];
-                                $configData['symfony_tpl']['modal']['symfony_tpl_modal']['tabs'] = array_merge($tabs, $modalLangTab);
-                            }else{
-                                unlink($dir.'/Resources/views/form_language.html.twig');
-                            }
+                                $propertiesTab = $this->getModalTabs('tab_properties', 'tool_symfony_tpl_tab_properties',
+                                    'glyphicons plus','symfonytpl_prop_form', $this->pt_entity_name, 'form.html.twig');
+                                $modalData['modal']['symfony_tpl_modal']['tabs'] = array_merge($modalData['modal']['symfony_tpl_modal']['tabs'], $propertiesTab);
+                                /**
+                                 * Add language tab on modal
+                                 */
+                                if ($this->has_language) {
+                                    $modalLangTab = $this->getModalTabs('tab_language', 'tool_symfony_tpl_tab_language',
+                                        'glyphicons language','symfonytpl_lang_form', $this->st_entity_name, 'form_language.html.twig');
+                                    $modalData['modal']['symfony_tpl_modal']['tabs'] = array_merge($modalData['modal']['symfony_tpl_modal']['tabs'], $modalLangTab);
+                                } else {
+                                    unlink($dir . '/Resources/views/form_language.html.twig');
+                                }
 
+                                $configData['symfony_tpl'] = array_merge($configData['symfony_tpl'], $modalData);
+                            }
                             $writer = new PhpArray();
                             file_put_contents($configFile, $writer->toString($configData));
                         }
@@ -692,6 +420,69 @@ class ModuleController extends AbstractController
             }
         }catch (\Exception $ex){
             throw new \Exception('Cannot create table columns: '. $ex->getMessage());
+        }
+    }
+
+    /**
+     * @param $name
+     * @param $title
+     * @param $class
+     * @param $formId
+     * @param $entity
+     * @param $form
+     * @return array
+     */
+    private function getModalTabs($name, $title, $class, $formId, $entity, $form)
+    {
+        return [
+            $name =>
+            [
+                'title' => $title,
+                'content' => '',
+                'class' => $class,
+                'form' => [
+                    'form_id' => $formId,
+                    'entity_class_name' => "App\Bundle\SymfonyTpl\Entity\\$entity",
+                    'form_type_class_name' => "App\Bundle\SymfonyTpl\Form\Type\\".$entity."FormType",
+                    'form_view_file' => '@SymfonyTpl/'.$form,
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * Function to process assets
+     */
+    public function processAssets()
+    {
+        $publicDir = $this->zendModuleDir.'/public/';
+        if(is_dir($publicDir) && file_exists($publicDir)){
+            $jsDir = $publicDir.'js';
+            $cssDir = $publicDir.'css';
+            if(!file_exists($jsDir))
+                mkdir($jsDir, 0777);
+            if(!file_exists($cssDir))
+                mkdir($cssDir, 0777);
+
+            //get the js file
+            $jsFileTemplate = $this->assetsDir.'/js';
+            if($this->savingType == 'modal')
+                $jsFileTemplate .= '/modal.js';
+
+            if(file_exists($jsFileTemplate)){
+                $jsContent = file_get_contents($jsFileTemplate);
+                $find = ['symfonytpl', 'symfonyTpl', 'symfony_tpl'];
+                $replace = [strtolower($this->module_name), lcfirst($this->module_name), $this->generateCase($this->module_name, 2)];
+                $this->createFilesAndReplaceTexts($jsContent, $find, $replace,$jsDir.'/tool.js');
+            }
+
+            //get css file
+            $cssFileTemplate = $this->assetsDir.'/css/tool.css';
+            if(file_exists($cssFileTemplate)){
+                $cssContent = file_get_contents($cssFileTemplate);
+                $this->createFilesAndReplaceTexts($cssContent, '', '',$cssDir.'/tool.css');
+            }
+
         }
     }
 
@@ -831,9 +622,11 @@ class ModuleController extends AbstractController
                 $st_builder = '$builder';
                 $st_getterSetter = '';
                 $pt_builder = '$builder';
+                $pt_getterSetter = '';
                 $stBuilderViewTransformer = '';
                 $ptBuilderViewTransformer = '';
-                $pt_getterSetter = '';
+                $stFileValidations = '';
+                $ptFileValidations = '';
                 $ptOtherFields = [];
                 $stOtherFields = [];
 
@@ -860,14 +653,18 @@ class ModuleController extends AbstractController
                         }
 
                         $isPrimary = ($this->st_pk == $fieldName) ? : false;
-                        $this->constructBuilderAndEntity($st_getterSetter,$st_builder, $stBuilderViewTransformer, $fieldsInfo, $fieldName, $key, $modName, $isPrimary, false, $secTableColType);
+                        $this->constructBuilderAndEntity($st_getterSetter,$st_builder,$stFileValidations,
+                            $stBuilderViewTransformer, $this->st_pk, $fieldsInfo, $fieldName, $key,
+                            $modName, $isPrimary, false, $secTableColType);
                     }else{
                         if(array_key_exists($fieldName, $ptOtherFields)){
                             unset($ptOtherFields[$fieldName]);
                         }
                         //process primary table
                         $isPrimary = ($this->pt_pk == $fieldName) ? : false;
-                        $this->constructBuilderAndEntity($pt_getterSetter,$pt_builder, $ptBuilderViewTransformer, $fieldsInfo, $fieldName, $key, $modName, $isPrimary, true, $firstTableColType);
+                        $this->constructBuilderAndEntity($pt_getterSetter,$pt_builder, $ptFileValidations,
+                            $ptBuilderViewTransformer, $this->pt_pk, $fieldsInfo, $fieldName, $key,
+                            $modName, $isPrimary, true, $firstTableColType);
                     }
                 }
 
@@ -877,14 +674,16 @@ class ModuleController extends AbstractController
                  */
                 //primary table
                 foreach($ptOtherFields as $columnName => $columnType){
+                    $isPrimary = ($this->pt_pk == $columnName) ? : false;
                     $pt_getterSetter = $this->constructEntitySettersGetters($pt_getterSetter, $columnName,
-                        false, null, 'string', null, true,
+                        $isPrimary, null, 'string', null, true,
                         $ptOtherFields);
                 }
                 //secondary table
                 foreach($stOtherFields as $columnName => $columnType){
+                    $isPrimary = ($this->st_pk == $columnName) ? : false;
                     $st_getterSetter = $this->constructEntitySettersGetters($st_getterSetter, $columnName,
-                        false, null, 'string', null, false,
+                        $isPrimary, null, 'string', null, false,
                         $stOtherFields);
                 }
 
@@ -904,17 +703,18 @@ class ModuleController extends AbstractController
                     //Entity
                     $entity_content = file_get_contents($entity_filename);
                     $fileName = $modulePath.'/Entity/'.$this->st_entity_name.'.php';
-                    $this->createSecondaryTableFiles($entity_content, '//ENTITY_SETTERS_GETTERS', $st_getterSetter, $fileName);
+                    $this->createFilesAndReplaceTexts($entity_content,'//ENTITY_SETTERS_GETTERS', $st_getterSetter, $fileName);
+                    $this->replaceFileTextContent($fileName, $fileName, '//FILE_FIELDS_VALIDATION', $stFileValidations);
                     //FORM BUILDER
                     //include builder view transformer
                     $st_builder = $st_builder.$stBuilderViewTransformer;
                     $form_content = file_get_contents($form_filename);
                     $fileName = $modulePath.'/Form/Type/'.$this->st_entity_name.'FormType.php';
-                    $this->createSecondaryTableFiles($form_content, '//MODULE_FORM_BUILDER', $st_builder, $fileName);
+                    $this->createFilesAndReplaceTexts($form_content, '//MODULE_FORM_BUILDER', $st_builder, $fileName);
                     //REPOSITORY
                     $repo_content = file_get_contents($modulePath.'/Repository/SampleEntityRepository.php');
                     $fileName = $modulePath.'/Repository/'.$this->st_entity_name.'Repository.php';
-                    $this->createSecondaryTableFiles($repo_content, '', '', $fileName);
+                    $this->createFilesAndReplaceTexts($repo_content, '', '', $fileName);
 
                     /**
                      * Add connection to first table and secondary table
@@ -925,6 +725,7 @@ class ModuleController extends AbstractController
                 }
                 //Create primary table entity
                 $this->replaceFileTextContent($entity_filename, $entity_filename, '//ENTITY_SETTERS_GETTERS', $pt_getterSetter);
+                $this->replaceFileTextContent($entity_filename, $entity_filename, '//FILE_FIELDS_VALIDATION', $ptFileValidations);
                 //Create primary table form builder
                 //include builder view transformer
                 $pt_builder = $pt_builder.$ptBuilderViewTransformer;
@@ -969,14 +770,14 @@ class ModuleController extends AbstractController
     }
 
     /**
-     * @param $_content
+     * @param $content
      * @param $find
      * @param $replace
      * @param $fileName
      */
-    private function createSecondaryTableFiles($_content, $find, $replace, $fileName)
+    private function createFilesAndReplaceTexts($content, $find, $replace, $fileName)
     {
-        $content = str_replace($find, $replace, $_content);
+        $content = str_replace($find, $replace, $content);
         $content = str_replace('SampleEntity', $this->st_entity_name, $content);
         $content = str_replace('sample_table_name', $this->secondary_table, $content);
         $content = str_replace('sample_primary_id', $this->st_pk, $content);
@@ -988,7 +789,9 @@ class ModuleController extends AbstractController
     /**
      * @param $getterSetter
      * @param $builder
+     * @param $fileValidations
      * @param $builderViewTransformer
+     * @param $primaryKeyName
      * @param $fieldsInfo
      * @param $fieldName
      * @param $key
@@ -997,7 +800,9 @@ class ModuleController extends AbstractController
      * @param $isPrimaryTable
      * @param $columnType
      */
-    private function constructBuilderAndEntity(&$getterSetter, &$builder, &$builderViewTransformer, $fieldsInfo, $fieldName, $key, $modName, $isPrimaryKey, $isPrimaryTable = true, $columnType = [])
+    private function constructBuilderAndEntity(&$getterSetter, &$builder, &$fileValidations, &$builderViewTransformer,
+                                               $primaryKeyName, $fieldsInfo, $fieldName, $key, $modName, $isPrimaryKey,
+                                               $isPrimaryTable = true, $columnType = [])
     {
         $fieldsRequired = $fieldsInfo['tcf-db-table-col-required'] ?? [];
         $fieldsType = $fieldsInfo['tcf-db-table-col-type'] ?? [];
@@ -1017,13 +822,32 @@ class ModuleController extends AbstractController
         if(!empty($fieldOpt['attr'])){
             $builder .= $fieldOpt['attr'];
         }
+        //Dont the make the switch field as required since it will pass 0 and 1
         if ($isRequired && $fieldsType[$key] != 'Switch') {
-            //Dont the make the switch field as required since it will pass 0 and 1
-            $builder .= ",\n\t\t\t\t'constraints' => new NotBlank(),
+            //For the file, we put our validation inside the entity(using a callback to validated the file)
+            if($fieldsType[$key] == 'File'){
+                if(empty($fileValidations)){
+                    $fileValidations .= 'if (null !== $this->get'.ucfirst($this->generateCase($primaryKeyName, 4)).'())
+            {
+                return;
+            }';
+                }
+
+                $fileValidations .= "\n\t\t".'if (null === $this->get'.ucfirst($this->generateCase($fieldName, 4)).'()) {
+                $notBlank = new NotBlank();
+                $context->buildViolation($notBlank->message)->atPath(\''.$fieldName.'\')->addViolation();
+            }
+                ';
+
+                $builder .= "\n\t\t\t])";
+            }else{
+                $builder .= ",\n\t\t\t\t'constraints' => new NotBlank(),
                 'required' => true,
             ])";
+            }
         } else {
-            $builder .= "\n\t\t\t])";
+            $builder .= ",\n\t\t\t\t'required' => false,
+            ])";
         }
 
         //construct view transformer for Switch

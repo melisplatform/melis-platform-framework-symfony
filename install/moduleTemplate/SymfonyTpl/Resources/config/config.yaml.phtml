@@ -4,11 +4,11 @@ return [
     'symfony_tpl' => [
         'table' => [
             'symfony_tpl_table' => [
-                'ajaxUrl' => '/melis/get-sampleEntity-data',
+                'ajaxUrl' => '/melis/symfonytpl/get-data',
                 'dataFunction' => '',
                 'ajaxCallback' => '',
                 'attributes' => [
-                    'id' => 'tableSymfonyTplTool',
+                    'id' => 'symfonyTplTable',
                     'class' => 'table table-striped table-primary dt-responsive nowrap',
                     'cellspacing' => 0,
                     'width' => '100%'
@@ -27,31 +27,11 @@ return [
                 'columns' => [],
                 'searchables' => [],
                 'actionButtons' => [
-                    'edit' => '<button class="btn btn-success" id="btn-update-sampleEntity" title="Edit"><i class="fa fa-pencil"></i></button>',
-                    'delete' => '<a class="btn btn-danger" id="btn-delete-sampleEntity" title="Delete"><i class="fa fa-times"> </i></a>'
+                    'edit' => '<button class="btn btn-success symfonytpl-btn-update" title="Edit"><i class="fa fa-pencil"></i></button>',
+                    'delete' => '<a class="btn btn-danger symfonytpl-btn-delete" title="Delete"><i class="fa fa-times"> </i></a>'
                 ],
                 'columnDisplay' => [],
             ]
         ],
-        'modal' => [
-            'symfony_tpl_modal' => [
-                'id' => 'symfonyTplToolModal',
-                'btnSubmitText' => 'Save',
-                'btnSubmitId' => 'btn-save-symfonyTplTool',
-                'tabs' => [
-                    'tab_properties' => [
-                        'title' => 'Properties',
-                        'content' => '',
-                        'class' => 'glyphicons plus',
-                        'form' => [
-                            'form_id' => 'sampleEntity_prop_form',
-                            'entity_class_name' => 'App\Bundle\SymfonyTpl\Entity\SampleEntity',
-                            'form_type_class_name' => 'App\Bundle\SymfonyTpl\Form\Type\SampleEntityFormType',
-                            'form_view_file' => '@SymfonyTool/form.html.twig',
-                        ]
-                    ]
-                ]
-            ]
-        ]
     ]
 ];

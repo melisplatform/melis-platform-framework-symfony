@@ -63,63 +63,66 @@ class MelisPlatformFrameworkSymfonyHelperExtension extends AbstractExtension
      */
     public function createModal($modalConfig)
     {
-        $btnSubmitConfig = [];
-        //get translation
-        $translation = $this->container->get('translator');
-        /**
-         * Set modal default value
-         */
-        $modalConfig['id'] = $modalConfig['id'] ?? 'myModal';
-        /**
-         * Set modal button success default settings
-         */
-        $btnSubmitConfig['btnSubmitId'] = $btnSubmitConfig['btnSubmitId'] ?? 'btn-save';
-        $btnSubmitConfig['btnSubmitText'] = $btnSubmitConfig['btnSubmitText'] ?? 'Save';
+        if(!empty($modalConfig)){
+            //get translation
+            $translation = $this->container->get('translator');
+            /**
+             * Set modal default value
+             */
+            $modalConfig['id'] = $modalConfig['id'] ?? 'myModal';
+            /**
+             * Set modal button success default settings
+             */
+            $modalConfig['btnSubmitId'] = $modalConfig['btnSubmitId'] ?? 'btn-save';
+            $modalConfig['btnSubmitText'] = $modalConfig['btnSubmitText'] ?? 'Save';
 
-        $header = '';
-        $content = '';
-        $ctr = 0;
-        foreach($modalConfig['tabs'] as $key => $tabData){
-            $active = (!$ctr) ? 'active' : '';
-            $header .= '<li class="'.$active.'">'.
-                            '<a href="#'.$key.'" class="'.$tabData["class"].'" data-toggle="tab" aria-expanded="true"><i></i>'.
-                                '<p class="modal-tab-title">'.$tabData["title"].'</p>'.
-                            '</a>'.
-                        '</li>';
+            $header = '';
+            $content = '';
+            $ctr = 0;
+            foreach($modalConfig['tabs'] as $key => $tabData){
+                $active = (!$ctr) ? 'active' : '';
+                $header .= '<li class="'.$active.'">'.
+                                '<a href="#'.$key.'" class="'.$tabData["class"].'" data-toggle="tab" aria-expanded="true"><i></i>'.
+                                    '<p class="modal-tab-title">'.$tabData["title"].'</p>'.
+                                '</a>'.
+                            '</li>';
 
-            $content .= '<div class="tab-pane '.$active.'" id="'.$key.'">'.$tabData['content'].'</div>';
-            $ctr++;
-        }
+                $content .= '<div class="tab-pane '.$active.'" id="'.$key.'">'.$tabData['content'].'</div>';
+                $ctr++;
+            }
 
-        $loader = '<div id="loader" class="overlay-loader hidden"><img class="loader-icon spinning-cog" src="/MelisCore/assets/images/cog12.svg" data-cog="cog12"></div>';
-        $modal =
-            '<div class="modal fade" id="'.$modalConfig['id'].'">'.
-                '<div class="modal-dialog" role="modal">'.
-                    '<div class="modal-content" id="'.$modalConfig['id'].'">'.
-                        $loader.
-                        '<div class="modal-body padding-none">'.
-                            '<div class="wizard">'.
-                                '<div class="widget widget-tabs widget-tabs-double widget-tabs-responsive margin-none border-none">'.
-                                    '<div class="widget-head">'.
-                                        '<ul class="nav nav-tabs">'
-                                            .$header.
-                                        '</ul>'.
-                                    '</div>'.
-                                    '<div class="widget-body innerAll inner-2x">'.
-                                        '<div class="tab-content">'.$content.'</div>'.
-                                        '<div align="right">'.
-                                            '<button type="button" data-dismiss="modal" class="btn btn-danger pull-left">'.$translation->trans('tool_modal_helper_btn_cancel').'</button>'.
-                                            '<button type="button" class="btn btn-success" id="'.$btnSubmitConfig['btnSubmitId'].'">'.$translation->trans($btnSubmitConfig['btnSubmitText']).'</button>'.
+            $loader = '<div id="loader" class="overlay-loader hidden"><img class="loader-icon spinning-cog" src="/MelisCore/assets/images/cog12.svg" data-cog="cog12"></div>';
+            $modal =
+                '<div class="modal fade" id="'.$modalConfig['id'].'">'.
+                    '<div class="modal-dialog" role="modal">'.
+                        '<div class="modal-content" id="'.$modalConfig['id'].'">'.
+                            $loader.
+                            '<div class="modal-body padding-none">'.
+                                '<div class="wizard">'.
+                                    '<div class="widget widget-tabs widget-tabs-double widget-tabs-responsive margin-none border-none">'.
+                                        '<div class="widget-head">'.
+                                            '<ul class="nav nav-tabs">'
+                                                .$header.
+                                            '</ul>'.
+                                        '</div>'.
+                                        '<div class="widget-body innerAll inner-2x">'.
+                                            '<div class="tab-content">'.$content.'</div>'.
+                                            '<div align="right">'.
+                                                '<button type="button" data-dismiss="modal" class="btn btn-danger pull-left">'.$translation->trans('tool_modal_helper_btn_cancel').'</button>'.
+                                                '<button type="button" class="btn btn-success" id="'.$modalConfig['btnSubmitId'].'">'.$translation->trans($modalConfig['btnSubmitText']).'</button>'.
+                                            '</div>'.
                                         '</div>'.
                                     '</div>'.
                                 '</div>'.
                             '</div>'.
                         '</div>'.
                     '</div>'.
-                '</div>'.
-            '</div>';
+                '</div>';
 
-        return $modal;
+            return $modal;
+        }else{
+            return '';
+        }
     }
 
     /**

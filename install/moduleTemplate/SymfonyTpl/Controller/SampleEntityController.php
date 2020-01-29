@@ -251,15 +251,17 @@ class SampleEntityController extends AbstractController
                  * Check if there are some files needed to upload
                  */
                 foreach ($request->files->all() as $fieldName => $file) {
-                    if (!empty($file)) {
-                        //create setter function name to set the file
-                        $fName = $this->toolService->generateFunctionName($fieldName);
-                        $fName = 'set' . $fName;
-                        $methods = get_class_methods(get_class($entity));
-                        if (in_array($fName, $methods)) {
-                            $fileName = $this->toolService->upload($file);
-                            $entity->$fName($fileName);
-                        }
+                    //create setter function name to set the file
+                    $fName = $this->toolService->generateFunctionName($fieldName);
+                    $fName = 'set' . $fName;
+                    $methods = get_class_methods(get_class($entity));
+                    if (in_array($fName, $methods)) {
+                        if (!empty($file))
+                            $fileValue = $this->toolService->upload($file);
+                        else
+                            $fileValue = $request->request->get($fieldName . '_value');
+
+                        $entity->$fName($fileValue);
                     }
                 }
 
@@ -273,18 +275,11 @@ class SampleEntityController extends AbstractController
                  * get the primary key identifier of the entity
                  * so that we can return it's value
                  */
-                $meta = $entityManager->getClassMetadata(get_class($entity));
-                $identifiers = $meta->getIdentifierFieldNames();
-                if (!empty($identifiers)) {
-                    //create a function to get the id ex: getPrimaryId()
-                    $funcName = $this->toolService->generateFunctionName($identifiers[0]);
-                    $funcName = 'get' . $funcName;
-                    $result['id'] = $entity->$funcName();
-                }
-
+                $result['id'] = $this->toolService->getEntityPrimaryIdValue($entityManager, $entity);
                 $result['success'] = true;
             } else {
                 $result['errors'] = array_merge($result['errors'], $this->toolService->getErrorsFromForm($form));
+                $result['success'] = false;
             }
         }catch (\Exception $ex){
             $result['success'] = false;

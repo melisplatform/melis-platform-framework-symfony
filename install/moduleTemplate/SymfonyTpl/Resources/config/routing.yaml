@@ -5,29 +5,29 @@
 #then it will get the data from the front (site)
 
 get_tool:
-  path: /melis/get-SymfonyTpl-tool
+  path: /melis/symfonytpl/tool
   controller: App\Bundle\SymfonyTpl\Controller\SampleEntityController::getSymfonyTplTool
 
 get_data:
-  path: /melis/get-sampleEntity-data
+  path: /melis/symfonytpl/get-data
   controller: App\Bundle\SymfonyTpl\Controller\SampleEntityController::getSampleEntityData
 
 #Get form - if id is not null, the form will be filled with data based on given id
 create_form:
-  path: /melis/get-symfonytpl-modal-content/{id}
+  path: /melis/symfonytpl/get-modal-content/{id}
   controller : App\Bundle\SymfonyTpl\Controller\SampleEntityController::getSymfonyTplModalContent
   defaults:   { id: 0 }
   methods: GET|HEAD
 
 #Save
 save_album:
-  path: /melis/save-sampleEntity/{id}
+  path: /melis/symfonytpl/save/{id}
   controller: App\Bundle\SymfonyTpl\Controller\SampleEntityController::save
   defaults:   { id: 0 }
   methods: POST
 
 #Delete
 delete_album:
-  path: /melis/delete-sampleEntity
+  path: /melis/symfonytpl/delete
   controller: App\Bundle\SymfonyTpl\Controller\SampleEntityController::deleteSampleEntity
   methods: POST
