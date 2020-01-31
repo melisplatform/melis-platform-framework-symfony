@@ -197,6 +197,8 @@ class SampleEntityController extends AbstractController
                     ])->createView();
                 }
                 $data[$tabName] = $this->renderView($formView, $param);
+            }else {
+                $data[$tabName] = $tab['content'];
             }
         }
         //FORM_RETURN_DATA
