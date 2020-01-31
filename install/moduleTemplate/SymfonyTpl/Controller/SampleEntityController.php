@@ -76,8 +76,8 @@ class SampleEntityController extends AbstractController
         try {
             $view = $this->render('@SymfonyTpl/lists.html.twig',
                 [
-                    'tableConfig' => $this->getTableConfig(),
-                    'modalConfig' => $this->getModalConfig()
+                    "tableConfig" => $this->getTableConfig(),
+                    //SAVING_TYPE
                 ])->getContent();
 
             return new Response($view);
@@ -166,19 +166,12 @@ class SampleEntityController extends AbstractController
      * @param $id
      * @return Response
      */
-    public function getSymfonyTplModalContent($id)
+    public function getSymfonyTplSavingTypeForm($id)
     {
         $data = [];
-        foreach($this->getModalConfig()['tabs'] as $tabName => $tab) {
+        foreach($this->getSavingTypeConfig()['tabs'] as $tabName => $tab) {
             /**
-             * Form key on the modal config is optional
-             * but if it exist, then we gonna use it as
-             * our modal content, else we use the content
-             * key value in the modal config. Content key value is
-             * the default content of modal
-             *
-             *
-             * Check if modal tab is gonna use a form
+             * Check if we use form as our content
              */
             if(!empty($tab['form'])) {
                 $entityName = $tab['form']['entity_class_name'];
@@ -206,7 +199,7 @@ class SampleEntityController extends AbstractController
                 $data[$tabName] = $this->renderView($formView, $param);
             }
         }
-        return new JsonResponse($data);
+        //FORM_RETURN_DATA
     }
 
     //SAVE_FUNCTIONS
@@ -301,7 +294,7 @@ class SampleEntityController extends AbstractController
         $translator = $this->get('translator');
 
         $result = [
-            'title' => 'SampleEntity',
+            'title' => 'SymfonyTpl',
             'success' => false,
             'message' => $translator->trans('tool_symfony_tpl_cannot_delete'),
         ];
@@ -379,11 +372,11 @@ class SampleEntityController extends AbstractController
      * Get modal config
      * @return array|mixed
      */
-    private function getModalConfig()
+    private function getSavingTypeConfig()
     {
         $modalConfig = [];
-        if(!empty($this->parameters->get('symfony_tpl_modal'))){
-            $modalConfig = $this->parameters->get('symfony_tpl_modal');
+        if(!empty($this->parameters->get('symfony_tpl_savingType'))){
+            $modalConfig = $this->parameters->get('symfony_tpl_savingType');
             $modalConfig = $this->toolService->translateConfig($modalConfig);
         }
         return $modalConfig;

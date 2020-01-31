@@ -13,21 +13,21 @@ get_data:
   controller: App\Bundle\SymfonyTpl\Controller\SampleEntityController::getSampleEntityData
 
 #Get form - if id is not null, the form will be filled with data based on given id
-create_form:
-  path: /melis/symfonytpl/get-modal-content/{id}
-  controller : App\Bundle\SymfonyTpl\Controller\SampleEntityController::getSymfonyTplModalContent
+get_form:
+  path: /melis/symfonytpl/form/{id}
+  controller : App\Bundle\SymfonyTpl\Controller\SampleEntityController::getSymfonyTplSavingTypeForm
   defaults:   { id: 0 }
   methods: GET|HEAD
 
 #Save
-save_album:
+save_symfonytpl:
   path: /melis/symfonytpl/save/{id}
   controller: App\Bundle\SymfonyTpl\Controller\SampleEntityController::save
   defaults:   { id: 0 }
   methods: POST
 
 #Delete
-delete_album:
+delete_symfonytpl:
   path: /melis/symfonytpl/delete
   controller: App\Bundle\SymfonyTpl\Controller\SampleEntityController::deleteSampleEntity
   methods: POST

@@ -33,8 +33,8 @@ class SymfonyTplExtension extends Extension implements PrependExtensionInterface
             if(!empty($config)){
                 if(!empty($config['table']))
                     $container->setParameter('symfony_tpl_table', $config['table']['symfony_tpl_table']);
-                if(!empty($config['modal']))
-                    $container->setParameter('symfony_tpl_modal', $config['modal']['symfony_tpl_modal']);
+                if(!empty($config['savingType']))
+                    $container->setParameter('symfony_tpl_savingType', $config['savingType']['symfony_tpl_savingType']);
             }
         }
     }

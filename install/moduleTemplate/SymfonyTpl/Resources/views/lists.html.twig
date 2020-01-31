@@ -3,10 +3,5 @@
     {#    Create table using melis helper#}
     {{ melis_helper('melisdatatable', 'createTable', tableConfig)|raw }}
 
-    {#    Create a modal that will allow us to update/create new entry
-          We are using one modal for both update and create, we just
-          need to modify everything in the javascript to determine whether
-          we are going to update or create a record
-    #}
-    {{ create_modal(modalConfig)|raw }}
+    {#MAKE_MODAL#}
 {% endblock %}
