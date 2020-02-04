@@ -4,16 +4,16 @@
 #if you didn't put a /melis in your route
 #then it will get the data from the front (site)
 
-get_tool:
+symfonytpl_get_tool:
   path: /melis/symfonytpl/tool
   controller: App\Bundle\SymfonyTpl\Controller\SampleEntityController::getSymfonyTplTool
 
-get_data:
+symfonytpl_get_data:
   path: /melis/symfonytpl/get-data
   controller: App\Bundle\SymfonyTpl\Controller\SampleEntityController::getSampleEntityData
 
 #Get form - if id is not null, the form will be filled with data based on given id
-get_form:
+symfonytpl_get_form:
   path: /melis/symfonytpl/form/{id}
   controller : App\Bundle\SymfonyTpl\Controller\SampleEntityController::getSymfonyTplSavingTypeForm
   defaults:   { id: 0 }

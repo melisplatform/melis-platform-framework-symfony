@@ -8,7 +8,7 @@ $(document).ready(function(){
     $body.on("click", ".symfonytpl-btn-update", function(){
         // Opening tab form for add
         selectedId = $(this).parents("tr").attr("id");
-        melisHelper.tabOpen('tool_symfonytpl_title / ' + selectedId, 'fa fa-puzzle-piece', selectedId+'_id_symfonytpl_tool_form', 'symfonytpl_tool_form', {id: selectedId}, 'id_symfonytpl_tool');
+        melisHelper.tabOpen(translations.tool_symfony_tpl_title + ' / ' + selectedId, 'fa fa-puzzle-piece', selectedId+'_id_symfonytpl_tool_form', 'symfonytpl_tool_form', {id: selectedId}, 'id_symfonytpl_tool');
     });
 
     /**
@@ -16,7 +16,7 @@ $(document).ready(function(){
      */
     $body.on("click", "#symfonytpl_btn_new", function(){
         selectedId = null;
-        melisHelper.tabOpen('tool_symfonytpl_title', 'fa fa-puzzle-piece', '0_id_symfonytpl_tool_form', 'symfonytpl_tool_form', {id:0}, 'id_symfonytpl_tool');
+        melisHelper.tabOpen(translations.tool_symfony_tpl_title, 'fa fa-puzzle-piece', '0_id_symfonytpl_tool_form', 'symfonytpl_tool_form', {id:0}, 'id_symfonytpl_tool');
     });
 
     /**

@@ -7,7 +7,7 @@ $(document).ready(function(){
      */
     $body.on("click", ".symfonytpl-btn-update", function(){
         selectedId = $(this).parents("tr").attr("id");
-        renderModal("/melis/symfonytpl/get-modal-content/"+selectedId);
+        renderModal("/melis/symfonytpl/form/"+selectedId);
     });
 
     /**
@@ -15,7 +15,7 @@ $(document).ready(function(){
      */
     $body.on("click", "#symfonytpl_btn_new", function(){
         selectedId = null;
-        renderModal("/melis/symfonytpl/get-modal-content");
+        renderModal("/melis/symfonytpl/form");
     });
 
     /**
@@ -156,6 +156,7 @@ $(document).ready(function(){
                  * modal for both update and create
                  */
                 var title =  modal.find("li.active").find("a");
+                title.removeClass("tag");
                 if(selectedId == null)
                     title.removeClass("edit").addClass("plus");
                 else

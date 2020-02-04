@@ -142,12 +142,18 @@
                          * Insert new record
                          */
                         $this->saveSampleLanguageEntityNewRecord($result, $sampleEntityId, $languageId, $request);
+                        //if the validation is not success, then we stop and return the error
+                        if(!$result['success'])
+                            return $result;
                     }
                 } else {
                     /**
                     * Insert new record
                     */
                     $this->saveSampleLanguageEntityNewRecord($result, $sampleEntityId, $languageId, $request);
+                    //if the validation is not success, then we stop and return the error
+                    if(!$result['success'])
+                        return $result;
                 }
             }else{
                 /**
