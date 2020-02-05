@@ -1,18 +1,16 @@
 {#    Modify form_label for the form so that we can apply/put the tooltip#}
 {% block form_label %}
-    {% spaceless %}
-        {% if required %}
-            {% set label_attr = label_attr|merge({'class': (label_attr.class|default('') ~ ' required')|trim}) %}
-        {% endif %}
+    {% if required %}
+        {% set label_attr = label_attr|merge({'class': (label_attr.class|default('') ~ ' required')|trim}) %}
+    {% endif %}
 
-        <label
-        {% for attrname, attrvalue in label_attr %}
-            {{ attrname }}="{{ attrvalue }}"
-        {% endfor %}>
-        {{ label|trans({}, translation_domain) }}
-        {% if label_attr.label_tooltip is defined %}
-            <i class="fa fa-info-circle fa-lg pull-right tip-info" data-toggle="tooltip" data-placement="left" title="" data-original-title="{{ label_attr.label_tooltip|trans({}, translation_domain) }}"></i>
-        {% endif %}
-        </label>
-    {% endspaceless %}
+    <label
+    {% for attrname, attrvalue in label_attr %}
+        {{ attrname }}="{{ attrvalue }}"
+    {% endfor %}>
+    {{ label|trans({}, translation_domain) }}
+    {% if label_attr.label_tooltip is defined %}
+        <i class="fa fa-info-circle fa-lg float-right tip-info" data-toggle="tooltip" data-placement="left" title="" data-original-title="{{ label_attr.label_tooltip|trans({}, translation_domain) }}"></i>
+    {% endif %}
+    </label>
 {% endblock form_label %}

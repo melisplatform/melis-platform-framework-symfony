@@ -141,7 +141,8 @@ class ModuleController extends AbstractController
             $destination = $frameworkDir . '/src/Bundle/' . $this->module_name;
             $this->componentsDir = dirname(__FILE__) . '/../install/moduleTemplate/Components';
             $this->assetsDir = dirname(__FILE__) . '/../install/moduleTemplate/Assets';
-            $this->zendModuleDir = $_SERVER['DOCUMENT_ROOT'] . '/../module/'.$this->module_name;
+            $this->zendModuleDir = $_SERVER['DOCUMENT_ROOT'] . '/../module/'.ucfirst(strtolower($this->module_name));
+            ;
 
             //check if framework exist
             if(file_exists($frameworkDir)){
