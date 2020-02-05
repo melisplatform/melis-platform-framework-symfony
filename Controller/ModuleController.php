@@ -1202,7 +1202,7 @@ class ModuleController extends AbstractController
         // Make destination directory
         if (!is_dir($dest))
         {
-            mkdir($dest, '0777', true);
+            mkdir($dest, 0777, true);
         }
 
         // Loop through the folder
