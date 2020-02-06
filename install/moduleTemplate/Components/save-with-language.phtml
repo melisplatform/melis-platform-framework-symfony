@@ -38,7 +38,7 @@
                         $itemId = $resSampleEntity['id'];
                         //execute saving SampleLanguageEntity
                         if(!empty($langData)) {
-                            $langResult = $this->saveSampleLanguageEntity($itemId, $request, $langData);
+                            $langResult = $this->saveSampleLanguageEntity($itemId, $request, $langData, $id);
                             if(!$langResult['success']){
                                 $result['errors'] = array_merge($result['errors'], $langResult['errors']);
                                 $result['success'] = false;
@@ -87,9 +87,10 @@
      * @param $sampleEntityId
      * @param $request
      * @param $data
+     * @param $selectedId
      * @return array
      */
-    private function saveSampleLanguageEntity($sampleEntityId, Request $request, $data)
+    private function saveSampleLanguageEntity($sampleEntityId, Request $request, $data, $selectedId)
     {
         /**
          * Prepare the results
@@ -103,33 +104,49 @@
         //loop trough every language data
         foreach($data as $languageId => $val) {
             /**
-             * Lets check whether all the data
-             * in the array is empty to avoid
-             * insertion of blank data
+             * Duplicate the request to override the data
+             * so that we can validate our form per language
              */
-            //exclude _token
-            $validateData = $val;
-            if(!empty($validateData['_token']))
-                unset($validateData['_token']);
-            //start validation
-            if(!$this->toolService->isArrayEmpty($validateData)) {
+            $request = $request->duplicate([], $val);
+            /**
+             * Process Saving records
+             */
+            if (!empty($selectedId)) {
                 /**
-                 * Duplicate the request to override the data
-                 * so that we can validate our form per language
+                 * Let's check if the given data is empty
+                 * to delete it
                  */
-                $request = $request->duplicate([], $val);
-                /**
-                 * If $dataSampleLanguageEntity is not empty means
-                 * we are going to update a records
-                 */
-                if (!empty($dataSampleLanguageEntity)) {
+                //exclude _token
+                $validateData = $val;
+                if(!empty($validateData['_token']))
+                    unset($validateData['_token']);
+
+                if($this->toolService->isArrayEmpty($validateData) && !empty($dataSampleLanguageEntity)) {
+                    $entityManager = $this->getDoctrine()->getManager();
+                    foreach ($dataSampleLanguageEntity as $entity) {
+                        if ($entity->getLanguageFkId() == $languageId) {
+                            try {
+                                $id = $this->toolService->getEntityPrimaryIdValue($entityManager, $entity);
+                                $entity = $entityManager->getRepository(get_class($entity))->find($id);
+                                $entityManager->remove($entity);
+                                $entityManager->flush();
+                                $result['success'] = true;
+                            } catch (\Exception $ex) {
+                                $result['success'] = false;
+                            }
+                        }
+                    }
+                }else {
                     $languageFound = false;
                     foreach ($dataSampleLanguageEntity as $entity) {
                         if ($entity->getLanguageFkId() == $languageId) {
+                            /**
+                             * Update record
+                             */
                             $form = $this->createForm(SampleLanguageEntityFormType::class, $entity);
                             $this->validatedAndSave($result, $form, $request, $entity);
                             //if the validation is not success, then we stop and return the error
-                            if(!$result['success'])
+                            if (!$result['success'])
                                 return $result;
 
                             $languageFound = true;
@@ -143,39 +160,18 @@
                          */
                         $this->saveSampleLanguageEntityNewRecord($result, $sampleEntityId, $languageId, $request);
                         //if the validation is not success, then we stop and return the error
-                        if(!$result['success'])
+                        if (!$result['success'])
                             return $result;
                     }
-                } else {
-                    /**
-                    * Insert new record
-                    */
-                    $this->saveSampleLanguageEntityNewRecord($result, $sampleEntityId, $languageId, $request);
-                    //if the validation is not success, then we stop and return the error
-                    if(!$result['success'])
-                        return $result;
                 }
-            }else{
+            } else {
                 /**
-                * This will delete the data in the db
-                * if the user submit an empty data that
-                * exist in the db(for update only)
-                */
-                if(!empty($dataCmsNewsTexts)){
-                    $entityManager = $this->getDoctrine()->getManager();
-                    foreach($dataCmsNewsTexts as $entity){
-                        if ($entity->getLanguageFkId() == $languageId) {
-                            try {
-                                $id = $this->toolService->getEntityPrimaryIdValue($entityManager, $entity);
-                                $entity = $entityManager->getRepository(get_class($entity))->find($id);
-                                $entityManager->remove($entity);
-                                $entityManager->flush();
-                            }catch (\Exception $ex){
-                                $result['success'] = false;
-                            }
-                        }
-                    }
-                }
+                 * Insert new record
+                 */
+                $this->saveSampleLanguageEntityNewRecord($result, $sampleEntityId, $languageId, $request);
+                //if the validation is not success, then we stop and return the error
+                if(!$result['success'])
+                    return $result;
             }
         }
         return $result;
@@ -189,7 +185,7 @@
     */
     private function saveSampleLanguageEntityNewRecord(&$result, $sampleEntityId, $languageId, $request)
     {
-        $entity = new CmsNewsTexts();
+        $entity = new SampleLanguageEntity();
         //set SampleEntity
         $sampleEntityEntity = $this->toolService->getEntity($this->getDoctrine(), 'App\Bundle\SymfonyTpl\Entity\SampleEntity', "find", $sampleEntityId);
         $entity->setSecondaryTblPtId($sampleEntityEntity);

@@ -1012,13 +1012,14 @@ class ModuleController extends AbstractController
                         //Apply column type
                         if(!empty($columnType)){
                             if(array_key_exists($column, $columnType)){
-                                if($columnType[$column] == 'Integer') {
+                                $colT = strtolower($columnType[$column]);
+                                if($colT == 'integer') {
                                     $type = 'int';
-                                    $colType = 'integer';
-                                }elseif($columnType[$column] == 'Boolean') {
+                                    $colType = $colT;
+                                }elseif($colT == 'boolean') {
                                     $type = 'bool';
-                                    $colType = 'boolean';
-                                }elseif($columnType[$column] == 'Text') {
+                                    $colType = $colT;
+                                }elseif($colT == 'text') {
                                     $type = 'string';
                                     $colType = 'string';
                                 }else {

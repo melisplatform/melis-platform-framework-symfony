@@ -284,8 +284,8 @@ class SymfonyTplService
             $entity = $doctrine
                 ->getRepository($entityName)
                 ->$fn($param);
-            //if result is empty, we create a blank entity
-            if(empty($entity)){
+            //if result is empty, we create a blank entity(except for findBy function)
+            if(empty($entity) && $fn != 'findBy'){
                 $entity = new $entityName();
             }
         }else{
