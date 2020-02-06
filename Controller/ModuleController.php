@@ -1013,6 +1013,7 @@ class ModuleController extends AbstractController
                         if(!empty($columnType)){
                             if(array_key_exists($column, $columnType)){
                                 $colT = strtolower($columnType[$column]);
+                                $colT = preg_replace('/[^A-Za-z0-9\-]/', '', $colT);
                                 if($colT == 'integer') {
                                     $type = 'int';
                                     $colType = $colT;
