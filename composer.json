@@ -28,7 +28,7 @@
     "module-name": "MelisPlatformFrameworkSymfony"
   },
   "require": {
-    "melisplatform/melis-platform-frameworks": "^3.1",
+    "melisplatform/melis-platform-frameworks": "^3.2",
     "ext-ctype": "*",
     "ext-iconv": "*",
     "sensio/framework-extra-bundle": "^5.1",	  
