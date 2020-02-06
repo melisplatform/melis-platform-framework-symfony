@@ -88,8 +88,8 @@ class MelisPlatformFrameworkSymfonyHelperExtension extends AbstractExtension
                                         '<div class="tab-content">'.
                                             '<div class="tab-pane active" id="myTab">'.$modalConfig['content'].'</div>'.
                                         '</div>'.
-                                        '<div align="right">'.
-                                            '<button type="button" data-dismiss="modal" class="btn btn-danger pull-left">'.$translation->trans('tool_modal_helper_btn_cancel').'</button>'.
+                                        '<div class="footer-modal d-flex flex-row justify-content-between">'.
+                                            '<button type="button" data-dismiss="modal" class="btn btn-danger float-left">'.$translation->trans('tool_modal_helper_btn_cancel').'</button>'.
                                             '<button type="button" class="btn btn-success" id="'.$btnSuccessConfig['id'].'">'.$translation->trans($btnSuccessConfig['text']).'</button>'.
                                         '</div>'.
                                     '</div>'.
