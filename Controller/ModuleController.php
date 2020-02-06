@@ -896,14 +896,17 @@ class ModuleController extends AbstractController
                                                $primaryKeyName, $fieldsInfo, $fieldName, $key, $modName, $isPrimaryKey,
                                                $isPrimaryTable = true, $columnType = [])
     {
-        $fieldsRequired = $fieldsInfo['tcf-db-table-col-required'] ?? [];
         $fieldsType = $fieldsInfo['tcf-db-table-col-type'] ?? [];
-
+        $fieldsRequired = $fieldsInfo['tcf-db-table-col-required'] ?? [];
+        $requiredFields = [];
+        foreach($fieldsRequired as $fields){
+            $requiredFields[] = str_replace('tclangtblcol_', '', $fields);
+        }
         $this->constructEntitySettersGetters($getterSetter, $fieldName, $isPrimaryKey, $fieldsType[$key], 'string', null, $isPrimaryTable, $columnType);
         //exclude primary and foreign keys in the form
         if(!in_array($fieldName, [$this->pt_pk, $this->st_pk, $this->lang_fk])) {
             //check if field is required
-            $isRequired = (in_array($fieldName, $fieldsRequired)) ? true : false;
+            $isRequired = (in_array($fieldName, $requiredFields)) ? true : false;
             //get field type option
             $fieldOpt = $this->getFieldTypeAndAttr($fieldsType[$key], $fieldName, $isPrimaryTable);
 
