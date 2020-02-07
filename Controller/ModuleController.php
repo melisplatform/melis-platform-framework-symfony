@@ -522,6 +522,13 @@ class ModuleController extends AbstractController
                 $jsContent = file_get_contents($jsFileTemplate);
                 $find = ['symfonytpl', 'symfonyTpl', 'symfony_tpl'];
                 $replace = [strtolower($this->module_name), lcfirst($this->module_name), $this->generateCase($this->module_name, 2)];
+                if($this->has_language){
+                    $find[] = '//LANGUAGE_FORM_ERRORS';
+                    $replace[] = 'highlightErrors(0, data.errors, ".'.strtolower($this->module_name).'_lang_form");';
+                }else{
+                    $find[] = '//LANGUAGE_FORM_ERRORS';
+                    $replace[] = '';
+                }
                 $this->createFilesAndReplaceTexts($jsContent, $find, $replace,$jsDir.'/tool.js');
             }
 

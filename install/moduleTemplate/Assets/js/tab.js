@@ -120,7 +120,8 @@ $(document).ready(function(){
                     selectedId = null;
                 }else{
                     melisHelper.melisKoNotification(data.title, data.message, data.errors);
-                    melisCoreTool.highlightErrors(0, data.errors, "symfonytpl_prop_form");
+                    highlightFormErrors(0, data.errors, "#symfonytpl_prop_form");
+                    //LANGUAGE_FORM_ERRORS
                 }
                 //enable save button
                 $("#btn-save-calendar").attr("disabled", false);
@@ -128,5 +129,21 @@ $(document).ready(function(){
                 $("#symfonytpl_prop_form :input").prop("disabled", false);
             }
         });
+    }
+
+    function highlightFormErrors(success, errors, divContainer) {
+        // if all form fields are error color them red
+        if (success === 0 || success === false) {
+            $(divContainer + " .form-group label").css("color", "#686868");
+            $.each(errors, function (key, error) {
+                $(divContainer).each(function(i, el){
+                    $(this).find(".form-control[name='" + key + "']").parents(".form-group").children(":first").css("color", "red");
+                });
+            });
+        }
+        // remove red color for correctly inputted fields
+        else {
+            $(divContainer + " .form-group label").css("color", "#686868");
+        }
     }
 });
