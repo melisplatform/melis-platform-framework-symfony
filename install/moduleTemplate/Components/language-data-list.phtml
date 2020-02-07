@@ -23,3 +23,10 @@
                     unset($tableData[$ctr]["secondaryTableName"]);
                 }
             }
+            /**
+             * in most cases, samplePrimaryId is empty because
+             * language data is overriding it, so let's re
+             * assign it's value
+             */
+            if(empty($tableData[$ctr]['samplePrimaryId']))
+                $tableData[$ctr]['samplePrimaryId'] = $samplePrimaryId;

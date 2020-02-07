@@ -524,7 +524,7 @@ class ModuleController extends AbstractController
                 $replace = [strtolower($this->module_name), lcfirst($this->module_name), $this->generateCase($this->module_name, 2)];
                 if($this->has_language){
                     $find[] = '//LANGUAGE_FORM_ERRORS';
-                    $replace[] = 'highlightErrors(0, data.errors, ".'.strtolower($this->module_name).'_lang_form");';
+                    $replace[] = 'highlightFormErrors(0, data.errors, ".'.strtolower($this->module_name).'_lang_form");';
                 }else{
                     $find[] = '//LANGUAGE_FORM_ERRORS';
                     $replace[] = '';
