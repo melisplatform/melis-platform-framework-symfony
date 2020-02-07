@@ -581,7 +581,7 @@ class ModuleController extends AbstractController
                     }
 
                     //Prepare translations for blank tool
-                    if(empty($transData) && $this->toolType != 'db'){
+                    if(empty($transData) && $this->toolType == 'blank'){
                         foreach($data['step2'] as $lang => $value){
                             $langLocale = explode('_', $lang);
                             $transData[$langLocale[0]] = [];
