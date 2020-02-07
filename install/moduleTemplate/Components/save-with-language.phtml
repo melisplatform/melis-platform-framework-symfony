@@ -99,6 +99,22 @@
             'errors' => [],
             'success' => false,
         ];
+
+        /**
+         * Check data in every language
+         * so that we can insert a record
+         * even if the other language form is empty
+         */
+        $langList = [];
+        foreach($data as $languageId => $val) {
+            //exclude _token
+            if(!empty($val['_token']))
+                unset($val['_token']);
+
+            if(!$this->toolService->isArrayEmpty($val))
+                $langList[] = $languageId;
+        }
+
         //try to get SampleLanguageEntity data
         $dataSampleLanguageEntity = $this->toolService->getEntity($this->getDoctrine(), 'App\Bundle\SymfonyTpl\Entity\SampleLanguageEntity', "findBy", ['secondary_tbl_pt_id' => $sampleEntityId]);
         //loop trough every language data
@@ -168,10 +184,12 @@
                 /**
                  * Insert new record
                  */
-                $this->saveSampleLanguageEntityNewRecord($result, $sampleEntityId, $languageId, $request);
-                //if the validation is not success, then we stop and return the error
-                if(!$result['success'])
-                    return $result;
+                if(in_array($languageId, $langList) || empty($langList)) {
+                    $this->saveSampleLanguageEntityNewRecord($result, $sampleEntityId, $languageId, $request);
+                    //if the validation is not success, then we stop and return the error
+                    if(!$result['success'])
+                        return $result;
+                }
             }
         }
         return $result;
