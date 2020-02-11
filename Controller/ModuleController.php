@@ -64,12 +64,15 @@ class ModuleController extends AbstractController
             'tool_symfony_tpl_confirm_modal_message' => 'Etes-vous sûr de vouloir supprimer cet élément ?'
         ]
     ];
+    private $searchableCols = [];
     private $fileInputLists = [];
     private $componentsDir = '';
     private $assetsDir = '';
     private $zendModuleDir = '';
     private $savingType = '';
     private $toolType = '';
+    private $repoSearchIdentity = [];
+    private $stTableSearchCols = [];
 
     /**
      * ModuleController constructor.
@@ -168,13 +171,13 @@ class ModuleController extends AbstractController
                                      */
                                     if($this->toolType == 'db') {
                                         /**
-                                         * Process config
-                                         */
-                                        $this->processConfigs($data, $destination);
-                                        /**
                                          * Process Form Builder and Entity
                                          */
                                         $this->processFormBuilderAndEntity($data, $destination);
+                                        /**
+                                         * Process config
+                                         */
+                                        $this->processConfigs($data, $destination);
                                         /**
                                          * Update the controller for some codes to insert
                                          */
@@ -225,6 +228,11 @@ class ModuleController extends AbstractController
                                     $this->mapDirectory($destination, $textToChange);
                                     //don't run assets if the tool is blank
                                     if($this->toolType == 'db') {
+                                        /**
+                                         * Update Repository file to update
+                                         * the query
+                                         */
+                                        $this->updateRepository($destination);
                                         /**
                                          * Let's put the assets inside the Zend Module that we created
                                          */
@@ -403,7 +411,6 @@ class ModuleController extends AbstractController
                             $colList = [];
                             $columns = $data['step4']['tcf-db-table-cols'];
                             $columnsDisplay = $data['step4']['tcf-db-table-col-display'];
-                            $searchableCols = [];
                             $colsDisplay = [];
                             /**
                              * Process Table columns
@@ -418,12 +425,15 @@ class ModuleController extends AbstractController
                                     ],
                                     'sortable' => true,
                                 ];
-                                array_push($searchableCols, $col);
+                                //exclude columns used for third tables
+                                if(!in_array($col, $this->repoSearchIdentity))
+                                    array_push($this->searchableCols, $col);
+
                                 $colsDisplay[$this->generateCase($col, 4)] = $columnsDisplay[$key];
                             }
 
                             $configData['symfony_tpl']['table']['symfony_tpl_table']['columns'] = $colList;
-                            $configData['symfony_tpl']['table']['symfony_tpl_table']['searchables'] = $searchableCols;
+                            $configData['symfony_tpl']['table']['symfony_tpl_table']['searchables'] = $this->searchableCols;
                             $configData['symfony_tpl']['table']['symfony_tpl_table']['columnDisplay'] = $colsDisplay;
 
                             /**
@@ -495,6 +505,49 @@ class ModuleController extends AbstractController
                 ]
             ]
         ];
+    }
+
+    /**
+     * @param $modulePath
+     */
+    public function updateRepository($modulePath)
+    {
+        $search = '$qb->orWhere("a.$column LIKE :search");';
+        $repoFileName = $modulePath.'/Repository/'.ucfirst($this->pt_entity_name).'Repository.php';
+        if($this->has_language) {
+            //remove non searchable columns
+            foreach ($this->stTableSearchCols as $key => $cols) {
+                if (!in_array($cols, $this->searchableCols))
+                    unset($this->stTableSearchCols[$key]);
+            }
+
+            $s = '';
+            foreach ($this->stTableSearchCols as $k => $v) {
+                if ($k != 0)
+                    $s .= ',';
+                else
+                    $s .= '';
+                $s .= '"' . $v . '"';
+            }
+            $str = '$cols = [' . $s . '];';
+            $str .= "\n\t\t".'$qb->join("a.'.$this->secondary_table.'", "b");';
+            $search = '
+                    if (in_array($column, $cols)) {
+                        $qb->orWhere("b.$column LIKE :search");
+                    }
+                    else {
+                        $qb->orWhere("a.$column LIKE :search");
+                    }';
+
+            //second table repository
+            $stRepo = $modulePath.'/Repository/'.ucfirst($this->st_entity_name).'Repository.php';
+            $this->replaceFileTextContent($stRepo, $stRepo, '//JOIN', '');
+            $this->replaceFileTextContent($stRepo, $stRepo, '//WHERE', '$qb->orWhere("a.$column LIKE :search");');
+        }else{
+            $str = '';
+        }
+        $this->replaceFileTextContent($repoFileName, $repoFileName, '//JOIN', $str);
+        $this->replaceFileTextContent($repoFileName, $repoFileName, '//WHERE', $search);
     }
 
     /**
@@ -665,8 +718,12 @@ class ModuleController extends AbstractController
                 if (strpos($colName, 'tcf') !== false)
                     $colName = str_replace('tcf-', '', $colName);
 
-                if (strpos($colName, 'tclangtblcol_') !== false)
+                if (strpos($colName, 'tclangtblcol_') !== false) {
                     $colName = str_replace('tclangtblcol_', '', $colName);
+                    //insert second table columns
+                    if(!in_array($colName, $this->stTableSearchCols))
+                        $this->stTableSearchCols[] = $colName;
+                }
 
                 $key = 'tool_symfony_tpl_' . $colName;
                 if (strpos($colName, 'tcinputdesc') !== false)
@@ -1002,6 +1059,9 @@ class ModuleController extends AbstractController
             $type = "\\$entity";
             $getterSetter .= "\t/**\n\t".'* @ORM\OneToOne(targetEntity="'.$entity.'")'."\n\t".
                              '* @ORM\JoinColumn(name="'.$column.'", referencedColumnName="'.$refCOl.'")'."\n\t*/";
+
+            //stores identity column to exclude in the searchable cols
+            $this->repoSearchIdentity[] = $column;
         }else{
             if($isPrimaryKey){
                 $getterSetter .= "/**\n\t* @ORM\Id()\n\t* @ORM\GeneratedValue()\n\t* @ORM\Column(type=\"integer\")\n\t*/";

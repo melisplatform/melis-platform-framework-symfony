@@ -40,10 +40,10 @@ class SampleEntityRepository extends ServiceEntityRepository
     public function getSampleEntityData($search = '', $searchableColumns = [], $orderBy = null, $order = null, $limit = null, $offset = null)
     {
         $qb = $this->createQueryBuilder('a');
-
+        //JOIN
         if (!empty($searchableColumns) && !empty($search)) {
             foreach ($searchableColumns as $column) {
-                $qb->orWhere("a.$column LIKE :search");
+                //WHERE
             }
             $qb->setParameter('search', '%'.$search.'%');
         }
