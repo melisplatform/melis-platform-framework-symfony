@@ -523,15 +523,16 @@ class ModuleController extends AbstractController
                     unset($this->stTableSearchCols[$key]);
             }
 
-            $s = '';
-            foreach ($this->stTableSearchCols as $k => $v) {
+            $colLists = '';
+            $this->stTableSearchCols = array_values($this->stTableSearchCols);
+            foreach ($this->stTableSearchCols as $k => $colName) {
                 if ($k != 0)
-                    $s .= ',';
+                    $colLists .= ',';
                 else
-                    $s .= '';
-                $s .= '"' . $v . '"';
+                    $colLists .= '';
+                $colLists .= '"' . $colName . '"';
             }
-            $str = '$cols = [' . $s . '];';
+            $str = '$cols = [' . $colLists . '];';
             $str .= "\n\t\t".'$qb->join("a.'.$this->secondary_table.'", "b");';
             $search = '
                     if (in_array($column, $cols)) {
