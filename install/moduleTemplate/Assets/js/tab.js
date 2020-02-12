@@ -1,9 +1,9 @@
 $(document).ready(function(){
     var $body = $('body');
-    var selectedId = null;
+    var selectedId = 0;
 
     /**
-     * Open modal to update record
+     * Open tab to update record
      */
     $body.on("click", ".symfonytpl-btn-update", function(){
         // Opening tab form for add
@@ -12,10 +12,10 @@ $(document).ready(function(){
     });
 
     /**
-     * Open modal to add new record
+     * Open tab to add new record
      */
     $body.on("click", "#symfonytpl_btn_new", function(){
-        selectedId = null;
+        selectedId = 0;
         melisHelper.tabOpen(translations.tool_symfony_tpl_title, 'fa fa-puzzle-piece', '0_id_symfonytpl_tool_form', 'symfonytpl_tool_form', {id:0}, 'id_symfonytpl_tool');
     });
 
@@ -23,7 +23,7 @@ $(document).ready(function(){
      * Save
      */
     $body.on("click", "#btn-save-symfonytpl", function(){
-        if(selectedId == null)
+        if(selectedId == 0)
             save("/melis/symfonytpl/save");
         else
             save("/melis/symfonytpl/save/"+selectedId);
@@ -103,7 +103,7 @@ $(document).ready(function(){
             processData: false,
             beforeSend: function(){
                 //disable button
-                $("#btn-save-calendar").attr("disabled", true);
+                $("#btn-save-symfonytpl").attr("disabled", true);
                 //disable all fields
                 $("#symfonytpl_prop_form :input").prop("disabled", true);
             },
@@ -113,11 +113,17 @@ $(document).ready(function(){
 
                 data = $.parseJSON(data);
                 if(data.success) {
+
+                    // Close add/update tab zone
+                    $("a[data-id='" + selectedId + "_id_symfonytpl_tool_form']").trigger("click");
+                    //Assign id to selectedId
+                    selectedId = data.id;
+                    // Open new created/updated entry
+                    melisHelper.tabOpen(translations.tool_symfony_tpl_title + ' / ' + selectedId, 'fa fa-puzzle-piece', selectedId+'_id_symfonytpl_tool_form', 'symfonytpl_tool_form', {id: selectedId}, 'id_symfonytpl_tool');
+
                     melisHelper.melisOkNotification(data.title, data.message);
                     //refresh table
                     $("#symfonyTplTable").DataTable().ajax.reload();
-                    //assign null to selectedId id after saving/updating record
-                    selectedId = null;
                 }else{
                     melisHelper.melisKoNotification(data.title, data.message, data.errors);
                     highlightFormErrors(0, data.errors, "#symfonytpl_prop_form");

@@ -9,6 +9,7 @@
         try {
             $itemId = null;
             $result = [
+                'id' => $id,
                 'title' => 'SymfonyTpl',
                 'success' => true,
                 'message' => '',
@@ -26,6 +27,7 @@
                     $resSampleEntity = $this->saveSampleEntity($id, $request);
                     if ($resSampleEntity['success']) {
                         $itemId = $resSampleEntity['id'];
+                        $result['id'] = $itemId;
                     } else {
                         $result['errors'] = array_merge($result['errors'], $resSampleEntity['errors']);
                         $result['success'] = false;

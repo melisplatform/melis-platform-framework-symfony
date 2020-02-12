@@ -9,6 +9,7 @@
         try {
             $itemId = null;
             $result = [
+                'id' => $id,
                 'title' => 'SymfonyTpl',
                 'success' => true,
                 'message' => '',
@@ -42,6 +43,8 @@
                             if(!$langResult['success']){
                                 $result['errors'] = array_merge($result['errors'], $langResult['errors']);
                                 $result['success'] = false;
+                            }else{
+                                $result['id'] = $itemId;
                             }
                         }
                     } else {
