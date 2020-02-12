@@ -290,7 +290,7 @@ class SampleEntityController extends AbstractController
      */
     public function deleteSampleEntity(Request $request): JsonResponse
     {
-        $icon = 'glyphicon-warning-sign';
+        $icon = 'fa fa-exclamation-triangle';
         $typeCode = 'SYMFONYTPL_TOOL_DELETE';
         $id = $request->get('id', null);
 
@@ -308,9 +308,9 @@ class SampleEntityController extends AbstractController
             $entityManager->flush();
             $result['message'] = $translator->trans('tool_symfony_tpl_successfully_deleted');
             $result['success'] = true;
-            $icon = 'glyphicon-info-sign';
+            $icon = 'fa fa-info-circle';
         }catch (\Exception $ex){
-            throw new \Exception($ex->getMessage());
+            //cannot delete item
         }
 
         //add message notification

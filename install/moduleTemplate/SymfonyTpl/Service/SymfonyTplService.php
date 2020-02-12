@@ -172,9 +172,8 @@ class SymfonyTplService
      * @param string $icon
      * @throws \Exception
      */
-    public function addToFlashMessenger($title, $message, $icon = 'glyphicon-info-sign')
+    public function addToFlashMessenger($title, $message, $icon = 'fa fa-info-circle')
     {
-        $icon = 'glyphicon '.$icon;
         $flashMessenger = $this->melisServiceManager->getService('MelisCoreFlashMessenger');
         $flashMessenger->addToFlashMessenger($title, $message, $icon);
     }

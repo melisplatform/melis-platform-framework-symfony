@@ -57,11 +57,11 @@
                      */
                     if($result['success']){
                         $result['message'] = (empty($id)) ? $translator->trans('tool_symfony_tpl_successfully_saved') : $translator->trans('tool_symfony_tpl_successfully_updated');
-                        $icon = 'glyphicon-info-sign';
+                        $icon = 'fa fa-info-circle';
                         //commit the data
                         $this->connection->commit();
                     }else{
-                        $icon = 'glyphicon-warning-sign';
+                        $icon = 'fa fa-exclamation-triangle';
                         $result['message'] = (empty($id)) ? $translator->trans('tool_symfony_tpl_unable_to_save') : $translator->trans('tool_symfony_tpl_unable_to_update');
                         //rollback db
                         $this->connection->rollBack();
@@ -69,7 +69,7 @@
                 }
             } catch (\Exception $ex) {
                 $result['message'] = $ex->getMessage();
-                $icon = 'glyphicon-warning-sign';
+                $icon = 'fa fa-exclamation-triangle';
                 //rollback db
                 $this->connection->rollBack();
             }
