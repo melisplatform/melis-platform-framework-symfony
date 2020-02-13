@@ -1,7 +1,4 @@
 services:
-  MelisPlatformFrameworkSymfony\Controller\ModuleController:
-    autowire: true
-    public: true
   #Autowire All Repository
   MelisPlatformFrameworkSymfony\Repository\:
     autowire: true
