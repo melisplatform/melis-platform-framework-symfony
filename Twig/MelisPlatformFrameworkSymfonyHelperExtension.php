@@ -82,12 +82,12 @@ class MelisPlatformFrameworkSymfonyHelperExtension extends AbstractExtension
             foreach($modalConfig['tabs'] as $key => $tabData){
                 $active = (!$ctr) ? 'active' : '';
                 $header .= '<li class="'.$active.'">'.
-                                '<a href="#'.$key.'" class="'.$tabData["class"].'" data-toggle="tab" aria-expanded="true"><i></i>'.
+                                '<a href="#'.$key.'" class="li-anchor '.$tabData["class"].'" data-toggle="tab" aria-expanded="true"><i></i>'.
                                     '<p class="modal-tab-title">'.$tabData["title"].'</p>'.
                                 '</a>'.
                             '</li>';
 
-                $content .= '<div class="tab-pane '.$active.'" id="'.$key.'">'.$tabData['content'].'</div>';
+                $content .= '<div class="tab-pane tab-header-content '.$active.'" id="'.$key.'">'.$tabData['content'].'</div>';
                 $ctr++;
             }
 
@@ -101,7 +101,7 @@ class MelisPlatformFrameworkSymfonyHelperExtension extends AbstractExtension
                                 '<div class="wizard">'.
                                     '<div class="widget widget-tabs widget-tabs-double widget-tabs-responsive margin-none border-none">'.
                                         '<div class="widget-head">'.
-                                            '<ul class="nav nav-tabs">'
+                                            '<ul class="nav nav-tabs tab-header">'
                                                 .$header.
                                             '</ul>'.
                                         '</div>'.
