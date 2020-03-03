@@ -1,0 +1,18 @@
+{% block melisdate_row -%}
+    {% set attr = attr|merge({class: (attr.class|default('') ~ ' form-control')|trim}) %}
+    {% set selector = id ~ '_' ~ random(100) %}
+    <div class="form-group{% if (not compound or force_error|default(false)) and not valid %} has-error{% endif %}">
+        {{- form_label(form) }}
+        <div class="input-group date" id="{{ selector }}">
+            {{ form_widget(form) }}
+            <span class="input-group-addon">
+                <span class="glyphicon glyphicon-calendar"></span>
+            </span>
+        </div>
+    </div>
+    <script type="text/javascript">
+        var selector = "#{{ selector }}";
+        var format = "{{ attr.date_format }}";
+        $(selector).datetimepicker({format: format});
+    </script>
+{%- endblock melisdate_row %}

@@ -1,4 +1,9 @@
 services:
+  #Autowire All Repository
+  MelisPlatformFrameworkSymfony\Repository\:
+    autowire: true
+    resource: '../../Repository/*'
+    tags: ['doctrine.repository_service']
   #This will hold all the available
   #Melis Platform Services
   MelisPlatformFrameworkSymfony\MelisServiceManager:
