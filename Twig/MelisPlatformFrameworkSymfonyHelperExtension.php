@@ -38,6 +38,7 @@ class MelisPlatformFrameworkSymfonyHelperExtension extends AbstractExtension
     {
         return [
             new TwigFunction('create_modal', [$this, 'createModal']),
+            new TwigFunction('remove_key', [$this, 'removeKey']),
             //register melis platform helper
             new TwigFunction('melis_helper', [$this, 'getMelisPlatformHelper']),
         ];
@@ -46,61 +47,70 @@ class MelisPlatformFrameworkSymfonyHelperExtension extends AbstractExtension
     /**
      * Create modal
      * @param array $modalConfig - The information needed for modal
-     * @param array $btnSuccessConfig - The config needed for button success text and id. ex: ['id' => 'btnUpdate', 'text' => 'Update']
      * @return string
      */
-    public function createModal($modalConfig = [], $btnSuccessConfig = [])
+    public function createModal($modalConfig)
     {
-        //get translation
-        $translation = $this->container->get('translator');
-        /**
-         * Set modal default value
-         */
-        $modalConfig['id'] = $modalConfig['id'] ?? 'myModal';
-        $modalConfig['title'] = $modalConfig['title'] ?? 'Title';
-        $modalConfig['content'] = $modalConfig['content'] ?? 'Modal content';
-        $modalConfig['class'] = $modalConfig['class'] ?? 'glyphicons plus';
-        /**
-         * Set modal button success default settings
-         */
-        $btnSuccessConfig['id'] = $btnSuccessConfig['id'] ?? 'btn-save';
-        $btnSuccessConfig['text'] = $btnSuccessConfig['text'] ?? 'tool_modal_helper_btn_save';
+        if(!empty($modalConfig)){
+            //get translation
+            $translation = $this->container->get('translator');
+            /**
+             * Set modal default value
+             */
+            $modalConfig['id'] = $modalConfig['id'] ?? 'myModal';
+            /**
+             * Set modal button success default settings
+             */
+            $modalConfig['btnSubmitId'] = $modalConfig['btnSubmitId'] ?? 'btn-save';
+            $modalConfig['btnSubmitText'] = $modalConfig['btnSubmitText'] ?? 'Save';
 
-        $loader = '<div id="loader" class="overlay-loader hidden"><img class="loader-icon spinning-cog" src="/MelisCore/assets/images/cog12.svg" data-cog="cog12"></div>';
-        $modal =
-            '<div class="modal fade" id="'.$modalConfig['id'].'">'.
-                '<div class="modal-dialog" role="modal">'.
-                    '<div class="modal-content" id="'.$modalConfig['id'].'">'.
-                        $loader.
-                        '<div class="modal-body padding-none">'.
-                            '<div class="wizard">'.
-                                '<div class="widget widget-tabs widget-tabs-double widget-tabs-responsive margin-none border-none">'.
-                                    '<div class="widget-head">'.
-                                        '<ul class="nav nav-tabs">'.
-                                            '<li class="active">'.
-                                                '<a href="#myTab" class="'.$modalConfig['class'].'" data-toggle="tab" aria-expanded="true"><i></i>'.
-                                                    '<p class="modal-tab-title">'.$translation->trans($modalConfig['title']).'</p>'.
-                                                '</a>'.
-                                            '</li>'.
-                                        '</ul>'.
-                                    '</div>'.
-                                    '<div class="widget-body innerAll inner-2x">'.
-                                        '<div class="tab-content">'.
-                                            '<div class="tab-pane active" id="myTab">'.$modalConfig['content'].'</div>'.
+            $header = '';
+            $content = '';
+            $ctr = 0;
+            foreach($modalConfig['tabs'] as $key => $tabData){
+                $active = (!$ctr) ? 'active' : '';
+                $header .= '<li class="'.$active.'">'.
+                                '<a href="#'.$key.'" class="li-anchor '.$tabData["class"].'" data-toggle="tab" aria-expanded="true"><i></i>'.
+                                    '<p class="modal-tab-title">'.$tabData["title"].'</p>'.
+                                '</a>'.
+                            '</li>';
+
+                $content .= '<div class="tab-pane tab-header-content '.$active.'" id="'.$key.'">'.$tabData['content'].'</div>';
+                $ctr++;
+            }
+
+            $loader = '<div id="loader" class="overlay-loader hidden"><img class="loader-icon spinning-cog" src="/MelisCore/assets/images/cog12.svg" data-cog="cog12"></div>';
+            $modal =
+                '<div class="modal fade" id="'.$modalConfig['id'].'">'.
+                    '<div class="modal-dialog" role="modal">'.
+                        '<div class="modal-content" id="'.$modalConfig['id'].'">'.
+                            $loader.
+                            '<div class="modal-body padding-none">'.
+                                '<div class="wizard">'.
+                                    '<div class="widget widget-tabs widget-tabs-double widget-tabs-responsive margin-none border-none">'.
+                                        '<div class="widget-head">'.
+                                            '<ul class="nav nav-tabs tab-header">'
+                                                .$header.
+                                            '</ul>'.
                                         '</div>'.
-                                        '<div class="footer-modal d-flex flex-row justify-content-between">'.
-                                            '<button type="button" data-dismiss="modal" class="btn btn-danger float-left">'.$translation->trans('tool_modal_helper_btn_cancel').'</button>'.
-                                            '<button type="button" class="btn btn-success" id="'.$btnSuccessConfig['id'].'">'.$translation->trans($btnSuccessConfig['text']).'</button>'.
+                                        '<div class="widget-body innerAll inner-2x">'.
+                                            '<div class="tab-content">'.$content.'</div>'.
+                                            '<div align="right">'.
+                                                '<button type="button" data-dismiss="modal" class="btn btn-danger pull-left">'.$translation->trans('tool_modal_helper_btn_cancel').'</button>'.
+                                                '<button type="button" class="btn btn-success" id="'.$modalConfig['btnSubmitId'].'">'.$translation->trans($modalConfig['btnSubmitText']).'</button>'.
+                                            '</div>'.
                                         '</div>'.
                                     '</div>'.
                                 '</div>'.
                             '</div>'.
                         '</div>'.
                     '</div>'.
-                '</div>'.
-            '</div>';
+                '</div>';
 
-        return $modal;
+            return $modal;
+        }else{
+            return '';
+        }
     }
 
     /**
@@ -152,9 +162,12 @@ class MelisPlatformFrameworkSymfonyHelperExtension extends AbstractExtension
                     /**
                      * Check parameters to apply
                      */
-                    if (!empty($params))
-                        return call_user_func_array($helper, $params);
-                    else
+                    if (!empty($params)) {
+                        if(is_array($params))
+                            return call_user_func_array($helper, (array)$params);
+                        else
+                            return $helper($params);
+                    }else
                         return $helper();
                 } else {
                     return '';

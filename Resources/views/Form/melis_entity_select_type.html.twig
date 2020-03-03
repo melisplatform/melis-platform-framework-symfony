@@ -1,0 +1,13 @@
+{% block melisentityselect_row -%}
+    {% set attr = attr|merge({class: (attr.class|default('') ~ ' form-control')|trim}) %}
+    {% if attr['select_options'] is defined %}
+        {% set options = attr['select_options'] %}
+        {% set options = options|merge({'placeholder': options['placeholder']|trans({}, translation_domain)}) %}
+        {% set attr = remove_key('select_options', attr) %}
+    {% endif %}
+    {{- block('form_row') }}
+    <script type="text/javascript">
+        $("#{{ id }}").select2({{ options|default({})|json_encode|raw }});
+        $("#{{ id }}").next("span").css("width", "100%");
+    </script>
+{%- endblock melisentityselect_row %}
