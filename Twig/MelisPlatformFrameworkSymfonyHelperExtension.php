@@ -45,6 +45,18 @@ class MelisPlatformFrameworkSymfonyHelperExtension extends AbstractExtension
     }
 
     /**
+     * Unset key from array
+     * @param $key
+     * @param $array
+     * @return mixed
+     */
+    public function removeKey($key, $array)
+    {
+        unset($array[$key]);
+        return $array;
+    }
+
+    /**
      * Create modal
      * @param array $modalConfig - The information needed for modal
      * @return string
