@@ -52,33 +52,17 @@ class DatabaseSwitcherListener
                  * to apply it on symfony
                  */
                 $melisDb = $melisConfig['db'];
-                $melisDbDSN = explode(';', $melisDb['dsn']);
-                $dbName = '';
-                $host = '';
-                $charset = '';
-                /**
-                 * We need to extract the db name and other
-                 * information inside DSN
-                 */
-                foreach($melisDbDSN as $val){
-                    $data = explode('=', $val);
-                    if(!empty($data[1])){
-                        $dbName = (strpos($data[0], 'dbname') !== false && empty($dbName)) ? $data[1] : $dbName;
-                        $host = (strpos($data[0], 'host') !== false && empty($host)) ? $data[1] : $host;
-                        $charset = (strpos($data[0], 'charset') !== false && empty($charset)) ? $data[1] : $charset;
-                    }
-                }
                 /**
                  * get connection params
                  */
                 $conParams = $this->connection->getParams();
-                if($conParams['dbname'] != $dbName && !empty($dbName)) {
+                if($conParams['dbname'] != $melisDb['database'] && !empty($melisDb['database'])) {
                     /**
                      * Prepare the new connection parameters
                      */
-                    $conParams['dbname'] = $dbName;
-                    $conParams['charset'] = $charset;
-                    $conParams['host'] = $host;
+                    $conParams['dbname'] = $melisDb['database'];
+                    $conParams['charset'] = $melisDb['charset'];
+                    $conParams['host'] = $melisDb['hostname'];
                     $conParams['user'] = $melisDb['username'];
                     $conParams['password'] = $melisDb['password'];
                     /**
