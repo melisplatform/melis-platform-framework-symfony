@@ -128,7 +128,7 @@ class MelisPlatformFrameworkSymfonyHelperExtension extends AbstractExtension
     /**
      * Register Melis Platform helper using the TwigFunction
      * Example usage inside view(twig template):
-     *      melis_helper('melislink', null, [1, true]) - helper reference: MelisFront\View\Helper\MelisLinksHelper.php
+     *      melis_helper('MelisLink', null, [1, true]) - helper reference: MelisFront\View\Helper\MelisLinksHelper.php
      *
      * Parameters:
      *      1st param - melis helper name
@@ -144,49 +144,43 @@ class MelisPlatformFrameworkSymfonyHelperExtension extends AbstractExtension
     public function getMelisPlatformHelper($helperName, $functionName = null, $params = null)
     {
         /**
-         * Check if helper is in the list
-         * of melis helper
+         * Get helper
          */
-        if(in_array($helperName, $this->melisServiceManager->getMelisHelperList())) {
-            $helperName = strtolower($helperName);
-            $helper = $this->viewHelperManager->get($helperName);
+        $helper = $this->viewHelperManager->get($helperName);
+        /**
+         * Check function name if not empty
+         * to execute it
+         */
+        if (!empty($functionName)) {
             /**
-             * Check function name if not empty
-             * to execute it
+             * Check parameters to apply
              */
-            if (!empty($functionName)) {
+            if (!empty($params))
+                return $helper->$functionName($params);
+            else
+                return $helper->$functionName();
+        } else {
+            //get helper method list
+            $methods = get_class_methods(get_class($helper));
+            /**
+             * If the helper has an __invoke method,
+             * then we execute it
+             */
+            $invoke = '__invoke';
+            if (in_array($invoke, $methods)) {
                 /**
                  * Check parameters to apply
                  */
-                if (!empty($params))
-                    return $helper->$functionName($params);
-                else
-                    return $helper->$functionName();
+                if (!empty($params)) {
+                    if(is_array($params))
+                        return call_user_func_array($helper, (array)$params);
+                    else
+                        return $helper($params);
+                }else
+                    return $helper();
             } else {
-                //get helper method list
-                $methods = get_class_methods(get_class($helper));
-                /**
-                 * If the helper has an __invoke method,
-                 * then we execute it
-                 */
-                $invoke = '__invoke';
-                if (in_array($invoke, $methods)) {
-                    /**
-                     * Check parameters to apply
-                     */
-                    if (!empty($params)) {
-                        if(is_array($params))
-                            return call_user_func_array($helper, (array)$params);
-                        else
-                            return $helper($params);
-                    }else
-                        return $helper();
-                } else {
-                    return '';
-                }
+                return '';
             }
-        }else{
-            throw new \Exception('Unrecognized helper name: '. $helperName);
         }
     }
 }
