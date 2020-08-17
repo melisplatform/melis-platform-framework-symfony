@@ -3,7 +3,7 @@
 namespace MelisPlatformFrameworkSymfony\EventListener;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Zend\Config\Writer\PhpArray;
+use Laminas\Config\Writer\PhpArray;
 
 /**
  * Class SymfonyTranslationsListener
@@ -46,7 +46,7 @@ class SymfonyTranslationsListener
                     $transList = $translator->getCatalogue()->all('messages');
 
                     /**
-                     * We use zend PhpArray to store
+                     * We use Laminas PhpArray to store
                      * the translations to the file
                      */
                     $writer = new PhpArray();

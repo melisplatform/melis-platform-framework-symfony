@@ -2,8 +2,8 @@
 
 namespace MelisPlatformFrameworkSymfony;
 
-use Zend\Mvc\Application;
-use Zend\Session\Container;
+use Laminas\Mvc\Application;
+use Laminas\Session\Container;
 
 /**
  * This class is the gateway in order for
@@ -117,12 +117,12 @@ class MelisServiceManager
     }
 
     /**
-     * Get zend service manager
-     * that holds all the zend services
+     * Get Laminas service manager
+     * that holds all the services
      *
      * @throws \Exception
      */
-    protected function getZendServiceManager()
+    protected function getLaminasServiceManager()
     {
         // get melisplatform app config
         $applicationConfig = $_SERVER['DOCUMENT_ROOT'] . "/../config/application.config.php";
@@ -130,7 +130,7 @@ class MelisServiceManager
         $moduleLoad = $_SERVER['DOCUMENT_ROOT'] . "/../config/melis.module.load.php";
         //check if file exist
         if(!file_exists($applicationConfig))
-            throw new \Exception("Zend application config missing");
+            throw new \Exception("Laminas application config missing");
 
         if(!file_exists($moduleLoad))
             throw new \Exception("Melis module load file missing");
@@ -141,43 +141,28 @@ class MelisServiceManager
         $melisModuleLoad = include $moduleLoad;
         // merge modules in front and back office
         $configuration['modules'] = array_unique(array_merge($configuration['modules'], $melisModuleLoad));
-        // get the zend application
-        $zendApplication = Application::init($configuration);
-        //return zend service manager
-        return $zendApplication;
+        // get the laminas application
+        $application = Application::init($configuration);
+        //return laminas service manager
+        return $application;
     }
 
     /**
-     * @return array
-     * @throws \Exception
-     */
-    public function getMelisHelperList()
-    {
-          //get all list of helpers
-        $registerdViewHelpers = $this->getViewHelperManager()->getRegisteredServices();
-        $zendMelisViewHelpers = $registerdViewHelpers['invokableClasses'];
-        $zendMelisViewHelpers = array_merge($zendMelisViewHelpers,$registerdViewHelpers['aliases']);
-        $zendMelisViewHelpers = array_merge($zendMelisViewHelpers,$registerdViewHelpers['factories']);
-
-        return $zendMelisViewHelpers;
-    }
-
-    /**
-     * @return \Zend\ServiceManager\ServiceManager
+     * @return \Laminas\ServiceManager\ServiceManager
      * @throws \Exception
      */
     public function getServiceManager()
     {
-        return $this->getZendServiceManager()->getServiceManager();
+        return $this->getLaminasServiceManager()->getServiceManager();
     }
 
     /**
-     * @return \Zend\EventManager\EventManagerInterface
+     * @return \Laminas\EventManager\EventManagerInterface
      * @throws \Exception
      */
     public function getEventManager()
     {
-        return $this->getZendServiceManager()->getEventManager();
+        return $this->getLaminasServiceManager()->getEventManager();
     }
 
     /**
@@ -186,6 +171,6 @@ class MelisServiceManager
      */
     public function getViewHelperManager()
     {
-        return $this->getService('viewhelpermanager');
+        return $this->getService('ViewHelperManager');
     }
 }
