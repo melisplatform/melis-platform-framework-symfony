@@ -44,7 +44,7 @@
 		"symfony/http-client": "^4.3|^4.4",
 		"symfony/intl": "^4.3|^4.4",
 		"symfony/monolog-bundle": "^3.1",
-		"symfony/orm-pack": "1.0.6",
+		"symfony/orm-pack": "2.2.0",
 		"symfony/security-bundle": "^4.3|^4.4",
 		"doctrine/annotations": "^1.0",
 		"phpdocumentor/reflection-docblock": "^4.3|^5.1",
