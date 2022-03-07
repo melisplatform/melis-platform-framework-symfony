@@ -58,7 +58,8 @@
 		"symfony/process": "^4.3|^4.4",
 		"symfony/validator": "^4.3|^4.4",
 		"symfony/web-link": "^4.3|^4.4",
-		"symfony/yaml": "^4.3|^4.4",		
+		"symfony/yaml": "^4.3|^4.4",
+		"psr/cache": "^1.0",
 		"doctrine/common": "2.13.3"
 	},
 	"require-dev": {
