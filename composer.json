@@ -60,10 +60,7 @@
 		"symfony/yaml": "^4.3|^4.4",
 		"psr/cache": "^1.0",
 		"doctrine/common": "2.13.3",
-		"composer/package-versions-deprecated": "1.8.0",
-		"doctrine/doctrine-migrations-bundle": "2.2.3",
-		"doctrine/migrations": "2.3.5",                
-		"doctrine/orm": "2.7.5"  
+		"composer/package-versions-deprecated": "1.8.0"
 	},
 	"require-dev": {
 		"symfony/debug-pack": "*",
