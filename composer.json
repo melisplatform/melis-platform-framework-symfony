@@ -60,7 +60,7 @@
 		"symfony/web-link": "^4.3|^4.4",
 		"symfony/yaml": "^4.3|^4.4",
 		"psr/cache": "^1.0",
-		"doctrine/orm": "2.7.3"
+		"doctrine/orm": "2.5.11"
 	},
 	"require-dev": {
 		"symfony/debug-pack": "*",
