@@ -60,7 +60,10 @@
 		"symfony/yaml": "^5.4",
 		"psr/cache": "1.0.1",
 		"doctrine/common": "^3.2.2",
-		"composer/package-versions-deprecated": "^1.11"
+		"composer/package-versions-deprecated": "^1.11",
+		"symfony/error-handler": "^5.4",
+		"symfony/twig-bridge": "^5.4",
+		"symfony/http-foundation": "^5.4"
 	},
 	"require-dev": {
 		"symfony/debug-pack": "*",
