@@ -81,7 +81,10 @@
 		"symfony/maker-bundle": "^1.38",
 		"symfony/profiler-pack": "*",
 		"symfony/test-pack": "*",
-		"symfony/web-server-bundle": "^4.4"
+		"symfony/web-server-bundle": "^4.4",
+		"symfony/debug-bundle": "5.4.*",   
+        "symfony/stopwatch": "5.4.*",
+        "symfony/web-profiler-bundle": "5.4.*"
 	},
 	"autoload": {
 		"psr-4": {
