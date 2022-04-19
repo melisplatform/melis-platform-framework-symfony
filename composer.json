@@ -74,7 +74,8 @@
         "symfony/runtime": "5.4.*",
         "symfony/webapp-meta": "^1.0",
         "symfony/webpack-encore-bundle": "^1.12",
-        "twig/extra-bundle": "^2.12|^3.0"
+        "twig/extra-bundle": "^2.12|^3.0",
+        "symfony/event-dispatcher" : "^5.4"
 	},
 	"require-dev": {
 		"symfony/debug-pack": "*",
