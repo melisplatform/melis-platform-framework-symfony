@@ -85,7 +85,9 @@
 		"symfony/options-resolver" : "^5.4",
 		"symfony/password-hasher" : "^5.4",
 		"symfony/security-csrf" : "^5.4",
-		"symfony/var-exporter" : "^5.4"
+		"symfony/var-exporter" : "^5.4",
+		"symfony/amqp-messenger" : "^5.4",
+		"symfony/redis-messenger" : "^5.4"
 	},
 	"require-dev": {
 		"symfony/debug-pack": "*",
