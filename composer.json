@@ -77,7 +77,7 @@
         "twig/extra-bundle": "^2.12|^3.0",
         "symfony/event-dispatcher" : "^5.4",
         "symfony/proxy-manager-bridge" : "^5.4",
-        "laminas/laminas-code" : "^3.5"
+        "laminas/laminas-code" : "~3.4.1"
 	},
 	"require-dev": {
 		"symfony/debug-pack": "*",
