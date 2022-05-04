@@ -77,7 +77,6 @@
         "twig/extra-bundle": "^2.12|^3.0",
         "symfony/event-dispatcher" : "^5.4",
         "symfony/proxy-manager-bridge" : "^5.4",
-        "laminas/laminas-code" : "~3.4.1",
         "doctrine/migrations" : "3.4.2",
 		"symfony/stopwatch" : "^5.4",
 		"symfony/routing" : "^5.4",
