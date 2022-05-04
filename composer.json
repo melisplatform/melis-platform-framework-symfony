@@ -87,7 +87,8 @@
 		"symfony/var-exporter" : "^5.4",
 		"symfony/amqp-messenger" : "^5.4",
 		"symfony/redis-messenger" : "^5.4",
-		"symfony/event-dispatcher-contracts" : "^2.5"
+		"symfony/event-dispatcher-contracts" : "^2.5",
+		"psr/link" : "1.0.0"
 	},
 	"require-dev": {
 		"symfony/debug-pack": "*",
