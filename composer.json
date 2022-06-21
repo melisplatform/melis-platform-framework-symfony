@@ -29,7 +29,7 @@
 	},
 	"require": {
 		"php": "^8.0",
-		"melisplatform/melis-platform-frameworks": "^4.0",
+		"melisplatform/melis-platform-frameworks": "^5.0",
 		"ext-ctype": "*",
 		"ext-iconv": "*",		
 		"sensio/framework-extra-bundle": "^6.2",
