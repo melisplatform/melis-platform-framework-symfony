@@ -4,7 +4,7 @@ namespace MelisPlatformFrameworkSymfony\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use MelisPlatformFrameworkSymfony\Entity\MelisCmsSite;
-use Symfony\Bridge\Doctrine\RegistryInterface;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method MelisCmsSite|null find($id, $lockMode = null, $lockVersion = null)
@@ -15,9 +15,9 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
 class MelisCmsSiteRepository extends ServiceEntityRepository
 {
     /**
-     * @param RegistryInterface $registry
+     * @param ManagerRegistry $registry
      */
-    public function __construct(RegistryInterface $registry)
+    public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, MelisCmsSite::class);
     }
