@@ -89,7 +89,7 @@
 		"symfony/redis-messenger" : "^5.4",
 		"symfony/event-dispatcher-contracts" : "^2.5",
 		"psr/link" : "1.0.0",
-		"laminas/laminas-code" : "3.5.1"
+		"laminas/laminas-code" : "3.4.1"
 	},
 	"require-dev": {
 		"symfony/debug-pack": "*",
