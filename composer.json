@@ -54,7 +54,7 @@
 		"symfony/translation": "^6.4",
 		"twig/twig": "^3.8",
 		"symfony/twig-bundle": "^6.4",
-		"symfony/process": "^6.4",
+		"symfony/process": "^6.4|^7.0",
 		"symfony/validator": "^6.4",
 		"symfony/web-link": "^6.4",
 		"symfony/yaml": "^6.4",
