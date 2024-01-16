@@ -29,7 +29,7 @@
 	},
 	"require": {
 		"php": "^8.1|^8.3",
-		"melisplatform/melis-platform-frameworks": "dev-update/php83",
+		"melisplatform/melis-platform-frameworks": "*",
 		"ext-ctype": "*",
 		"ext-iconv": "*",
 		"symfony/dependency-injection": "^6.4",
