@@ -61,7 +61,7 @@
 		"symfony/validator": "^6.4",
 		"symfony/web-link": "^6.4",
 		"symfony/yaml": "^6.4",
-		"psr/cache": "^1.0",
+		"psr/cache": "^1.0|^2.0|^3.0",
 		"symfony/error-handler": "^6.4",
 		"symfony/twig-bridge": "^6.4",
 		"symfony/http-foundation": "^6.4",
